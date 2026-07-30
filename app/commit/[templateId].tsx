@@ -1,6 +1,6 @@
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useStripe } from '@stripe/stripe-react-native';
+import { useStripe } from '@/lib/payments/stripe';
 import { useState } from 'react';
 import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { CharityChoice, CustomStakeInput, StakeChoice } from '@/components/commit';

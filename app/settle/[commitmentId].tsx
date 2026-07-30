@@ -14,6 +14,10 @@ import type { GlassReceipt } from '@/lib/settlement/types';
 
 type ViewState = 'loading' | 'ready' | 'error';
 
+export function generateStaticParams() {
+  return [{ commitmentId: 'demo-success' }, { commitmentId: 'demo-fail' }];
+}
+
 export default function SettleScreen() {
   const { commitmentId } = useLocalSearchParams<{ commitmentId: string }>();
   const [receipt, setReceipt] = useState<GlassReceipt>();

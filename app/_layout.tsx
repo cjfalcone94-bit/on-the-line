@@ -2,7 +2,7 @@ import { Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
-import { StripeProvider } from '@stripe/stripe-react-native';
+import { StripeProvider } from '@/lib/payments/stripe';
 import { color } from '@/design/tokens';
 import { env } from '@/lib/env';
 

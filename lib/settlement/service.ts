@@ -19,15 +19,21 @@ const demoReceipts: Record<string, GlassReceipt> = {
 
 export async function getGlassReceipt(
   commitmentId: string,
-  client: SupabaseClient = getSupabaseClient(),
+  client?: SupabaseClient,
 ): Promise<GlassReceipt> {
-  if (demoReceipts[commitmentId]) return demoReceipts[commitmentId];
-  const { data: auth, error: authError } = await client.auth.getUser();
+  // Static web hosts can expose generated dynamic routes with an .html suffix.
+  const webRouteCommitmentId = typeof globalThis.location !== 'undefined'
+    ? globalThis.location.pathname.match(/\/settle\/([^/.]+)/)?.[1]
+    : undefined;
+  const normalizedCommitmentId = (webRouteCommitmentId ?? commitmentId).replace(/\.html$/, '');
+  if (demoReceipts[normalizedCommitmentId]) return demoReceipts[normalizedCommitmentId];
+  const activeClient = client ?? getSupabaseClient();
+  const { data: auth, error: authError } = await activeClient.auth.getUser();
   if (authError || !auth.user) throw new Error('session_required');
-  const { data, error } = await client
+  const { data, error } = await activeClient
     .from('glass_receipts')
     .select('id, commitment_id, outcome, stake_cents, base_fee_cents, success_fee_cents, charity_destination_id, processor_stake_reference, processor_transfer_reference, settled_at')
-    .eq('commitment_id', commitmentId)
+    .eq('commitment_id', normalizedCommitmentId)
     .single();
   if (error || !data) throw new Error('receipt_unavailable');
   return {

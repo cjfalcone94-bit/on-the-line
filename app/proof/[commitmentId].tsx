@@ -13,6 +13,10 @@ import { createProofDraft, type ProofDraft } from '@/lib/proof/types';
 
 type ScreenState = 'capture' | 'uploading' | 'queued' | 'submitted' | 'error';
 
+export function generateStaticParams() {
+  return [{ commitmentId: 'demo-proof' }];
+}
+
 export default function ProofScreen() {
   const { commitmentId, templateId } = useLocalSearchParams<{ commitmentId: string; templateId: string }>();
   const template = findTemplate(templateId);
