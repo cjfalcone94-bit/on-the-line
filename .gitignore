@@ -45,3 +45,6 @@ yarn-error.*
 
 # ASC API key (secret) — never commit
 credentials/*.p8
+
+credentials/
+credentials.json

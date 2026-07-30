@@ -16,7 +16,7 @@
     },
     "production": {
       "autoIncrement": true,
-      "credentialsSource": "remote",
+      "credentialsSource": "local",
       "env": {
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
