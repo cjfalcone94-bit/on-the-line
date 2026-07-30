@@ -12,12 +12,16 @@ type PublicEnvironment = Readonly<{
     enabled: boolean;
     dsn?: string;
   };
+  stripe?: {
+    publishableKey?: string;
+  };
 }>;
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 const posthogKey = process.env.EXPO_PUBLIC_POSTHOG_KEY;
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
+const stripePublishableKey = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
 export const env: PublicEnvironment = Object.freeze({
   supabase: {
@@ -32,6 +36,9 @@ export const env: PublicEnvironment = Object.freeze({
   sentry: {
     enabled: Boolean(sentryDsn),
     dsn: sentryDsn,
+  },
+  stripe: {
+    publishableKey: stripePublishableKey,
   },
 });
 

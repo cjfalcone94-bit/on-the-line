@@ -12,9 +12,14 @@ npm run lint
 npm test -- --ci
 ```
 
-Copy `.env.example` to `.env` and supply the public Supabase anon key through
-the project vault. Observability remains disabled until its environment values
-are configured; analytics additionally requires explicit user consent.
+Copy `.env.example` to `.env` and inject the public Supabase and Stripe
+publishable keys through the project vault. `STRIPE_SECRET_KEY` is server-only
+and belongs in Supabase Edge Function secrets, never in an Expo client env.
+Observability remains disabled until configured; analytics additionally
+requires explicit user consent.
 
-Sprint scope is recorded in `gates/SPRINT-DOD.md`. Product features are
-deliberately absent from this foundations scaffold.
+The Sprint 3 commit flow uses Stripe PaymentSheet tokenization and
+`create-commitment-authorization`: the PaymentIntent is created with manual
+capture, and a commitment row is persisted only after Stripe reports
+`requires_capture` with zero received. Apply
+`supabase/migrations/0002_commitments.sql` before deploying the function.

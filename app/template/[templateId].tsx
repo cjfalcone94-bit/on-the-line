@@ -37,8 +37,8 @@ export default function TemplateDetailScreen() {
             </View>
           ))}
         </View>
-        <PrimaryButton accessibilityLabel="Back to all goal templates" onPress={() => router.back()}>
-          Back to catalog
+        <PrimaryButton accessibilityLabel={`Commit to ${template.title}`} onPress={() => router.push(`/commit/${template.id}`)}>
+          Set stake
         </PrimaryButton>
       </View>
     </SafeAreaView>

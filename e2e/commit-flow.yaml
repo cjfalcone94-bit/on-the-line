@@ -1,0 +1,21 @@
+appId: dev.falconlabs.ontheline
+---
+- launchApp:
+    clearState: true
+- tapOn: "Browse goal templates"
+- tapOn: "Daily outdoor walk"
+- tapOn: "Set stake"
+- assertVisible: "Put a clear amount on it."
+- tapOn:
+    id: "stake-4000"
+- tapOn: "Choose charity"
+- assertVisible: "[HELD — charity badge pending founder]"
+- tapOn:
+    id: "charity-direct-relief"
+- tapOn: "Review the mechanic"
+- assertVisible: "If you succeed, you pay nothing."
+- tapOn: "Continue to card authorization"
+- assertVisible: "Authorize, don’t charge."
+- tapOn: "Authorize card — no charge"
+# Stripe is mocked in the CI/E2E test build.
+- assertVisible: "Authorized, not charged."

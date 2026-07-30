@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/ui": "~57.0.8",
     "@sentry/react-native": "~7.11.0",
+    "@stripe/stripe-react-native": "0.64.0",
     "@supabase/supabase-js": "^2.109.0",
     "@tanstack/react-query": "^5.101.4",
     "expo": "~57.0.9",

@@ -2,7 +2,9 @@ import { Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
+import { StripeProvider } from '@stripe/stripe-react-native';
 import { color } from '@/design/tokens';
+import { env } from '@/lib/env';
 
 import { initInstrumentation } from '@/lib/instrumentation';
 
@@ -23,14 +25,16 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Stack
-        screenOptions={{
-          animation: reduceMotion ? 'none' : 'slide_from_right',
-          contentStyle: { backgroundColor: color.surface },
-          headerShown: false,
-        }}
-      />
-    </QueryClientProvider>
+    <StripeProvider publishableKey={env.stripe?.publishableKey ?? ''}>
+      <QueryClientProvider client={queryClient}>
+        <Stack
+          screenOptions={{
+            animation: reduceMotion ? 'none' : 'slide_from_right',
+            contentStyle: { backgroundColor: color.surface },
+            headerShown: false,
+          }}
+        />
+      </QueryClientProvider>
+    </StripeProvider>
   );
 }

@@ -1,0 +1,2 @@
+[functions.create-commitment-authorization]
+verify_jwt = true
