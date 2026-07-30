@@ -98,7 +98,19 @@ Deno.serve(async (request) => {
     .select('id, submitted_at')
     .maybeSingle();
   if (error) return response({ error: 'submission_failed' }, 500);
-  if (data) return response({ id: data.id, submittedAt: data.submitted_at, slaHours: 24 }, 201);
+  if (data) {
+    const internalSecret = Deno.env.get('VERIFICATION_INTERNAL_SECRET');
+    if (internalSecret) {
+      EdgeRuntime.waitUntil(fetch(`${url}/functions/v1/ai-first-pass`, {
+        body: JSON.stringify({
+          submissionId: data.id,
+        }),
+        headers: { 'Content-Type': 'application/json', 'x-internal-secret': internalSecret },
+        method: 'POST',
+      }));
+    }
+    return response({ id: data.id, submittedAt: data.submitted_at, slaHours: 24 }, 201);
+  }
 
   const { data: existing } = await admin
     .from('proof_submissions')

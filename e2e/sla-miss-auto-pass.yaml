@@ -1,0 +1,9 @@
+appId: dev.falconlabs.ontheline
+---
+- launchApp
+# Seeded test state deep-links to a submission whose SLA sweep resolved in the
+# user's favour. The fixture is supplied by the internal E2E environment.
+- openLink: "ontheline://verify/e2e-sla-auto-pass"
+- assertVisible:
+    id: "verification-passed"
+- assertVisible: "A timeout can never count against you."

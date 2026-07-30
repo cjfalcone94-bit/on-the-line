@@ -1,0 +1,10 @@
+appId: dev.falconlabs.ontheline
+---
+- launchApp
+- openLink: "ontheline://verify/e2e-human-fail"
+- assertVisible:
+    id: "verification-needs_review"
+- tapOn:
+    id: "appeal-decision"
+- assertVisible:
+    id: "verification-appealed"

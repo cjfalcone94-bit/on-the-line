@@ -3,3 +3,8 @@ verify_jwt = true
 
 [functions.submit-proof]
 verify_jwt = true
+[functions.sla-sweep]
+verify_jwt = false
+
+[functions.ai-first-pass]
+verify_jwt = false

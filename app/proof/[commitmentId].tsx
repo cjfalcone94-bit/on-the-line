@@ -20,6 +20,7 @@ export default function ProofScreen() {
   const [state, setState] = useState<ScreenState>('capture');
   const [online, setOnline] = useState<boolean | null>(null);
   const [slaHours, setSlaHours] = useState(24);
+  const [submissionId, setSubmissionId] = useState<string>();
   const draft = useMemo<ProofDraft | undefined>(() => {
     if (!photoUri || !template || !commitmentId) return undefined;
     return createProofDraft({
@@ -74,6 +75,7 @@ export default function ProofScreen() {
     try {
       const result = await submitProof(draft);
       setSlaHours(result.slaHours);
+      setSubmissionId(result.id);
       setState('submitted');
     } catch {
       setState('error');
@@ -109,7 +111,7 @@ export default function ProofScreen() {
           <StatePanel title="Saved offline." body="Saved — will submit when you are back online. Verification cannot start until then." actionLabel="Done" onAction={() => router.replace('/catalog')} />
         ) : null}
         {state === 'submitted' ? (
-          <StatePanel title="Submitted — under review." body={`SLA: within ${slaHours} hours. Your photo and fixed checklist are locked to this submission.`} actionLabel="Done" onAction={() => router.replace('/catalog')} />
+          <StatePanel title="Submitted — under review." body={`Published SLA: within ${slaHours} hours. If that deadline is missed, this proof automatically passes in your favour — never against you.`} actionLabel="View status" onAction={() => router.replace({ pathname: '/verify/[submissionId]', params: { submissionId } })} />
         ) : null}
         {state === 'error' ? (
           <StatePanel title="Your proof was not submitted." body="Check photo access and your connection, then try again. No financial outcome changed." actionLabel="Try again" onAction={() => setState('capture')} />
