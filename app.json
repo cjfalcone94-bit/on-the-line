@@ -8,7 +8,10 @@
     "scheme": "ontheline",
     "userInterfaceStyle": "dark",
     "ios": {
-      "bundleIdentifier": "com.falconlabs.ontheline"
+      "bundleIdentifier": "com.falconlabs.ontheline",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.falconlabs.ontheline",
