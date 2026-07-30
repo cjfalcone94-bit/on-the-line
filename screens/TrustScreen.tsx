@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { HeldArtwork, PrimaryButton, ScreenHeader } from '@/components';
+import { OnboardingArtwork, PrimaryButton, ScreenHeader } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { facts } from './trustContent';
@@ -15,7 +15,7 @@ export default function TrustScreen() {
     <SafeAreaView style={styles.safe} testID="trust-screen">
       <View style={styles.container}>
         <ScreenHeader eyebrow="How this works" title="Nothing hidden." />
-        <HeldArtwork />
+        <OnboardingArtwork />
         <View style={styles.facts}>
           {facts.map(({ number, title, body }) => (
             <View accessible accessibilityLabel={`${title}. ${body}`} key={number} style={styles.fact}>

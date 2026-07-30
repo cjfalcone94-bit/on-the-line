@@ -1,6 +1,6 @@
 import { facts } from '@/screens/trustContent';
 import { render } from '@testing-library/react-native';
-import { HeldArtwork } from '@/components';
+import { OnboardingArtwork } from '@/components';
 
 describe('trust screen content', () => {
   it('states authorization, success, and charity-only failure plainly', () => {
@@ -19,9 +19,8 @@ describe('trust screen content', () => {
     expect(copy).not.toMatch(/jackpot|bet the house|!/);
   });
 
-  it('renders the required founder-handoff HOLD instead of fake artwork', () => {
-    const { getByTestId, getByText } = render(<HeldArtwork />);
-    expect(getByTestId('founder-artwork-hold')).toBeTruthy();
-    expect(getByText('[HELD — onboarding illustration pending founder]')).toBeTruthy();
+  it('renders the founder-delivered onboarding illustration', () => {
+    const { getByTestId } = render(<OnboardingArtwork />);
+    expect(getByTestId('onboarding-artwork')).toBeTruthy();
   });
 });

@@ -1,1 +1,1 @@
-export { HeldArtwork, PrimaryButton, ScreenHeader, StatePanel } from './ui';
+export { OnboardingArtwork, PrimaryButton, ScreenHeader, StatePanel } from './ui';

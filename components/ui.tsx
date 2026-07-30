@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from 'react';
-import { Pressable, StyleSheet, Text, View, type PressableProps } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View, type PressableProps } from 'react-native';
 import { color, space, type } from '@/design/tokens';
 
 export function ScreenHeader({ eyebrow, title, body }: { eyebrow: string; title: string; body?: string }) {
@@ -24,17 +24,16 @@ export function PrimaryButton({ children, style, ...props }: PropsWithChildren<P
   );
 }
 
-export function HeldArtwork() {
+export function OnboardingArtwork() {
   return (
-    <View
+    <Image
+      accessibilityLabel="How it works: authorize a card hold, verify your goal against its checklist, then either nothing is charged or the forfeit is sent to your chosen charity."
       accessible
-      accessibilityLabel="Held. Onboarding illustration pending founder."
-      style={styles.held}
-      testID="founder-artwork-hold"
-    >
-      <View style={styles.ledgerLine} />
-      <Text allowFontScaling style={styles.heldText}>[HELD — onboarding illustration pending founder]</Text>
-    </View>
+      resizeMode="contain"
+      source={require('@/assets/onboarding/how-it-works.png')}
+      style={styles.artwork}
+      testID="onboarding-artwork"
+    />
   );
 }
 
@@ -55,9 +54,7 @@ const styles = StyleSheet.create({
   buttonPressed: { opacity: 0.86, transform: [{ scale: 0.98 }] },
   eyebrow: { color: color.gold, fontFamily: type.family.mono, fontSize: type.size.caption, fontWeight: type.weight.semibold, letterSpacing: 1.4 },
   header: { gap: space.sm },
-  held: { borderColor: color.textSecondary, borderRadius: space.sm, borderStyle: 'dashed', borderWidth: 1, gap: space.sm, minHeight: 68, padding: space.md },
-  heldText: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
-  ledgerLine: { backgroundColor: color.gold, height: 2, width: 52 },
+  artwork: { alignSelf: 'center', aspectRatio: 1.5, maxHeight: 112, width: '100%' },
   statePanel: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.md, padding: space.lg },
   stateTitle: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg, fontWeight: type.weight.semibold },
   title: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.display, fontWeight: type.weight.semibold, lineHeight: type.size.display * type.lineHeight.tight },

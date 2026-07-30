@@ -1,3 +1,5 @@
+jest.mock('@/lib/analytics', () => ({ track: jest.fn(() => false) }));
+
 import { findTemplate, groupTemplates, templates } from '@/lib/catalog/templates';
 import { fireEvent, render } from '@testing-library/react-native';
 import { TemplateCard } from '@/screens/CatalogScreen';
