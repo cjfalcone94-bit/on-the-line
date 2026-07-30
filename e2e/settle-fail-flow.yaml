@@ -1,0 +1,9 @@
+appId: dev.falconlabs.ontheline
+---
+# API/state fixture: a final verified failure transfers the full captured stake.
+- runScript:
+    file: scripts/assert-settlement-state.js
+    env:
+      EXPECTED_STATE: settled-forfeit
+      EXPECTED_FULL_CHARITY_TRANSFER: "true"
+

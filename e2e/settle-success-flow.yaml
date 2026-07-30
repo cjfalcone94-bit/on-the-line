@@ -1,0 +1,9 @@
+appId: dev.falconlabs.ontheline
+---
+# API/state fixture: a resolved pass must produce settled-success with no stake capture.
+- runScript:
+    file: scripts/assert-settlement-state.js
+    env:
+      EXPECTED_STATE: settled-success
+      EXPECTED_STAKE_CAPTURED: "false"
+

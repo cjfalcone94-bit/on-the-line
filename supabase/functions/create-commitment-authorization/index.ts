@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import Stripe from 'npm:stripe@18';
 import { authorizeOnly, writeAuthorizedCommitment } from '../_shared/authorization-contract.ts';
+import { BASE_FEE_CENTS } from '../_shared/settlement-contract.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -71,6 +72,13 @@ Deno.serve(async (request) => {
       draft.cadence.length > 80
     ) return response({ error: 'invalid_commitment' }, 400);
 
+    const { data: allowed, error: rateError } = await createClient(supabaseUrl, serviceRoleKey)
+      .rpc('consume_commitment_rate_limit', {
+        p_limit: 5, p_operation: 'card_authorization', p_owner_id: user.id, p_window_seconds: 60,
+      });
+    if (rateError) return response({ error: 'rate_limit_unavailable' }, 503);
+    if (!allowed) return response({ error: 'rate_limited' }, 429);
+    const commitmentId = crypto.randomUUID();
     const intent = await authorizeOnly({
       create: async (input) => {
         const created = await stripe.paymentIntents.create({
@@ -79,7 +87,8 @@ Deno.serve(async (request) => {
           currency: input.currency,
           automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
           metadata: input.metadata,
-        });
+          setup_future_usage: 'off_session',
+        }, { idempotencyKey: input.idempotencyKey });
         return {
           id: created.id,
           clientSecret: created.client_secret,
@@ -92,6 +101,7 @@ Deno.serve(async (request) => {
         };
       },
     }, {
+      commitmentId,
       ownerId: user.id,
       templateId: draft.templateId,
       stakeCents: draft.stakeCents,
@@ -111,14 +121,25 @@ Deno.serve(async (request) => {
     return response({ error: 'authorization_not_confirmed' }, 409);
   }
 
+  const paymentMethod = typeof intent.payment_method === 'string' ? intent.payment_method : intent.payment_method?.id;
+  if (!paymentMethod || !intent.metadata.commitment_id) return response({ error: 'authorization_not_confirmed' }, 409);
   const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false } });
+  const { data: allowed, error: rateError } = await admin.rpc('consume_commitment_rate_limit', {
+    p_limit: 5, p_operation: 'commitment_create', p_owner_id: user.id, p_window_seconds: 60,
+  });
+  if (rateError) return response({ error: 'rate_limit_unavailable' }, 503);
+  if (!allowed) return response({ error: 'rate_limited' }, 429);
   const authorizedAt = new Date();
   try {
     const result = await writeAuthorizedCommitment({
       insertExactlyOnce: async (record) => {
         const { data, error } = await admin
           .from('commitments')
-          .upsert(record, { onConflict: 'processor_auth_reference', ignoreDuplicates: true })
+          .upsert({
+            ...record,
+            base_fee_cents: BASE_FEE_CENTS,
+            payment_method_reference: paymentMethod,
+          }, { onConflict: 'processor_auth_reference', ignoreDuplicates: true })
           .select('id, authorized_at, authorization_expires_at')
           .maybeSingle();
         if (error) throw error;
@@ -142,6 +163,32 @@ Deno.serve(async (request) => {
       status: intent.status,
       metadata: intent.metadata,
     }, user.id, authorizedAt);
+    let baseFee;
+    try {
+      baseFee = await stripe.paymentIntents.create({
+        amount: BASE_FEE_CENTS,
+        confirm: true,
+        currency: 'usd',
+        metadata: {
+          commitment_id: intent.metadata.commitment_id,
+          fee_kind: 'base',
+          operation: 'separate_platform_fee',
+        },
+        off_session: true,
+        payment_method: paymentMethod,
+      }, { idempotencyKey: `commitment:${intent.metadata.commitment_id}:base-fee:v1` });
+    } catch {
+      await stripe.paymentIntents.cancel(intent.id, {}, {
+        idempotencyKey: `commitment:${intent.metadata.commitment_id}:base-fee-failed-release:v1`,
+      }).catch(() => undefined);
+      await admin.from('commitments').update({ state: 'voided' }).eq('id', result.id).eq('state', 'authorized');
+      return response({ error: 'base_fee_failed' }, 402);
+    }
+    const { error: feeWriteError } = await admin.from('commitments')
+      .update({ base_fee_reference: baseFee.id })
+      .eq('id', result.id)
+      .is('base_fee_reference', null);
+    if (feeWriteError) return response({ error: 'commitment_write_retry' }, 503);
     return response({ commitmentId: result.id, authorizedAt: result.authorizedAt, authorizationExpiresAt: result.authorizationExpiresAt });
   } catch {
     return response({ error: 'commitment_write_failed' }, 409);

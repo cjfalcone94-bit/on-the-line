@@ -1,0 +1,8 @@
+appId: dev.falconlabs.ontheline
+---
+# API/state fixture: a voided commitment cannot be settled or charged.
+- runScript:
+    file: scripts/assert-settlement-state.js
+    env:
+      EXPECTED_STATE: voided
+      EXPECTED_STAKE_CAPTURED: "false"

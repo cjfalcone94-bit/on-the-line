@@ -4,6 +4,14 @@ import { decideAiFirstPass, type AiFirstPassResult } from '../_shared/verificati
 const json = (body: Record<string, unknown>, status = 200) => new Response(JSON.stringify(body), {
   headers: { 'Content-Type': 'application/json' }, status,
 });
+const triggerRelease = (submissionId: string) => fetch(
+  `${Deno.env.get('SUPABASE_URL')!}/functions/v1/release-auth`,
+  {
+    body: JSON.stringify({ submissionId }),
+    headers: { 'Content-Type': 'application/json', 'x-settlement-secret': Deno.env.get('SETTLEMENT_INTERNAL_SECRET')! },
+    method: 'POST',
+  },
+);
 
 Deno.serve(async (request) => {
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
@@ -43,6 +51,7 @@ Deno.serve(async (request) => {
       actor_type: 'ai', from_state: submission.verification_status, resolution_type: 'ai_pass',
       submission_id: submissionId, to_state: 'passed',
     });
+    await triggerRelease(submissionId);
     return json({ status: 'passed' });
   }
 

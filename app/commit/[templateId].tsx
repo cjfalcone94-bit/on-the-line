@@ -104,11 +104,15 @@ export default function CommitScreen() {
             <View style={styles.ledger}>
               <Text style={styles.ledgerLabel}>IF YOU FAIL</Text>
               <Text style={styles.amount}>{formatMoney(stakeCents)} → {charity.name}</Text>
-              <Text style={styles.ledgerBody}>If you fail, {formatMoney(stakeCents)} goes to {charity.name}.</Text>
+              <Text style={styles.ledgerBody}>If you fail, 100% of {formatMoney(stakeCents)} goes to {charity.name}. We keep none of it and charge no success fee.</Text>
               <View style={styles.rule} />
               <Text style={styles.ledgerLabel}>IF YOU SUCCEED</Text>
-              <Text style={styles.amount}>$0 charged</Text>
-              <Text style={styles.ledgerBody}>If you succeed, you pay nothing. We take a flat fee only when you succeed.</Text>
+              <Text style={styles.amount}>Stake released</Text>
+              <Text style={styles.ledgerBody}>Your stake is not charged. A separate small success fee—about $1–$2, or roughly 3% capped—is charged.</Text>
+              <View style={styles.rule} />
+              <Text style={styles.ledgerLabel}>ON EVERY COMMITMENT</Text>
+              <Text style={styles.amount}>About $1</Text>
+              <Text style={styles.ledgerBody}>A separate base service fee is charged now. It never comes out of your stake.</Text>
             </View>
             <Text style={styles.authorization}>Next, Stripe will authorize a temporary card hold. It does not charge your card.</Text>
             <PrimaryButton onPress={() => setStep('card')}>Continue to card authorization</PrimaryButton>
@@ -116,20 +120,20 @@ export default function CommitScreen() {
         ) : null}
         {step === 'card' ? (
           <>
-            <ScreenHeader eyebrow="04 · authorize" title="Authorize, don’t charge." body="Stripe securely collects your card details. On the Line never sees or stores raw card data." />
+            <ScreenHeader eyebrow="04 · authorize" title="Authorize the stake." body="Stripe securely collects your card details. On the Line never sees or stores raw card data." />
             <View style={styles.ledger}>
               <Text style={styles.ledgerLabel}>TEMPORARY AUTHORIZATION</Text>
               <Text style={styles.amount}>{formatMoney(stakeCents ?? 0)}</Text>
-              <Text style={styles.ledgerBody}>This is a hold only. Your card is never charged when you commit.</Text>
+              <Text style={styles.ledgerBody}>This amount is a hold only. The separate base service fee is charged when the commitment is created.</Text>
             </View>
             {busy ? <View accessibilityLabel="Preparing secure card authorization" style={styles.loading}><ActivityIndicator color={color.textPrimary} /><Text style={styles.note}>Preparing secure card authorization…</Text></View> : null}
             {error ? <StatePanel title="Authorization didn’t complete." body={error} actionLabel="Try again" onAction={authorize} /> : null}
-            {!busy && !error ? <PrimaryButton onPress={authorize}>Authorize card — no charge</PrimaryButton> : null}
+            {!busy && !error ? <PrimaryButton onPress={authorize}>Authorize stake and pay base fee</PrimaryButton> : null}
           </>
         ) : null}
         {step === 'confirmed' ? (
           <>
-            <ScreenHeader eyebrow="commitment active" title="Authorized, not charged." body={`You'll only be charged if verified failure occurs on ${template.cadence}.`} />
+            <ScreenHeader eyebrow="commitment active" title="Stake authorized." body={`The base fee is paid. The stake is charged only after a verified failure on ${template.cadence}.`} />
             <View style={styles.ledger}>
               <Text style={styles.ledgerLabel}>STAKE AUTHORIZED</Text>
               <Text style={styles.amount}>{formatMoney(stakeCents ?? 0)}</Text>

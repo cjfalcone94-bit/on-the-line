@@ -28,7 +28,7 @@ export default function TrustScreen() {
           ))}
         </View>
         <Text allowFontScaling style={styles.footnote}>
-          We take a flat fee only when you succeed. Provable receipts show what happened.
+          About $1 at commit, plus a small success fee only when you succeed. On failure, we keep none of your stake.
         </Text>
         <PrimaryButton accessibilityLabel="Browse goal templates" onPress={() => router.push('/catalog')} testID="browse-templates-button">
           Browse goal templates

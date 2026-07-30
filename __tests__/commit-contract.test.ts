@@ -5,6 +5,7 @@ import {
 } from '../supabase/functions/_shared/authorization-contract';
 
 const draft = {
+  commitmentId: 'commitment-1',
   ownerId: 'owner-a',
   templateId: 'daily-walk',
   stakeCents: 4000,
@@ -26,6 +27,7 @@ function authorizedIntent(overrides: Partial<AuthorizationIntent> = {}): Authori
       template_id: 'daily-walk',
       charity_destination_id: 'direct-relief',
       cadence: 'Daily · 30 days',
+      commitment_id: 'commitment-1',
     },
     ...overrides,
   };

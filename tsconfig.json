@@ -15,5 +15,9 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ],
-  "exclude": ["supabase/functions/**/index.ts"]
+  "exclude": [
+    "supabase/functions/**/index.ts",
+    "supabase/functions/_shared/settlement-handler.ts",
+    "supabase/functions/_shared/stripe-settlement.ts"
+  ]
 }

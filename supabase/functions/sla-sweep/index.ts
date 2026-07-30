@@ -4,6 +4,14 @@ import { slaResolutionAt } from '../_shared/verification-contract.ts';
 const json = (body: Record<string, unknown>, status = 200) => new Response(JSON.stringify(body), {
   headers: { 'Content-Type': 'application/json' }, status,
 });
+const triggerRelease = (submissionId: string) => fetch(
+  `${Deno.env.get('SUPABASE_URL')!}/functions/v1/release-auth`,
+  {
+    body: JSON.stringify({ submissionId }),
+    headers: { 'Content-Type': 'application/json', 'x-settlement-secret': Deno.env.get('SETTLEMENT_INTERNAL_SECRET')! },
+    method: 'POST',
+  },
+);
 
 Deno.serve(async (request) => {
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
@@ -27,6 +35,7 @@ Deno.serve(async (request) => {
       actor_type: 'sla', from_state: submission.verification_status, resolution_type: 'sla_auto_pass',
       submission_id: submission.id, to_state: 'passed',
     });
+    await triggerRelease(submission.id);
   }
   return json({ autoPassed: passed });
 });

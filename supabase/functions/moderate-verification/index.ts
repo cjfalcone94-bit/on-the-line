@@ -3,6 +3,14 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const json = (body: Record<string, unknown>, status = 200) => new Response(JSON.stringify(body), {
   headers: { 'Content-Type': 'application/json' }, status,
 });
+const triggerSettlement = (functionName: 'release-auth' | 'charge-on-fail', submissionId: string) => fetch(
+  `${Deno.env.get('SUPABASE_URL')!}/functions/v1/${functionName}`,
+  {
+    body: JSON.stringify({ submissionId }),
+    headers: { 'Content-Type': 'application/json', 'x-settlement-secret': Deno.env.get('SETTLEMENT_INTERNAL_SECRET')! },
+    method: 'POST',
+  },
+);
 
 // Internal moderation surface: only a server-validated JWT whose app_metadata
 // contains role=moderator can list or decide queue entries. Queue tables remain
@@ -44,5 +52,7 @@ Deno.serve(async (request) => {
     resolution_type: resolutionType, submission_id: item.submission_id, to_state: status,
   });
   await admin.from('moderation_queue').update({ resolved_at: new Date().toISOString(), status: 'resolved' }).eq('id', item.id);
+  if (decision === 'pass') await triggerSettlement('release-auth', item.submission_id);
+  if (decision === 'fail' && item.queue_kind === 'appeal') await triggerSettlement('charge-on-fail', item.submission_id);
   return json({ resolutionType, status });
 });

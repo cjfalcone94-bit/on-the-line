@@ -1,4 +1,5 @@
 export type AuthorizationDraft = {
+  commitmentId: string;
   ownerId: string;
   templateId: string;
   stakeCents: number;
@@ -23,6 +24,7 @@ export interface AuthorizationProcessor {
     captureMethod: 'manual';
     currency: 'usd';
     metadata: Record<string, string>;
+    idempotencyKey: string;
   }): Promise<AuthorizationIntent>;
 }
 
@@ -42,8 +44,10 @@ export async function authorizeOnly(
     amount: draft.stakeCents,
     captureMethod: 'manual',
     currency: 'usd',
+    idempotencyKey: `commitment:${draft.commitmentId}:stake-authorization:v1`,
     metadata: {
       owner_id: draft.ownerId,
+      commitment_id: draft.commitmentId,
       template_id: draft.templateId,
       charity_destination_id: draft.charityId,
       cadence: draft.cadence,
@@ -66,6 +70,7 @@ export async function writeAuthorizedCommitment(
   ) throw new Error('authorization_not_confirmed');
 
   return writer.insertExactlyOnce(Object.freeze({
+    id: intent.metadata.commitment_id,
     owner_id: ownerId,
     template_id: intent.metadata.template_id,
     stake_cents: intent.amount,

@@ -8,3 +8,15 @@ verify_jwt = false
 
 [functions.ai-first-pass]
 verify_jwt = false
+
+[functions.release-auth]
+verify_jwt = false
+
+[functions.charge-on-fail]
+verify_jwt = false
+
+[functions.processor-webhook]
+verify_jwt = false
+
+[functions.settlement-sweep]
+verify_jwt = false
