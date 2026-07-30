@@ -33,6 +33,7 @@ export default function TrustScreen() {
         <PrimaryButton accessibilityLabel="Browse goal templates" onPress={() => router.push('/catalog')} testID="browse-templates-button">
           Browse goal templates
         </PrimaryButton>
+        <Text accessibilityRole="link" onPress={() => router.push('/record')} style={styles.recordLink}>View Commitment Record</Text>
       </View>
     </SafeAreaView>
   );
@@ -47,5 +48,6 @@ const styles = StyleSheet.create({
   facts: { gap: space.sm },
   footnote: { borderLeftColor: color.gold, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.mono, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, paddingLeft: space.sm },
   number: { color: color.gold, fontFamily: type.family.mono, fontSize: type.size.caption, paddingTop: space.xs },
+  recordLink: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, minHeight: 44, paddingTop: space.sm, textAlign: 'center' },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

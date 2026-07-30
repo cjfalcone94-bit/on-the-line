@@ -1,0 +1,23 @@
+appId: com.falconlabs.ontheline
+---
+- launchApp
+- tapOn:
+    text: "View Commitment Record"
+- assertVisible:
+    id: "commitment-record-screen"
+- assertVisible:
+    text: "Daily outdoor walk"
+- tapOn:
+    id: "receipt-demo-success"
+- assertVisible:
+    id: "glass-receipt"
+- tapOn:
+    text: "Close"
+- tapOn:
+    text: "View Commitment Record"
+- tapOn:
+    id: "recommit-demo-success"
+- assertVisible:
+    id: "commit-screen"
+- assertVisible:
+    text: "$40"

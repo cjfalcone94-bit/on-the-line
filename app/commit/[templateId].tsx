@@ -17,13 +17,20 @@ import { scheduleProofReminder } from '@/lib/proof/reminders';
 type Step = 'stake' | 'charity' | 'disclosure' | 'card' | 'confirmed';
 
 export default function CommitScreen() {
-  const { templateId } = useLocalSearchParams<{ templateId: string }>();
+  const { templateId, stakeCents: prefillStake, charityId: prefillCharity, fromRecord } = useLocalSearchParams<{
+    templateId: string; stakeCents?: string; charityId?: string; fromRecord?: string;
+  }>();
   const template = findTemplate(templateId);
   const stripe = useStripe();
   const [step, setStep] = useState<Step>('stake');
-  const [stakeCents, setStakeCents] = useState<number>();
+  const parsedPrefillStake = Number(prefillStake);
+  const [stakeCents, setStakeCents] = useState<number | undefined>(
+    fromRecord === '1' && Number.isInteger(parsedPrefillStake) ? parsedPrefillStake : undefined,
+  );
   const [custom, setCustom] = useState('');
-  const [charityId, setCharityId] = useState<string>();
+  const [charityId, setCharityId] = useState<string | undefined>(
+    fromRecord === '1' && findCharity(prefillCharity) ? prefillCharity : undefined,
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [expiry, setExpiry] = useState<string>();

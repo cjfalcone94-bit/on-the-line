@@ -25,7 +25,7 @@ export async function handleSettlementRequest(request: Request, outcome: Settlem
     .eq('id', submissionId).not('resolved_at', 'is', null).maybeSingle();
   if (!proof) return json({ error: 'resolved_verification_required' }, 409);
   const { data: row } = await admin.from('commitments')
-    .select('id, owner_id, stake_cents, currency, charity_destination_id, processor_auth_reference, payment_method_reference, state, base_fee_cents')
+    .select('id, owner_id, template_id, stake_cents, currency, charity_destination_id, processor_auth_reference, payment_method_reference, state, base_fee_cents')
     .eq('id', proof.commitment_id).maybeSingle();
   if (!row || !row.payment_method_reference) return json({ error: 'commitment_not_settleable' }, 409);
   if (row.state === 'settled-success' || row.state === 'settled-forfeit') return json({ status: row.state });
@@ -111,6 +111,7 @@ export async function handleSettlementRequest(request: Request, outcome: Settlem
       settled_at: settledAt,
       stake_cents: row.stake_cents,
       success_fee_cents: successFee,
+      template_id: row.template_id,
     }, { onConflict: 'commitment_id' });
     await admin.from('commitments').update({
       settled_at: settledAt, state: outcome === 'success' ? 'settled-success' : 'settled-forfeit',

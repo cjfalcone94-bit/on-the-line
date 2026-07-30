@@ -1,0 +1,13 @@
+appId: com.falconlabs.ontheline
+---
+# Run with the authenticated recovery fixture after clearing local app data.
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "View Commitment Record"
+- assertVisible:
+    id: "commitment-record-screen"
+- assertVisible:
+    id: "record-demo-success"
+- assertVisible:
+    id: "record-demo-fail"
