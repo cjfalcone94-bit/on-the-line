@@ -26,9 +26,9 @@
     "production": {
       "ios": {
         "ascApiKeyPath": "credentials/asc_api_key.p8",
-        "ascApiKeyId": "REPLACE_WITH_FOUNDER_APPLE_ASC_KEY_ID",
-        "ascApiKeyIssuerId": "REPLACE_WITH_FOUNDER_APPLE_ASC_ISSUER_ID",
-        "ascAppId": "REPLACE_WITH_FOUNDER_APP_STORE_CONNECT_APP_ID"
+        "ascApiKeyId": "54KAX6R47Z",
+        "ascApiKeyIssuerId": "bcbb042b-ee08-4b76-8ac9-53aa961ec8cf",
+        "ascAppId": "6796352788"
       }
     }
   }

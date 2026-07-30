@@ -8,11 +8,10 @@
     "scheme": "ontheline",
     "userInterfaceStyle": "dark",
     "ios": {
-      "bundleIdentifier": "com.ontheline.app",
-      "icon": "./assets/expo.icon"
+      "bundleIdentifier": "com.falconlabs.ontheline"
     },
     "android": {
-      "package": "com.ontheline.app",
+      "package": "com.falconlabs.ontheline",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -52,6 +51,7 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "owner": "falconlabs17s-team"
   }
 }

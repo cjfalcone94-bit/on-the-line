@@ -42,3 +42,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# ASC API key (secret) — never commit
+credentials/*.p8
