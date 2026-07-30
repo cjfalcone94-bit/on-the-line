@@ -1,3 +1,5 @@
+import * as Haptics from 'expo-haptics';
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { color, space, type } from '@/design/tokens';
 import { statusCopy, type VerificationSubmission } from '@/lib/verification/types';
@@ -5,6 +7,11 @@ import { statusCopy, type VerificationSubmission } from '@/lib/verification/type
 export function VerificationCard({ submission }: { submission: VerificationSubmission }) {
   const copy = statusCopy[submission.status];
   const isPass = submission.status === 'passed';
+  useEffect(() => {
+    if (submission.resolutionType === 'sla_auto_pass') {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    }
+  }, [submission.resolutionType]);
   return (
     <View accessible accessibilityLabel={`${copy.title}. ${copy.body}`} style={[styles.card, isPass && styles.passed]} testID={`verification-${submission.status}`}>
       <Text allowFontScaling style={[styles.label, isPass && styles.passLabel]}>{copy.label}</Text>

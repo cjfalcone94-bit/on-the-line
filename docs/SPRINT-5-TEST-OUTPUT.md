@@ -33,7 +33,7 @@ PASS __tests__/env.test.ts
 Test Suites: 17 passed, 17 total
 Tests:       59 passed, 59 total
 Snapshots:   0 total
-Time:        7.948 s
+Time:        7.832 s
 Ran all test suites.
 ```
 
