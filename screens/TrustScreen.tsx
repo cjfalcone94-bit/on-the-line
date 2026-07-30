@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { OnboardingArtwork, PrimaryButton, ScreenHeader } from '@/components';
+import { BrandWordmark, OnboardingArtwork, PrimaryButton, ScreenHeader, TextAction } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { facts } from './trustContent';
@@ -14,6 +14,7 @@ export default function TrustScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="trust-screen">
       <View style={styles.container}>
+        <BrandWordmark layout="horizontal" />
         <ScreenHeader eyebrow="How this works" title="Nothing hidden." />
         <OnboardingArtwork />
         <View style={styles.facts}>
@@ -33,7 +34,7 @@ export default function TrustScreen() {
         <PrimaryButton accessibilityLabel="Browse goal templates" onPress={() => router.push('/catalog')} testID="browse-templates-button">
           Browse goal templates
         </PrimaryButton>
-        <Text accessibilityRole="link" onPress={() => router.push('/record')} style={styles.recordLink}>View Commitment Record</Text>
+        <TextAction accessibilityRole="link" align="center" onPress={() => router.push('/record')}>View Commitment Record</TextAction>
       </View>
     </SafeAreaView>
   );
@@ -47,7 +48,6 @@ const styles = StyleSheet.create({
   factTitle: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.body, fontWeight: type.weight.semibold },
   facts: { gap: space.sm },
   footnote: { borderLeftColor: color.gold, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.mono, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, paddingLeft: space.sm },
-  number: { color: color.gold, fontFamily: type.family.mono, fontSize: type.size.caption, paddingTop: space.xs },
-  recordLink: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, minHeight: 44, paddingTop: space.sm, textAlign: 'center' },
+  number: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption, paddingTop: space.xs },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

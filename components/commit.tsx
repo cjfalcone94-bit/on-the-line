@@ -56,7 +56,7 @@ export function CharityChoice({ charity, selected, onPress }: { charity: Charity
       style={({ pressed }) => [styles.charity, selected && styles.selected, pressed && styles.pressed]}
       testID={`charity-${charity.id}`}
     >
-      <Image accessible={false} source={charityIcons[charity.id]} style={styles.charityIcon} />
+      <Image accessible={false} source={charityIcons[charity.id]} style={styles.charityIcon} tintColor={color.textPrimary} />
       <View style={styles.charityCopy}>
         <Text allowFontScaling style={[styles.choiceLabel, selected && styles.selectedLabel]}>{charity.name}</Text>
         <Text allowFontScaling style={styles.detail}>{charity.category}</Text>
@@ -74,6 +74,6 @@ const styles = StyleSheet.create({
   detail: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
   input: { borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.body, minHeight: 52, paddingHorizontal: space.md },
   pressed: { opacity: 0.82 },
-  selected: { borderColor: color.gold },
-  selectedLabel: { color: color.gold },
+  selected: { borderColor: color.textPrimary },
+  selectedLabel: { color: color.textPrimary, fontWeight: type.weight.semibold },
 });

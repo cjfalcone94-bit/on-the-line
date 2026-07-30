@@ -1,9 +1,9 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { AppealAction, VerificationCard } from '@/components/verification';
-import { PrimaryButton, ScreenHeader, StatePanel } from '@/components';
-import { color, space, type } from '@/design/tokens';
+import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { color, space } from '@/design/tokens';
 import { appealVerification, getVerificationStatus } from '@/lib/verification/service';
 import type { VerificationSubmission } from '@/lib/verification/types';
 
@@ -54,7 +54,7 @@ export default function VerifyStatusScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="verify-status-screen">
       <View style={styles.container}>
-        <Text allowFontScaling accessibilityRole="button" onPress={() => router.back()} style={styles.back}>‹ Back</Text>
+        <TextAction onPress={() => router.back()}>‹ Back</TextAction>
         <ScreenHeader eyebrow="verification · read only" title="Proof status" body="Only your submission status appears here. Evidence and reviewer records stay private." />
         {viewState === 'loading' ? <StatePanel title="Checking status…" body="Your proof and published review deadline are being loaded." /> : null}
         {viewState === 'error' ? <StatePanel title="Status is unavailable." body="Check your connection and try again. No verification outcome changed." actionLabel="Try again" onAction={load} /> : null}
@@ -62,11 +62,12 @@ export default function VerifyStatusScreen() {
         {submission?.appealAllowed && viewState === 'ready' ? <AppealAction onPress={appeal} /> : null}
         {viewState === 'appealing' ? <StatePanel title="Sending your appeal…" body="Your existing outcome remains protected while a new human review is opened." /> : null}
         <PrimaryButton
+          disabled={viewState !== 'ready' || !submission}
           onPress={() => submission?.status === 'passed'
             ? router.replace({ pathname: '/settle/[commitmentId]', params: { commitmentId: 'demo-success' } })
             : router.replace('/catalog')}
         >
-          {submission?.status === 'passed' ? 'View Glass Receipt' : 'Done'}
+          {viewState === 'loading' ? 'Checking status…' : viewState === 'appealing' ? 'Sending appeal…' : submission?.status === 'passed' ? 'View Glass Receipt' : 'Done'}
         </PrimaryButton>
       </View>
     </SafeAreaView>
@@ -74,7 +75,6 @@ export default function VerifyStatusScreen() {
 }
 
 const styles = StyleSheet.create({
-  back: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, minHeight: 44, paddingVertical: space.sm },
   container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

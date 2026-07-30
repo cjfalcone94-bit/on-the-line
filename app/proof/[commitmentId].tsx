@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { FixedChecklist, PhotoPreview } from '@/components/proof';
-import { PrimaryButton, ScreenHeader, StatePanel } from '@/components';
+import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { findTemplate } from '@/lib/catalog/templates';
 import { enqueueProof, syncProofQueue } from '@/lib/proof/queue';
@@ -89,7 +89,7 @@ export default function ProofScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="proof-screen">
       <View style={styles.container}>
-        <Text allowFontScaling accessibilityRole="button" onPress={() => router.back()} style={styles.back}>‹ Back</Text>
+        <TextAction onPress={() => router.back()}>‹ Back</TextAction>
         <ScreenHeader eyebrow={`${template.cadence} · proof`} title={template.title} body="Use one photo to show the fixed checklist below. The checklist cannot be edited." />
         <FixedChecklist criteria={template.criteria} />
 
@@ -100,7 +100,7 @@ export default function ProofScreen() {
               <Text allowFontScaling style={styles.cameraCopy}>Camera first. Your photo is the only evidence submitted in this step.</Text>
             </View>
             <PrimaryButton onPress={() => choosePhoto(true)} testID="take-proof-photo">Take photo</PrimaryButton>
-            <Text allowFontScaling accessibilityRole="button" onPress={() => choosePhoto(false)} style={styles.library}>Choose from photo library</Text>
+            <TextAction align="center" onPress={() => choosePhoto(false)}>Choose from photo library</TextAction>
           </View>
         ) : null}
 
@@ -130,13 +130,11 @@ export default function ProofScreen() {
 }
 
 const styles = StyleSheet.create({
-  back: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, minHeight: 44, paddingVertical: space.sm },
   cameraCopy: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, maxWidth: 240, textAlign: 'center' },
   cameraFrame: { alignItems: 'center', borderColor: color.textSecondary, borderRadius: space.md, borderStyle: 'dashed', borderWidth: 1, flex: 1, gap: space.sm, justifyContent: 'center', minHeight: 120 },
   cameraMark: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.xl },
   capture: { flex: 1, gap: space.sm },
   container: { flex: 1, gap: space.sm, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
-  library: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, minHeight: 44, paddingVertical: space.sm, textAlign: 'center', textDecorationLine: 'underline' },
   missed: { color: color.textSecondary, fontFamily: type.family.body, fontSize: 11, lineHeight: 15 },
   offline: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 10, lineHeight: 14 },
   safe: { backgroundColor: color.surface, flex: 1 },

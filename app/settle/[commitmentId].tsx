@@ -3,11 +3,11 @@ import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, SafeAreaView, StyleSheet, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { GlassReceiptCard } from '@/components/glass-receipt';
-import { PrimaryButton, StatePanel } from '@/components';
-import { color, motion, space, type } from '@/design/tokens';
+import { PrimaryButton, StatePanel, TextAction } from '@/components';
+import { color, motion, space } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { getGlassReceipt } from '@/lib/settlement/service';
 import type { GlassReceipt } from '@/lib/settlement/types';
@@ -24,6 +24,8 @@ export default function SettleScreen() {
   const [state, setState] = useState<ViewState>('loading');
   const [visibleLines, setVisibleLines] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(false);
+  const [sharingAvailable, setSharingAvailable] = useState<boolean | null>(null);
+  const [shareError, setShareError] = useState(false);
   const exportRef = useRef<View>(null);
   const player = useAudioPlayer(require('@/assets/sounds/ledger-riffle.wav'));
 
@@ -42,6 +44,7 @@ export default function SettleScreen() {
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+    Sharing.isAvailableAsync().then(setSharingAvailable).catch(() => setSharingAvailable(false));
     setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers' }).catch(() => undefined);
     Promise.resolve().then(load);
   }, [load]);
@@ -70,21 +73,34 @@ export default function SettleScreen() {
   }, [player, receipt, reduceMotion]);
 
   const share = async () => {
-    if (!exportRef.current || !(await Sharing.isAvailableAsync())) return;
-    const uri = await captureRef(exportRef, { format: 'png', quality: 1, result: 'tmpfile' });
-    await Sharing.shareAsync(uri, { dialogTitle: 'Share your Glass Receipt', mimeType: 'image/png', UTI: 'public.png' });
+    if (!exportRef.current || !sharingAvailable) {
+      setShareError(true);
+      return;
+    }
+    setShareError(false);
+    try {
+      const uri = await captureRef(exportRef, { format: 'png', quality: 1, result: 'tmpfile' });
+      await Sharing.shareAsync(uri, { dialogTitle: 'Share your Glass Receipt', mimeType: 'image/png', UTI: 'public.png' });
+    } catch {
+      setShareError(true);
+    }
   };
 
   return (
     <SafeAreaView style={styles.safe} testID="settle-screen">
       <View style={styles.container}>
-        <Text accessibilityRole="button" onPress={() => router.replace('/catalog')} style={styles.close}>Close</Text>
+        <TextAction align="end" onPress={() => router.replace('/catalog')}>Close</TextAction>
         {state === 'loading' ? <ReceiptSkeleton /> : null}
         {state === 'error' ? <StatePanel title="Receipt is unavailable." body="Check your connection and try again. No settlement state changed." actionLabel="Try again" onAction={load} /> : null}
         {receipt ? (
           <>
             <GlassReceiptCard receipt={receipt} visibleLines={visibleLines} />
-            <PrimaryButton accessibilityLabel="Share Glass Receipt" disabled={visibleLines < 5} onPress={share}>Share receipt</PrimaryButton>
+            {sharingAvailable === false || shareError ? (
+              <StatePanel title="Sharing is unavailable." body="Your receipt is still saved here. Try sharing again from a device with a share service available." actionLabel={sharingAvailable ? 'Try again' : undefined} onAction={sharingAvailable ? share : undefined} />
+            ) : null}
+            <PrimaryButton accessibilityLabel="Share Glass Receipt" disabled={visibleLines < 5 || sharingAvailable !== true} onPress={share}>
+              {sharingAvailable === null ? 'Checking sharing…' : 'Share receipt'}
+            </PrimaryButton>
             <View pointerEvents="none" style={styles.exportStage}>
               <GlassReceiptCard exportMode receipt={receipt} ref={exportRef} />
             </View>
@@ -104,10 +120,9 @@ function ReceiptSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  close: { alignSelf: 'flex-end', color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, minHeight: 44, paddingVertical: space.sm },
   container: { flex: 1, gap: space.sm, justifyContent: 'center', paddingBottom: space.sm, paddingHorizontal: space.md },
   exportStage: { left: -1000, position: 'absolute', top: 0 },
   safe: { backgroundColor: color.surface, flex: 1 },
   skeleton: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.lg, padding: space.lg },
-  skeletonLine: { backgroundColor: '#303030', borderRadius: space.xs, height: 18 },
+  skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs, height: 18, opacity: 0.18 },
 });

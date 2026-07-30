@@ -22,7 +22,7 @@ export function PhotoPreview({ uri, onRetake }: { uri: string; onRetake: () => v
   return (
     <View style={styles.previewWrap}>
       <Image accessibilityLabel="Your selected proof photo" source={{ uri }} style={styles.preview} />
-      <Pressable accessibilityRole="button" onPress={onRetake} style={styles.retake}>
+      <Pressable accessibilityRole="button" onPress={onRetake} style={({ pressed }) => [styles.retake, pressed && styles.pressed]}>
         <Text allowFontScaling style={styles.retakeText}>Retake or choose another</Text>
       </Pressable>
     </View>
@@ -35,9 +35,10 @@ const styles = StyleSheet.create({
   criterion: { alignItems: 'flex-start', flexDirection: 'row', gap: space.sm },
   criterionText: { color: color.textPrimary, flex: 1, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   label: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
-  number: { color: color.gold, fontFamily: type.family.mono, fontSize: type.size.caption },
+  number: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption },
   preview: { borderRadius: space.md, flex: 1, width: '100%' },
   previewWrap: { flex: 1, gap: space.sm, minHeight: 180 },
+  pressed: { opacity: 0.65, transform: [{ scale: 0.98 }] },
   readOnly: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 10 },
   retake: { alignItems: 'center', justifyContent: 'center', minHeight: 44 },
   retakeText: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, textDecorationLine: 'underline' },

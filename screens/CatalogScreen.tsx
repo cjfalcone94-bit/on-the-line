@@ -60,7 +60,7 @@ export default function CatalogScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="catalog-screen">
       <View style={styles.headerWrap}>
-        <Pressable accessibilityLabel="Back to how this works" accessibilityRole="button" hitSlop={12} onPress={() => router.back()} style={styles.back}>
+        <Pressable accessibilityLabel="Back to how this works" accessibilityRole="button" hitSlop={12} onPress={() => router.back()} style={({ pressed }) => [styles.back, pressed && styles.backPressed]}>
           <Text allowFontScaling style={styles.backLabel}>‹ How this works</Text>
         </Pressable>
         <ScreenHeader eyebrow="Goal catalog" title="Pick a clear target." body="Every checklist is fixed up front. You see exactly what counts before making any commitment." />
@@ -91,7 +91,8 @@ const styles = StyleSheet.create({
   arrow: { color: color.textSecondary, fontSize: type.size.xl },
   back: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
   backLabel: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body },
-  cadence: { color: color.gold, fontFamily: type.family.mono, fontSize: type.size.caption },
+  backPressed: { opacity: 0.65, transform: [{ scale: 0.98 }] },
+  cadence: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption },
   card: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.sm, marginBottom: space.md, padding: space.md, transform: [{ scale: 1 }] },
   cardHeading: { alignItems: 'center', flexDirection: 'row', gap: space.sm, justifyContent: 'space-between' },
   cardPressed: { opacity: 0.88, transform: [{ scale: 0.99 }] },
@@ -104,7 +105,7 @@ const styles = StyleSheet.create({
   safe: { backgroundColor: color.surface, flex: 1 },
   sectionTitle: { backgroundColor: color.surface, color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.xl, fontWeight: type.weight.semibold, paddingBottom: space.sm, paddingTop: space.md },
   skeletonCard: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.md, padding: space.md },
-  skeletonLine: { backgroundColor: '#2A2A2A', borderRadius: space.xs, height: 13, width: '100%' },
+  skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs, height: 13, opacity: 0.18, width: '100%' },
   skeletonShort: { width: '42%' },
   skeletonTitle: { height: 22, width: '70%' },
   skeletonWrap: { gap: space.md, paddingHorizontal: space.lg },

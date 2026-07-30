@@ -2,9 +2,9 @@ import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useStripe } from '@/lib/payments/stripe';
 import { useState } from 'react';
-import { ActivityIndicator, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { CharityChoice, CustomStakeInput, StakeChoice } from '@/components/commit';
-import { PrimaryButton, ScreenHeader, StatePanel } from '@/components';
+import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { charities, findCharity } from '@/lib/commit/charities';
@@ -88,7 +88,7 @@ export default function CommitScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="commit-screen">
       <View style={styles.container}>
-        <Text allowFontScaling accessibilityRole="button" onPress={() => step === 'stake' ? router.back() : setStep(step === 'charity' ? 'stake' : step === 'disclosure' ? 'charity' : 'disclosure')} style={styles.back}>‹ Back</Text>
+        <TextAction onPress={() => step === 'stake' ? router.back() : setStep(step === 'charity' ? 'stake' : step === 'disclosure' ? 'charity' : 'disclosure')}>‹ Back</TextAction>
         {step === 'stake' ? (
           <>
             <ScreenHeader eyebrow="01 · stake" title="Put a clear amount on it." body={`${template.title} · ${template.cadence}`} />
@@ -118,7 +118,7 @@ export default function CommitScreen() {
               <Text style={styles.ledgerBody}>If you fail, 100% of {formatMoney(stakeCents)} goes to {charity.name}. We keep none of it and charge no success fee.</Text>
               <View style={styles.rule} />
               <Text style={styles.ledgerLabel}>IF YOU SUCCEED</Text>
-              <Text style={styles.amount}>Stake released</Text>
+              <Text style={[styles.amount, styles.successAmount]}>Stake released</Text>
               <Text style={styles.ledgerBody}>Your stake is not charged. A separate small success fee—about $1–$2, or roughly 3% capped—is charged.</Text>
               <View style={styles.rule} />
               <Text style={styles.ledgerLabel}>ON EVERY COMMITMENT</Text>
@@ -137,7 +137,7 @@ export default function CommitScreen() {
               <Text style={styles.amount}>{formatMoney(stakeCents ?? 0)}</Text>
               <Text style={styles.ledgerBody}>This amount is a hold only. The separate base service fee is charged when the commitment is created.</Text>
             </View>
-            {busy ? <View accessibilityLabel="Preparing secure card authorization" style={styles.loading}><ActivityIndicator color={color.textPrimary} /><Text style={styles.note}>Preparing secure card authorization…</Text></View> : null}
+            {busy ? <AuthorizationSkeleton /> : null}
             {error ? <StatePanel title="Authorization didn’t complete." body={error} actionLabel="Try again" onAction={authorize} /> : null}
             {!busy && !error ? <PrimaryButton onPress={authorize}>Authorize stake and pay base fee</PrimaryButton> : null}
           </>
@@ -166,17 +166,29 @@ export default function CommitScreen() {
 }
 
 const styles = StyleSheet.create({
-  amount: { color: color.gold, fontFamily: type.family.mono, fontSize: type.size.xl },
+  amount: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.xl },
   authorization: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
-  back: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, minHeight: 44, paddingVertical: space.sm },
   charities: { gap: space.xs },
   container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   ledger: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.sm, padding: space.md },
   ledgerBody: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   ledgerLabel: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
-  loading: { alignItems: 'center', flexDirection: 'row', gap: space.sm },
   note: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
   rule: { backgroundColor: color.textSecondary, height: StyleSheet.hairlineWidth },
   safe: { backgroundColor: color.surface, flex: 1 },
+  successAmount: { color: color.gold },
+  skeleton: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.sm, paddingLeft: space.md, paddingVertical: space.sm },
+  skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs, height: 14, opacity: 0.18 },
+  skeletonShort: { width: '52%' },
 });
+
+function AuthorizationSkeleton() {
+  return (
+    <View accessibilityLabel="Preparing secure card authorization" style={styles.skeleton} testID="authorization-loading">
+      <View style={[styles.skeletonLine, styles.skeletonShort]} />
+      <View style={styles.skeletonLine} />
+      <Text style={styles.note}>Preparing secure card authorization…</Text>
+    </View>
+  );
+}

@@ -1,7 +1,7 @@
 /* React Native Animated values are intentionally stable refs consumed by native animated styles. */
 /* eslint-disable react-hooks/refs */
 import { forwardRef, useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, StyleSheet, Text, View } from 'react-native';
 import { color, motion, space, type } from '@/design/tokens';
 import type { GlassReceipt } from '@/lib/settlement/types';
 
@@ -66,10 +66,19 @@ export const GlassReceiptCard = forwardRef<View, {
   return (
     <View collapsable={false} ref={ref} style={[styles.card, exportMode && styles.exportCard]} testID={exportMode ? 'glass-receipt-export' : 'glass-receipt'}>
       <View style={styles.brandRow}>
-        <Text style={[styles.brand, { color: ink }]}>ON THE <Text style={styles.gold}>LINE</Text></Text>
+        {exportMode ? (
+          <Text style={[styles.brand, { color: ink }]}>ON THE <Text style={styles.gold}>LINE</Text></Text>
+        ) : (
+          <Image
+            accessibilityLabel="On the Line"
+            resizeMode="contain"
+            source={require('@/assets/logo/wordmark-horizontal.png')}
+            style={styles.wordmark}
+          />
+        )}
         <View style={styles.ledgerMark} />
       </View>
-      <Text style={[styles.kicker, { color: accent }]}>{receipt.outcome === 'success' ? 'SETTLED · SUCCESS' : 'SETTLED · FORFEIT'}</Text>
+      <Text style={[styles.kicker, { color: receipt.outcome === 'forfeit' ? color.clayRed : ink }]}>{receipt.outcome === 'success' ? 'SETTLED · SUCCESS' : 'SETTLED · FORFEIT'}</Text>
       <Text accessibilityRole="header" style={[styles.title, { color: ink }]}>Glass Receipt</Text>
       <View style={[styles.rule, { backgroundColor: muted }]} />
       {lines.map((line, index) => (exportMode || index < visibleLines) ? (
@@ -115,4 +124,5 @@ const styles = StyleSheet.create({
   title: { fontFamily: type.family.display, fontSize: type.size.xl, fontWeight: type.weight.semibold },
   value: { fontFamily: type.family.mono, fontSize: type.size.body, fontWeight: type.weight.semibold },
   watermark: { fontFamily: type.family.mono, fontSize: 9, letterSpacing: 0.4, marginTop: space.sm, textAlign: 'center' },
+  wordmark: { height: 24, width: 136 },
 });

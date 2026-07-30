@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
-import { PrimaryButton, ScreenHeader, StatePanel } from '@/components';
+import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { findTemplate } from '@/lib/catalog/templates';
 
@@ -21,7 +21,7 @@ export default function TemplateDetailScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="template-detail-screen">
       <View style={styles.container}>
-        <Text allowFontScaling accessibilityRole="button" onPress={() => router.back()} style={styles.back}>‹ Catalog</Text>
+        <TextAction onPress={() => router.back()}>‹ Catalog</TextAction>
         <ScreenHeader eyebrow={template.category} title={template.title} body={template.summary} />
         <View accessible accessibilityLabel={`Cadence: ${template.cadence}`} style={styles.cadenceRow}>
           <Text allowFontScaling style={styles.label}>CADENCE</Text>
@@ -46,8 +46,7 @@ export default function TemplateDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  back: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, minHeight: 44, paddingVertical: space.sm },
-  cadence: { color: color.gold, fontFamily: type.family.mono, fontSize: type.size.body },
+  cadence: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.body },
   cadenceRow: { borderBottomColor: color.surfaceRaised, borderBottomWidth: 1, borderTopColor: color.surfaceRaised, borderTopWidth: 1, gap: space.xs, paddingVertical: space.md },
   checklist: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.md, padding: space.md },
   checklistTitle: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg, fontWeight: type.weight.semibold },
@@ -56,6 +55,6 @@ const styles = StyleSheet.create({
   criterionRow: { alignItems: 'flex-start', borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', gap: space.md, paddingTop: space.sm },
   explainer: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   label: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
-  number: { color: color.gold, fontFamily: type.family.mono, fontSize: type.size.caption, paddingTop: space.xs },
+  number: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption, paddingTop: space.xs },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

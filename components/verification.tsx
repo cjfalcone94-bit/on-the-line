@@ -14,7 +14,7 @@ export function VerificationCard({ submission }: { submission: VerificationSubmi
   }, [submission.resolutionType]);
   return (
     <View accessible accessibilityLabel={`${copy.title}. ${copy.body}`} style={[styles.card, isPass && styles.passed]} testID={`verification-${submission.status}`}>
-      <Text allowFontScaling style={[styles.label, isPass && styles.passLabel]}>{copy.label}</Text>
+      <Text allowFontScaling style={styles.label}>{copy.label}</Text>
       <Text allowFontScaling accessibilityRole="header" style={styles.title}>{copy.title}</Text>
       <Text allowFontScaling style={styles.body}>{copy.body}</Text>
       <View style={styles.rule} />
@@ -42,7 +42,6 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.5 },
   label: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: type.size.caption, letterSpacing: 1 },
   passed: {},
-  passLabel: { color: color.gold },
   pressed: { opacity: 0.82, transform: [{ scale: 0.98 }] },
   rule: { backgroundColor: color.textSecondary, height: StyleSheet.hairlineWidth, marginVertical: space.sm },
   sla: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption, letterSpacing: 0.6 },
