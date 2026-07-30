@@ -12,10 +12,11 @@ describe('commit controls', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it('makes the charity hold visible and accessible', () => {
-    const { getByText, getByRole } = render(<CharityChoice charity={charities[0]} onPress={jest.fn()} selected={false} />);
-    expect(getByText('[HELD — charity badge pending founder]')).toBeTruthy();
-    expect(getByRole('radio').props.accessibilityLabel).toMatch(/badge pending founder/i);
+  it('renders the delivered charity badge with the destination label intact', () => {
+    const { getByRole, getByText, UNSAFE_getByType } = render(<CharityChoice charity={charities[0]} onPress={jest.fn()} selected={false} />);
+    expect(getByText('Direct Relief')).toBeTruthy();
+    expect(getByRole('radio').props.accessibilityLabel).toBe('Direct Relief, Health');
+    expect(UNSAFE_getByType(require('react-native').Image).props.source).toBeTruthy();
   });
 
   it('accepts a custom amount with a financial input label', () => {

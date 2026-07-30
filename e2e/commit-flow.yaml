@@ -9,7 +9,7 @@ appId: dev.falconlabs.ontheline
 - tapOn:
     id: "stake-4000"
 - tapOn: "Choose charity"
-- assertVisible: "[HELD — charity badge pending founder]"
+- assertVisible: "Direct Relief"
 - tapOn:
     id: "charity-direct-relief"
 - tapOn: "Review the mechanic"

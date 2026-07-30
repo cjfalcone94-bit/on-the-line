@@ -36,6 +36,15 @@
         }
       ],
       "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow On the Line to take the proof photo you choose to submit.",
+          "photosPermission": "Allow On the Line to select the proof photo you choose to submit.",
+          "microphonePermission": false
+        }
+      ],
+      "expo-notifications",
       "@sentry/react-native"
     ],
     "experiments": {

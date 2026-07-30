@@ -12,6 +12,7 @@ import { dollarsToCents, formatMoney, stakePresets } from '@/lib/commit/money';
 import { finalizeCommitment, prepareAuthorization } from '@/lib/commit/service';
 import { env } from '@/lib/env';
 import { findTemplate } from '@/lib/catalog/templates';
+import { scheduleProofReminder } from '@/lib/proof/reminders';
 
 type Step = 'stake' | 'charity' | 'disclosure' | 'card' | 'confirmed';
 
@@ -26,6 +27,7 @@ export default function CommitScreen() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [expiry, setExpiry] = useState<string>();
+  const [commitmentId, setCommitmentId] = useState<string>();
   const charity = findCharity(charityId);
 
   if (!template) {
@@ -60,9 +62,11 @@ export default function CommitScreen() {
       if (presented.error) throw new Error(presented.error.message);
       const result = await finalizeCommitment(prepared.paymentIntentId);
       setExpiry(result.authorizationExpiresAt);
+      setCommitmentId(result.commitmentId);
       setStep('confirmed');
       track('commitment_created');
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void scheduleProofReminder(template.title, template.cadence);
     } catch {
       setError('We could not authorize your card. Nothing was charged. Please try again.');
     } finally {
@@ -133,7 +137,12 @@ export default function CommitScreen() {
               <Text style={styles.ledgerBody}>Authorization review · {expiry ? new Date(expiry).toLocaleDateString() : 'before the next proof window'}</Text>
             </View>
             <Text style={styles.authorization}>If this authorization expires, we’ll ask you to re-authorize before the next proof window. If that remains unresolved, the commitment is voided—no charge and no forfeiture.</Text>
-            <PrimaryButton onPress={() => router.replace('/catalog')}>Done</PrimaryButton>
+            <PrimaryButton
+              disabled={!commitmentId}
+              onPress={() => router.replace({ pathname: '/proof/[commitmentId]', params: { commitmentId: commitmentId!, templateId: template.id } })}
+            >
+              Submit today’s proof
+            </PrimaryButton>
           </>
         ) : null}
       </View>

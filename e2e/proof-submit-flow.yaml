@@ -1,0 +1,14 @@
+appId: dev.falconlabs.ontheline
+---
+- launchApp
+# The E2E seed activates a daily-walk commitment and opens its proof window.
+- openLink: "ontheline://proof/e2e-commitment?templateId=daily-walk"
+- assertVisible: "Daily outdoor walk"
+- assertVisible: "FIXED CHECKLIST"
+- assertVisible: "READ ONLY"
+- tapOn:
+    id: "take-proof-photo"
+- tapOn:
+    id: "submit-proof"
+- assertVisible: "Submitted — under review."
+- assertVisible: "SLA: within 24 hours"

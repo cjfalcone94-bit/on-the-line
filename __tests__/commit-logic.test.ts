@@ -30,8 +30,11 @@ describe('commit flow logic and persistence guardrails', () => {
     expect(sql).not.toMatch(/for update/);
   });
 
-  it('renders the founder hold instead of silently substituting charity art', () => {
+  it('maps each declared charity to a delivered category badge', () => {
     const source = fs.readFileSync(path.join(process.cwd(), 'components/commit.tsx'), 'utf8');
-    expect(source).toContain('[HELD — charity badge pending founder]');
+    for (const asset of ['health.png', 'education.png', 'environment.png', 'animal-welfare.png', 'disaster-relief.png', 'community.png']) {
+      expect(source).toContain(`charity-icons/${asset}`);
+    }
+    expect(source).not.toContain('HELD');
   });
 });
