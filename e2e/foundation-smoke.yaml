@@ -1,0 +1,5 @@
+appId: com.ontheline.app
+---
+- launchApp
+- assertVisible: "On the Line"
+- assertVisible: "Foundation ready"

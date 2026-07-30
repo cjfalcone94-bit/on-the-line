@@ -1,0 +1,133 @@
+name: CI
+
+# On the Line (repo codename stakecommit) — ready-to-drop CI workflow, authored
+# Phase 6 without a live app repo (`05-STACK.md` CI/CD row; `TESTING-STRATEGY.md`
+# §7 CI gates: tsc 0 · lint 0 · jest green · gitleaks clean · EAS build succeeds).
+# Mirrors the SteadyStart app-repo precedent (`.apps/steadystart/.github/workflows/ci.yml`)
+# so the framework doesn't re-decide a solved shape — same job names, same gating
+# style — plus an eas-submit job this precedent didn't need yet (On the Line's
+# Sprint 1 DoD explicitly requires "CI build shipped to TestFlight/internal").
+#
+# Drop this file at <app-repo>/.github/workflows/ci.yml once the app repo exists
+# (see gates/stakecommit-phase-6-tooling.md §D for why it can't run here yet).
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  quality:
+    name: typecheck · lint · test · secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks scans full history, not just the diff
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test -- --ci
+
+      # Secrets scan — repo + history (03-RELEASE-READINESS §1A). Blocks on any find.
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  e2e-android:
+    name: Maestro E2E (Android emulator)
+    runs-on: ubuntu-latest
+    # Deviation D3's resolution (carried from SteadyStart, unchanged for On the
+    # Line): mobile E2E runs on GitHub's KVM-enabled Linux runners, never on the
+    # VPS (no nested virtualization there).
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Run Maestro on Android emulator
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            # Per-sprint: build/install the debug app before running flows, e.g.
+            #   npx expo run:android --variant debug --no-bundler
+            # then run every committed flow:
+            maestro test e2e/
+        continue-on-error: true # flips off once Sprint 1's scaffold has a built APK + a real flow
+
+  eas-build:
+    name: EAS build (env-gated)
+    runs-on: ubuntu-latest
+    needs: quality
+    # Only runs once an EXPO_TOKEN secret + EAS_ENABLED repo var exist — keeps CI
+    # green with zero secrets until the founder provisions Apple/EAS (see gate §D).
+    if: ${{ github.ref == 'refs/heads/main' && vars.EAS_ENABLED == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      - run: eas build --platform ios --profile production --non-interactive --no-wait
+
+  eas-submit:
+    name: EAS submit → TestFlight (env-gated)
+    runs-on: ubuntu-latest
+    needs: eas-build
+    # Same gate as eas-build, plus its own flag so a founder can turn build on
+    # before turning auto-submit on (EAS_SUBMIT_ENABLED is a separate repo var —
+    # submitting to App Store Connect is a step worth a deliberate second switch).
+    if: ${{ github.ref == 'refs/heads/main' && vars.EAS_ENABLED == 'true' && vars.EAS_SUBMIT_ENABLED == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+      # Reads eas.json's submit.production.ios block (ASC API key path/id/issuer,
+      # app id) — the key file itself is injected as a CI secret, never committed.
+      - name: Write App Store Connect API key
+        run: |
+          mkdir -p credentials
+          echo "${{ secrets.ASC_API_KEY_P8 }}" > credentials/asc_api_key.p8
+      - run: eas submit --platform ios --profile production --non-interactive --latest
