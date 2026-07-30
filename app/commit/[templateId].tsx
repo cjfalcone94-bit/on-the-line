@@ -49,6 +49,7 @@ export default function CommitScreen() {
     setBusy(true);
     setError(undefined);
     track('card_authorization_started');
+    let stakeAuthorized = false;
     try {
       const prepared = await prepareAuthorization({ templateId: template.id, stakeCents, charityId: charity.id, cadence: template.cadence });
       const initialized = await stripe.initPaymentSheet({
@@ -60,6 +61,7 @@ export default function CommitScreen() {
       if (initialized.error) throw new Error(initialized.error.message);
       const presented = await stripe.presentPaymentSheet();
       if (presented.error) throw new Error(presented.error.message);
+      stakeAuthorized = true;
       const result = await finalizeCommitment(prepared.paymentIntentId);
       setExpiry(result.authorizationExpiresAt);
       setCommitmentId(result.commitmentId);
@@ -68,7 +70,9 @@ export default function CommitScreen() {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       void scheduleProofReminder(template.title, template.cadence);
     } catch {
-      setError('We could not authorize your card. Nothing was charged. Please try again.');
+      setError(stakeAuthorized
+        ? 'We could not confirm the commitment. Do not try again yet. Check your commitments—the base fee may have been charged, but your stake was not captured.'
+        : 'We could not authorize your card. Nothing was charged. Please try again.');
     } finally {
       setBusy(false);
     }
