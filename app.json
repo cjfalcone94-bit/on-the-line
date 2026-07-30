@@ -45,7 +45,9 @@
         }
       ],
       "expo-notifications",
-      "@sentry/react-native"
+      "@sentry/react-native",
+      "expo-audio",
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

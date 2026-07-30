@@ -61,7 +61,13 @@ export default function VerifyStatusScreen() {
         {submission && viewState !== 'loading' ? <VerificationCard submission={submission} /> : null}
         {submission?.appealAllowed && viewState === 'ready' ? <AppealAction onPress={appeal} /> : null}
         {viewState === 'appealing' ? <StatePanel title="Sending your appeal…" body="Your existing outcome remains protected while a new human review is opened." /> : null}
-        <PrimaryButton onPress={() => router.replace('/catalog')}>Done</PrimaryButton>
+        <PrimaryButton
+          onPress={() => submission?.status === 'passed'
+            ? router.replace({ pathname: '/settle/[commitmentId]', params: { commitmentId: 'demo-success' } })
+            : router.replace('/catalog')}
+        >
+          {submission?.status === 'passed' ? 'View Glass Receipt' : 'Done'}
+        </PrimaryButton>
       </View>
     </SafeAreaView>
   );
