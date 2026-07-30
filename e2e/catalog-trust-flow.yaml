@@ -1,0 +1,29 @@
+appId: com.ontheline.app
+name: Browse trust framing and catalog
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: trust-screen
+- assertVisible: "Authorized, not charged"
+- assertVisible: "Success costs no stake"
+- assertVisible: "Failure has one destination"
+- tapOn:
+    id: browse-templates-button
+- assertVisible:
+    id: catalog-screen
+- assertVisible: "Pick a clear target."
+- assertVisible:
+    id: template-daily-walk
+- tapOn:
+    id: template-daily-walk
+- assertVisible:
+    id: template-detail-screen
+- assertVisible: "Exact pass criteria"
+- assertVisible: "One outdoor walk of at least 20 minutes"
+- tapOn: "Back to catalog"
+- assertVisible:
+    id: catalog-screen
+- tapOn: "How this works"
+- assertVisible:
+    id: trust-screen
