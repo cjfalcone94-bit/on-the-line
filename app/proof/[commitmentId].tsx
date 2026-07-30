@@ -6,7 +6,6 @@ import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { FixedChecklist, PhotoPreview } from '@/components/proof';
 import { PrimaryButton, ScreenHeader, StatePanel } from '@/components';
 import { color, space, type } from '@/design/tokens';
-import { track } from '@/lib/analytics';
 import { findTemplate } from '@/lib/catalog/templates';
 import { enqueueProof, syncProofQueue } from '@/lib/proof/queue';
 import { submitProof } from '@/lib/proof/service';
@@ -76,7 +75,6 @@ export default function ProofScreen() {
       const result = await submitProof(draft);
       setSlaHours(result.slaHours);
       setState('submitted');
-      track('proof_submitted');
     } catch {
       setState('error');
     }

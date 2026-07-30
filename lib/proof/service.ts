@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { track } from '@/lib/analytics';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { ProofDraft, SubmissionResult } from './types';
 
@@ -39,5 +40,6 @@ export async function submitProof(draft: ProofDraft, client: SupabaseClient = ge
     if (status === 429) throw new Error('rate_limited');
     throw new Error('submission_failed');
   }
+  track('proof_submitted');
   return invoked.data as SubmissionResult;
 }
