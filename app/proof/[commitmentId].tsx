@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { FixedChecklist, PhotoPreview } from '@/components/proof';
 import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
-import { color, space, type } from '@/design/tokens';
+import { color, space, tabularNums, type } from '@/design/tokens';
 import { findTemplate } from '@/lib/catalog/templates';
 import { enqueueProof, syncProofQueue } from '@/lib/proof/queue';
 import { submitProof } from '@/lib/proof/service';
@@ -138,6 +138,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, gap: space.sm, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
   containerCompact: { gap: space.xs, paddingBottom: space.sm, paddingHorizontal: space.md },
   missed: { color: color.textSecondary, fontFamily: type.family.body, fontSize: 11, lineHeight: 15 },
-  offline: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 10, lineHeight: 14 },
+  offline: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 10, lineHeight: 14 },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

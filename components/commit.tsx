@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, View, type ImageSourcePropType } from 'react-native';
-import { color, space, type } from '@/design/tokens';
+import { color, space, tabularNums, type } from '@/design/tokens';
 import { InteractivePressable } from '@/components/ui';
 import type { Charity } from '@/lib/commit/charities';
 import { formatMoney } from '@/lib/commit/money';
@@ -77,12 +77,12 @@ const styles = StyleSheet.create({
   charityIcon: { height: 42, resizeMode: 'contain', width: 42 },
   charityIconCompact: { height: 32, width: 32 },
   choice: { borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.md, paddingVertical: space.sm },
-  choiceLabel: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.body },
+  choiceLabel: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body },
   detail: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
   focused: { borderColor: color.textPrimary, borderWidth: 2 },
   hovered: { opacity: 0.9 },
-  input: { borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.body, minHeight: 52, paddingHorizontal: space.md },
+  input: { ...tabularNums, borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body, minHeight: 52, paddingHorizontal: space.md },
   pressed: { opacity: 0.82 },
   selected: { borderColor: color.textPrimary },
-  selectedLabel: { color: color.textPrimary, fontFamily: type.family.monoBold },
+  selectedLabel: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figureBold },
 });

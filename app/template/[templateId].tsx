@@ -1,7 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
-import { color, space, type } from '@/design/tokens';
+import { color, space, tabularNums, type } from '@/design/tokens';
 import { findTemplate } from '@/lib/catalog/templates';
 
 export default function TemplateDetailScreen() {
@@ -47,9 +47,9 @@ export default function TemplateDetailScreen() {
 }
 
 const styles = StyleSheet.create({
-  cadence: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.body },
+  cadence: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body },
   cadenceRow: { borderBottomColor: color.surfaceRaised, borderBottomWidth: 1, borderTopColor: color.surfaceRaised, borderTopWidth: 1, gap: space.xs, paddingVertical: space.md },
-  checklist: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.md, padding: space.md },
+  checklist: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.md, paddingLeft: space.md, paddingVertical: space.sm },
   checklistCompact: { gap: space.sm, padding: space.sm },
   checklistTitle: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg },
   container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingHorizontal: space.lg, paddingBottom: space.md },
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   criterion: { color: color.textPrimary, flex: 1, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   criterionRow: { alignItems: 'flex-start', borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', gap: space.md, paddingTop: space.sm },
   explainer: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
-  label: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
-  number: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption, paddingTop: space.xs },
+  label: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
+  number: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption, paddingTop: space.xs },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

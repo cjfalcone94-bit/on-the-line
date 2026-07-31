@@ -1,15 +1,14 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { type } from '@/design/tokens';
 
 const fontFiles = [
-  'ClashDisplay-Semibold.otf',
-  'ClashDisplay-Bold.otf',
-  'Satoshi-Regular.otf',
-  'Satoshi-Medium.otf',
-  'Satoshi-Bold.otf',
-  'SpaceMono-Regular.ttf',
-  'SpaceMono-Bold.ttf',
+  'BricolageGrotesque-Regular.ttf',
+  'BricolageGrotesque-SemiBold.ttf',
+  'BricolageGrotesque-Bold.ttf',
+  'HankenGrotesk-Regular.ttf',
+  'HankenGrotesk-Medium.ttf',
+  'HankenGrotesk-Bold.ttf',
 ] as const;
 
 describe('locked brand font loading', () => {
@@ -24,5 +23,14 @@ describe('locked brand font loading', () => {
     expect(root).toContain('useFonts({');
     expect(root).toContain('if (!fontsLoaded) return null');
     Object.values(type.family).forEach((family) => expect(root).toContain(`'${family}'`));
+  });
+
+  it('ships only the six approved TTF faces and their OFL licenses', () => {
+    const fontDirectory = join(process.cwd(), 'assets/fonts');
+    expect(readdirSync(fontDirectory).sort()).toEqual([
+      ...fontFiles,
+      'OFL-BricolageGrotesque.txt',
+      'OFL-HankenGrotesk.txt',
+    ].sort());
   });
 });

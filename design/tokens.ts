@@ -1,3 +1,5 @@
+import type { TextStyle } from 'react-native';
+
 /**
  * Design tokens — the single source of truth for On the Line's visual system,
  * generated from the LOCKED `docs/DESIGN-DIRECTION.md` (§3-6, palette locked
@@ -12,19 +14,18 @@
  * shimmer/confetti. Enforce that at the component layer, not by adding more gold
  * tokens here.
  */
-// ---- Type scale (§3: Clash Display headlines/receipt totals, Satoshi body/UI,
-// Space Mono ledger line-items/amounts/receipt numbers — a monospace figure
-// column reads as "accounting," reinforcing honesty). These names are the exact
+// ---- Type scale (§3: Bricolage Grotesque headlines/receipt titles and
+// Hanken Grotesk body/UI/ledger figures). Figures stay proportional and use
+// tabular lining OpenType features rather than a generic monospace face. These are the exact
 // keys registered by expo-font in app/_layout.tsx on every platform. There is no
 // system fallback: the root layout does not render until all faces are loaded. ----
 const families = {
-  display: 'ClashDisplay-Semibold',
-  displayBold: 'ClashDisplay-Bold',
-  body: 'Satoshi-Regular',
-  bodyMedium: 'Satoshi-Medium',
-  bodyBold: 'Satoshi-Bold',
-  mono: 'SpaceMono-Regular',
-  monoBold: 'SpaceMono-Bold',
+  displayRegular: 'BricolageGrotesque-Regular',
+  display: 'BricolageGrotesque-SemiBold',
+  displayBold: 'BricolageGrotesque-Bold',
+  body: 'HankenGrotesk-Regular',
+  bodyMedium: 'HankenGrotesk-Medium',
+  bodyBold: 'HankenGrotesk-Bold',
 } as const;
 
 export const type = {
@@ -33,13 +34,14 @@ export const type = {
   // retain their primary action on the 667pt reference viewport.
   maxScale: 1.35,
   family: {
+    displayRegular: families.displayRegular,
     display: families.display, // headlines, receipt totals
     displayBold: families.displayBold,
     body: families.body, // body/UI copy
     bodyMedium: families.bodyMedium,
     bodyBold: families.bodyBold,
-    mono: families.mono, // ledger line-items, amounts, receipt numbers — NEVER truncate, allow reflow
-    monoBold: families.monoBold,
+    figure: families.body, // pair with tabularNums; NEVER truncate, allow reflow
+    figureBold: families.bodyBold,
   },
   size: {
     caption: 13,
@@ -60,6 +62,12 @@ export const type = {
     relaxed: 1.6,
   },
 } as const;
+
+// Apply to every amount and ledger figure Text style. Lining figures keep dollar
+// values aligned with uppercase labels; tabular figures keep columns stable.
+export const tabularNums: TextStyle = {
+  fontVariant: ['tabular-nums', 'lining-nums'],
+};
 
 // ---- Spacing grid (§3: 8px base unit; ledger-line rhythm uses a taller 12px
 // vertical rhythm on receipt rows to read as itemized, not cramped) ----

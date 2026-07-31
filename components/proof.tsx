@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { color, space, type } from '@/design/tokens';
+import { color, space, tabularNums, type } from '@/design/tokens';
 import { InteractivePressable } from '@/components/ui';
 
 export function FixedChecklist({ criteria, compact = false }: { criteria: readonly string[]; compact?: boolean }) {
@@ -31,19 +31,19 @@ export function PhotoPreview({ uri, onRetake }: { uri: string; onRetake: () => v
 }
 
 const styles = StyleSheet.create({
-  checklist: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.sm, padding: space.md },
+  checklist: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.sm, paddingLeft: space.md, paddingVertical: space.sm },
   checklistCompact: { gap: space.xs, padding: space.sm },
   checklistHeading: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   criterion: { alignItems: 'flex-start', flexDirection: 'row', gap: space.sm },
   criterionText: { color: color.textPrimary, flex: 1, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   focused: { borderColor: color.textPrimary, borderRadius: space.xs, borderWidth: 2 },
   hovered: { opacity: 0.82 },
-  label: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
-  number: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption },
+  label: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
+  number: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption },
   preview: { borderRadius: space.md, flex: 1, width: '100%' },
   previewWrap: { flex: 1, gap: space.sm, minHeight: 180 },
   pressed: { opacity: 0.65, transform: [{ scale: 0.98 }] },
-  readOnly: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 10 },
+  readOnly: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 10 },
   retake: { alignItems: 'center', justifyContent: 'center', minHeight: 44 },
   retakeText: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, textDecorationLine: 'underline' },
 });

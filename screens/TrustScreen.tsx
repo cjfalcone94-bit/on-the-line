@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { BrandWordmark, OnboardingArtwork, PrimaryButton, ScreenHeader, TextAction } from '@/components';
-import { color, space, type } from '@/design/tokens';
+import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { facts } from './trustContent';
 
@@ -36,6 +36,7 @@ export default function TrustScreen() {
           Browse goal templates
         </PrimaryButton>
         <TextAction accessibilityRole="link" align="center" onPress={() => router.push('/record')}>View Commitment Record</TextAction>
+        <TextAction accessibilityRole="link" align="center" onPress={() => router.push('/settings')}>Settings</TextAction>
       </View>
     </SafeAreaView>
   );
@@ -46,11 +47,11 @@ const styles = StyleSheet.create({
   containerCompact: { gap: space.xs, paddingHorizontal: space.md, paddingVertical: space.xs },
   fact: { alignItems: 'flex-start', borderTopColor: color.surfaceRaised, borderTopWidth: 1, flexDirection: 'row', gap: space.md, paddingTop: space.sm },
   factCompact: { gap: space.sm, paddingTop: space.xs },
-  factBody: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
+  factBody: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   factCopy: { flex: 1, gap: space.xs },
   factTitle: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.body },
   facts: { gap: space.sm },
-  footnote: { borderLeftColor: color.gold, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.mono, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, paddingLeft: space.sm },
-  number: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption, paddingTop: space.xs },
+  footnote: { ...tabularNums, borderLeftColor: color.gold, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.figure, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, paddingLeft: space.sm },
+  number: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption, paddingTop: space.xs },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

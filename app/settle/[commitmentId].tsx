@@ -7,7 +7,7 @@ import { AccessibilityInfo, SafeAreaView, StyleSheet, Text, useWindowDimensions,
 import { captureRef } from 'react-native-view-shot';
 import { GlassReceiptCard } from '@/components/glass-receipt';
 import { InteractivePressable, LedgerSkeletonLine, PrimaryButton, StatePanel, TextAction } from '@/components';
-import { color, motion, space, type } from '@/design/tokens';
+import { color, motion, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { getSoundEnabled, setSoundEnabled as persistSoundEnabled } from '@/lib/preferences/sound';
 import { getGlassReceipt } from '@/lib/settlement/service';
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   safe: { backgroundColor: color.surface, flex: 1 },
   skeleton: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.lg, padding: space.lg },
   soundControl: { alignItems: 'center', borderBottomColor: color.surfaceRaised, borderBottomWidth: 1, borderTopColor: color.surfaceRaised, borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: space.xs },
-  soundLabel: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
+  soundLabel: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
   soundPressed: { opacity: 0.65 },
-  soundValue: { color: color.textPrimary, fontFamily: type.family.monoBold, fontSize: type.size.caption },
+  soundValue: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figureBold, fontSize: type.size.caption },
 });

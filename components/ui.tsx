@@ -1,7 +1,7 @@
 import { useEffect, useState, type PropsWithChildren, type ReactNode } from 'react';
-import { Image, Platform, Pressable, StyleSheet, Text, View, type PressableProps, type PressableStateCallbackType, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Image, Platform, Pressable, StyleSheet, Text, View, type PressableProps, type PressableStateCallbackType, type StyleProp, type ViewStyle } from 'react-native';
 import { Animated } from 'react-native';
-import { color, motion, space, type } from '@/design/tokens';
+import { color, motion, space, tabularNums, type } from '@/design/tokens';
 
 export const MAX_FONT_SCALE = 1.35;
 
@@ -69,14 +69,24 @@ export function PrimaryButton({ children, style, ...props }: PropsWithChildren<P
 
 export function LedgerSkeletonLine({ width = '100%', height = 14 }: { width?: number | `${number}%`; height?: number }) {
   const [pulse] = useState(() => new Animated.Value(0));
+  const [reduceMotion, setReduceMotion] = useState(false);
   useEffect(() => {
+    AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
+    return () => subscription.remove();
+  }, []);
+  useEffect(() => {
+    if (reduceMotion) {
+      pulse.setValue(0.5);
+      return;
+    }
     const animation = Animated.loop(Animated.sequence([
       Animated.timing(pulse, { duration: motion.duration.emphasized, toValue: 1, useNativeDriver: true }),
       Animated.timing(pulse, { duration: motion.duration.emphasized, toValue: 0, useNativeDriver: true }),
     ]));
     animation.start();
     return () => animation.stop();
-  }, [pulse]);
+  }, [pulse, reduceMotion]);
   return <Animated.View style={[styles.skeletonLine, { height, opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.12, 0.26] }), width }]} />;
 }
 
@@ -152,7 +162,7 @@ const styles = StyleSheet.create({
   buttonDisabled: { backgroundColor: color.surfaceRaised, borderColor: color.textSecondary, borderWidth: 1, opacity: 0.55 },
   buttonLabel: { color: color.surface, fontFamily: type.family.bodyMedium, fontSize: type.size.body },
   buttonLabelDisabled: { color: color.textSecondary },
-  eyebrow: { color: color.textSecondary, fontFamily: type.family.monoBold, fontSize: type.size.caption, letterSpacing: 1.4 },
+  eyebrow: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figureBold, fontSize: type.size.caption, letterSpacing: 1.4 },
   header: { gap: space.sm },
   headerCompact: { gap: space.xs },
   interactiveFocused: Platform.select({

@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { color, space, type } from '@/design/tokens';
-import { InteractivePressable } from '@/components/ui';
+import { color, space, tabularNums, type } from '@/design/tokens';
+import { InteractivePressable, LedgerSkeletonLine } from '@/components/ui';
 import { findTemplate } from '@/lib/catalog/templates';
 import { findCharity } from '@/lib/commit/charities';
 import { formatMoney } from '@/lib/commit/money';
@@ -38,13 +38,13 @@ export function CommitmentRecordCard({ item, onReceipt, onRecommit }: { item: Co
 }
 
 export function CommitmentRecordSkeleton() {
-  return <View accessibilityLabel="Loading commitment record" style={styles.card} testID="record-skeleton">{[96, 220, 160].map((width) => <View key={width} style={[styles.skeleton, { width }]} />)}</View>;
+  return <View accessibilityLabel="Loading commitment record" style={styles.recordSkeleton} testID="record-skeleton">{[96, 220, 160].map((width) => <LedgerSkeletonLine height={width === 220 ? 22 : 13} key={width} width={width} />)}</View>;
 }
 
 const styles = StyleSheet.create({
   actions: { flexDirection: 'row', gap: space.sm, marginTop: space.xs },
-  card: { backgroundColor: color.surfaceRaised, borderColor: color.textSecondary, borderRadius: space.md, borderWidth: StyleSheet.hairlineWidth, gap: space.sm, padding: space.md },
-  date: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 10 },
+  card: { borderBottomColor: color.textSecondary, borderBottomWidth: StyleSheet.hairlineWidth, borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.sm, paddingBottom: space.md, paddingLeft: space.md, paddingTop: space.xs },
+  date: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 10 },
   empty: { gap: space.md },
   emptyCopy: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   emptyLedger: { borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, gap: space.ledgerLine, paddingVertical: space.lg },
@@ -54,12 +54,12 @@ const styles = StyleSheet.create({
   hovered: { opacity: 0.9 },
   link: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.caption },
   linkButton: { alignItems: 'center', borderColor: color.textSecondary, borderRadius: space.sm, borderWidth: 1, flex: 1, justifyContent: 'center', minHeight: 44, paddingHorizontal: space.sm },
-  meta: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: type.size.caption },
-  outcome: { color: color.textPrimary, fontFamily: type.family.monoBold, fontSize: 10, letterSpacing: 1 },
+  meta: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: type.size.caption },
+  outcome: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figureBold, fontSize: 10, letterSpacing: 1 },
   pressed: { opacity: 0.82, transform: [{ scale: 0.98 }] },
   row: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   secondaryButton: { alignItems: 'center', borderColor: color.textPrimary, borderRadius: space.sm, borderWidth: 1, justifyContent: 'center', minHeight: 52 },
   secondaryLabel: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.body },
-  skeleton: { backgroundColor: color.textSecondary, borderRadius: space.xs, height: 18, opacity: 0.18 },
+  recordSkeleton: { borderBottomColor: color.textSecondary, borderBottomWidth: StyleSheet.hairlineWidth, borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.md, padding: space.md },
   title: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg },
 });

@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { color, space, type } from '@/design/tokens';
+import { color, space, tabularNums, type } from '@/design/tokens';
 import { InteractivePressable } from '@/components/ui';
 import { statusCopy, type VerificationSubmission } from '@/lib/verification/types';
 
@@ -39,16 +39,16 @@ const styles = StyleSheet.create({
   appeal: { alignItems: 'center', borderColor: color.textPrimary, borderRadius: space.sm, borderWidth: 1, justifyContent: 'center', minHeight: 52, padding: space.md },
   appealText: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.body },
   body: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
-  card: { backgroundColor: color.surfaceRaised, borderColor: color.textSecondary, borderRadius: space.md, borderWidth: 1, gap: space.sm, padding: space.lg },
+  card: { borderBottomColor: color.textSecondary, borderBottomWidth: StyleSheet.hairlineWidth, borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, gap: space.sm, paddingVertical: space.lg },
   cardCompact: { gap: space.xs, padding: space.md },
   disabled: { opacity: 0.5 },
   focused: { borderColor: color.textPrimary, borderWidth: 2 },
   hovered: { opacity: 0.9 },
-  label: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: type.size.caption, letterSpacing: 1 },
+  label: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: type.size.caption, letterSpacing: 1 },
   passed: {},
   pressed: { opacity: 0.82, transform: [{ scale: 0.98 }] },
   rule: { backgroundColor: color.textSecondary, height: StyleSheet.hairlineWidth, marginVertical: space.sm },
-  sla: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption, letterSpacing: 0.6 },
+  sla: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption, letterSpacing: 0.6 },
   slaBody: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   title: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.xl },
 });

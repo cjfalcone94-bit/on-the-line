@@ -41,7 +41,7 @@ export default function CommitmentRecordScreen() {
         contentContainerStyle={styles.content}
         data={state === 'ready' ? items : []}
         keyExtractor={(item) => item.commitmentId}
-        ListHeaderComponent={<View style={styles.header}><TextAction onPress={() => router.back()}>‹ Back</TextAction><ScreenHeader eyebrow="Your history" title="Commitment Record" body="Every resolved goal and its itemized receipt, tied to your account." />{offline ? <Text maxFontSizeMultiplier={type.maxScale} accessibilityLiveRegion="polite" style={styles.offline}>You&apos;re offline. Reconnect to restore the latest account record.</Text> : null}</View>}
+        ListHeaderComponent={<View style={styles.header}><View style={styles.headerActions}><TextAction onPress={() => router.back()}>‹ Back</TextAction><TextAction align="end" onPress={() => router.push('/settings')}>Settings</TextAction></View><ScreenHeader eyebrow="Your history" title="Commitment Record" body="Every resolved goal and its itemized receipt, tied to your account." />{offline ? <Text maxFontSizeMultiplier={type.maxScale} accessibilityLiveRegion="polite" style={styles.offline}>You&apos;re offline. Reconnect to restore the latest account record.</Text> : null}</View>}
         ListEmptyComponent={state === 'loading' ? <CommitmentRecordSkeleton /> : state === 'error' ? <StatePanel title="Record unavailable." body="We couldn't restore your account history. Check your connection and try again." actionLabel="Try again" onAction={load} /> : <CommitmentRecordEmpty onBrowse={() => router.replace('/catalog')} />}
         refreshControl={<RefreshControl onRefresh={load} refreshing={state === 'loading'} tintColor={color.textPrimary} />}
         renderItem={({ item }) => <CommitmentRecordCard item={item} onReceipt={() => router.push({ pathname: '/settle/[commitmentId]', params: { commitmentId: item.commitmentId } })} onRecommit={() => recommit(item)} />}
@@ -53,6 +53,7 @@ export default function CommitmentRecordScreen() {
 const styles = StyleSheet.create({
   content: { gap: space.md, paddingBottom: space.xl, paddingHorizontal: space.lg },
   header: { gap: space.md },
+  headerActions: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   offline: { borderLeftColor: color.clayRed, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, paddingLeft: space.sm },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

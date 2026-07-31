@@ -21,13 +21,12 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    'ClashDisplay-Semibold': require('@/assets/fonts/ClashDisplay-Semibold.otf'),
-    'ClashDisplay-Bold': require('@/assets/fonts/ClashDisplay-Bold.otf'),
-    'Satoshi-Regular': require('@/assets/fonts/Satoshi-Regular.otf'),
-    'Satoshi-Medium': require('@/assets/fonts/Satoshi-Medium.otf'),
-    'Satoshi-Bold': require('@/assets/fonts/Satoshi-Bold.otf'),
-    'SpaceMono-Regular': require('@/assets/fonts/SpaceMono-Regular.ttf'),
-    'SpaceMono-Bold': require('@/assets/fonts/SpaceMono-Bold.ttf'),
+    'BricolageGrotesque-Regular': require('@/assets/fonts/BricolageGrotesque-Regular.ttf'),
+    'BricolageGrotesque-SemiBold': require('@/assets/fonts/BricolageGrotesque-SemiBold.ttf'),
+    'BricolageGrotesque-Bold': require('@/assets/fonts/BricolageGrotesque-Bold.ttf'),
+    'HankenGrotesk-Regular': require('@/assets/fonts/HankenGrotesk-Regular.ttf'),
+    'HankenGrotesk-Medium': require('@/assets/fonts/HankenGrotesk-Medium.ttf'),
+    'HankenGrotesk-Bold': require('@/assets/fonts/HankenGrotesk-Bold.ttf'),
   });
   const [reduceMotion, setReduceMotion] = useState(false);
   const [showBrandSplash, setShowBrandSplash] = useState(true);

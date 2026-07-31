@@ -1,11 +1,12 @@
 import * as Haptics from 'expo-haptics';
+import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useStripe } from '@/lib/payments/stripe';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { CharityChoice, CustomStakeInput, StakeChoice } from '@/components/commit';
-import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
-import { color, space, type } from '@/design/tokens';
+import { LedgerSkeletonLine, PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { charities, findCharity } from '@/lib/commit/charities';
 import { dollarsToCents, formatMoney, stakePresets } from '@/lib/commit/money';
@@ -13,6 +14,7 @@ import { finalizeCommitment, prepareAuthorization } from '@/lib/commit/service';
 import { env } from '@/lib/env';
 import { findTemplate } from '@/lib/catalog/templates';
 import { scheduleProofReminder } from '@/lib/proof/reminders';
+import { getSoundEnabled } from '@/lib/preferences/sound';
 
 type Step = 'stake' | 'charity' | 'disclosure' | 'card' | 'confirmed';
 
@@ -22,6 +24,7 @@ export default function CommitScreen() {
   }>();
   const template = findTemplate(templateId);
   const stripe = useStripe();
+  const commitmentPlayer = useAudioPlayer(require('@/assets/sounds/commitment-created.wav'));
   const compact = useWindowDimensions().height <= 700;
   const [step, setStep] = useState<Step>('stake');
   const [charityPage, setCharityPage] = useState(0);
@@ -38,6 +41,10 @@ export default function CommitScreen() {
   const [expiry, setExpiry] = useState<string>();
   const [commitmentId, setCommitmentId] = useState<string>();
   const charity = findCharity(charityId);
+
+  useEffect(() => {
+    setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers' }).catch(() => undefined);
+  }, []);
 
   if (!template) {
     return <SafeAreaView style={styles.safe}><View style={styles.container}><StatePanel title="Goal unavailable." body="This template can’t be committed to right now. Nothing changed." actionLabel="Back to catalog" onAction={() => router.replace('/catalog')} /></View></SafeAreaView>;
@@ -77,6 +84,13 @@ export default function CommitScreen() {
       setStep('confirmed');
       track('commitment_created');
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void getSoundEnabled().then(async (enabled) => {
+        if (!enabled) return;
+        // Expo Audio exposes volume as a mutable native-player property.
+        commitmentPlayer.volume = 0.16;
+        await commitmentPlayer.seekTo(0);
+        commitmentPlayer.play();
+      }).catch(() => undefined);
       void scheduleProofReminder(template.title, template.cadence);
     } catch {
       setError(stakeAuthorized
@@ -172,30 +186,28 @@ export default function CommitScreen() {
 }
 
 const styles = StyleSheet.create({
-  amount: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.xl },
+  amount: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.xl },
   authorization: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   charities: { gap: space.xs },
   container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
   containerCompact: { gap: space.sm, paddingBottom: space.sm, paddingHorizontal: space.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   ledger: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.sm, padding: space.md },
-  ledgerBody: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
-  ledgerLabel: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
-  note: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
+  ledgerBody: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
+  ledgerLabel: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
+  note: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
   pageActions: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', minHeight: 44 },
   rule: { backgroundColor: color.textSecondary, height: StyleSheet.hairlineWidth },
   safe: { backgroundColor: color.surface, flex: 1 },
   successAmount: { color: color.gold },
   skeleton: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.sm, paddingLeft: space.md, paddingVertical: space.sm },
-  skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs, height: 14, opacity: 0.18 },
-  skeletonShort: { width: '52%' },
 });
 
 function AuthorizationSkeleton() {
   return (
     <View accessibilityLabel="Preparing secure card authorization" style={styles.skeleton} testID="authorization-loading">
-      <View style={[styles.skeletonLine, styles.skeletonShort]} />
-      <View style={styles.skeletonLine} />
+      <LedgerSkeletonLine width="52%" />
+      <LedgerSkeletonLine />
       <Text maxFontSizeMultiplier={type.maxScale} style={styles.note}>Preparing secure card authorization…</Text>
     </View>
   );

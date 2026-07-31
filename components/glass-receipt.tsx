@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/refs */
 import { forwardRef, useEffect, useRef } from 'react';
 import { Animated, Image, StyleSheet, Text, View } from 'react-native';
-import { color, motion, space, type } from '@/design/tokens';
+import { color, motion, space, tabularNums, type } from '@/design/tokens';
 import type { GlassReceipt } from '@/lib/settlement/types';
 
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
@@ -111,19 +111,19 @@ const styles = StyleSheet.create({
   brandRow: { alignItems: 'flex-end', flexDirection: 'row', gap: space.sm },
   card: { backgroundColor: color.surfaceRaised, borderColor: '#303030', borderRadius: space.md, borderWidth: 1, gap: space.sm, padding: space.md },
   cardCompact: { gap: space.xs, padding: space.sm },
-  confirmation: { fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
+  confirmation: { ...tabularNums, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   detail: { fontFamily: type.family.body, fontSize: 11, lineHeight: 14 },
   exportCard: { backgroundColor: color.surfaceLight, borderColor: '#D8D8D8', borderRadius: 0, minHeight: 640, padding: space.xl, width: 360 },
   gold: { color: color.gold },
-  kicker: { fontFamily: type.family.monoBold, fontSize: 11, letterSpacing: 1.2 },
+  kicker: { ...tabularNums, fontFamily: type.family.figureBold, fontSize: 11, letterSpacing: 1.2 },
   label: { fontFamily: type.family.body, fontSize: type.size.caption },
   ledgerMark: { backgroundColor: color.gold, height: 2, marginBottom: 3, width: 54 },
   line: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', minHeight: 42, paddingVertical: space.xs },
   lineCopy: { flex: 1, gap: 1, paddingRight: space.sm },
-  reference: { fontFamily: type.family.mono, fontSize: 10 },
+  reference: { ...tabularNums, fontFamily: type.family.figure, fontSize: 10 },
   rule: { height: StyleSheet.hairlineWidth, opacity: 0.5 },
   title: { fontFamily: type.family.display, fontSize: type.size.xl },
-  value: { fontFamily: type.family.monoBold, fontSize: type.size.body },
-  watermark: { fontFamily: type.family.mono, fontSize: 9, letterSpacing: 0.4, marginTop: space.sm, textAlign: 'center' },
+  value: { ...tabularNums, fontFamily: type.family.figureBold, fontSize: type.size.body },
+  watermark: { ...tabularNums, fontFamily: type.family.figure, fontSize: 9, letterSpacing: 0.4, marginTop: space.sm, textAlign: 'center' },
   wordmark: { height: 24, width: 136 },
 });

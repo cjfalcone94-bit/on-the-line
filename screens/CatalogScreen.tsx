@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaView, SectionList, StyleSheet, Text, View } from 'react-native';
-import { InteractivePressable, ScreenHeader, StatePanel } from '@/components';
-import { color, space, type } from '@/design/tokens';
+import { InteractivePressable, LedgerSkeletonLine, ScreenHeader, StatePanel } from '@/components';
+import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { groupTemplates, type ChecklistTemplate } from '@/lib/catalog/templates';
 import { catalogQuery } from '@/lib/queries';
@@ -39,10 +39,10 @@ function CatalogSkeleton() {
     <View accessibilityLabel="Loading goal templates" style={styles.skeletonWrap} testID="catalog-loading">
       {[0, 1, 2].map((item) => (
         <View key={item} style={styles.skeletonCard}>
-          <View style={[styles.skeletonLine, styles.skeletonTitle]} />
-          <View style={[styles.skeletonLine, styles.skeletonShort]} />
-          <View style={styles.skeletonLine} />
-          <View style={styles.skeletonLine} />
+          <LedgerSkeletonLine height={22} width="70%" />
+          <LedgerSkeletonLine width="42%" />
+          <LedgerSkeletonLine />
+          <LedgerSkeletonLine width="88%" />
         </View>
       ))}
     </View>
@@ -94,24 +94,21 @@ const styles = StyleSheet.create({
   backHovered: { opacity: 0.82 },
   backLabel: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body },
   backPressed: { opacity: 0.65, transform: [{ scale: 0.98 }] },
-  cadence: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption },
-  card: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.sm, marginBottom: space.md, padding: space.md, transform: [{ scale: 1 }] },
+  cadence: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption },
+  card: { borderBottomColor: color.textSecondary, borderBottomWidth: StyleSheet.hairlineWidth, gap: space.sm, marginBottom: space.sm, paddingBottom: space.lg, paddingTop: space.md, transform: [{ scale: 1 }] },
   cardFocused: { borderColor: color.textPrimary, borderWidth: 2 },
   cardHovered: { opacity: 0.9 },
   cardHeading: { alignItems: 'center', flexDirection: 'row', gap: space.sm, justifyContent: 'space-between' },
   cardPressed: { opacity: 0.88, transform: [{ scale: 0.99 }] },
   cardTitle: { color: color.textPrimary, flex: 1, fontFamily: type.family.display, fontSize: type.size.lg },
   criteria: { borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, gap: space.xs, paddingTop: space.sm },
-  criteriaLabel: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
+  criteriaLabel: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
   criterion: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   headerWrap: { gap: space.xs, paddingHorizontal: space.lg, paddingBottom: space.md },
   list: { paddingBottom: space.xl, paddingHorizontal: space.lg },
   safe: { backgroundColor: color.surface, flex: 1 },
   sectionTitle: { backgroundColor: color.surface, color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.xl, paddingBottom: space.sm, paddingTop: space.md },
-  skeletonCard: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.md, padding: space.md },
-  skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs, height: 13, opacity: 0.18, width: '100%' },
-  skeletonShort: { width: '42%' },
-  skeletonTitle: { height: 22, width: '70%' },
+  skeletonCard: { borderBottomColor: color.textSecondary, borderBottomWidth: StyleSheet.hairlineWidth, gap: space.md, paddingBottom: space.lg, paddingTop: space.md },
   skeletonWrap: { gap: space.md, paddingHorizontal: space.lg },
   stateWrap: { paddingHorizontal: space.lg, paddingTop: space.lg },
   summary: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
