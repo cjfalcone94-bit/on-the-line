@@ -118,7 +118,7 @@ export default function SettleScreen() {
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.soundValue}>{soundEnabled ? 'ON' : 'OFF'}</Text>
             </InteractivePressable>
             {sharingAvailable === false || shareError ? (
-              <StatePanel title="Sharing is unavailable." body="Your receipt is still saved here. Try sharing again from a device with a share service available." actionLabel={sharingAvailable ? 'Try again' : undefined} onAction={sharingAvailable ? share : undefined} />
+              <Text maxFontSizeMultiplier={type.maxScale} style={styles.shareUnavailable}>Sharing unavailable here · your receipt is still saved.</Text>
             ) : null}
             <PrimaryButton accessibilityLabel="Share Glass Receipt" disabled={visibleLines < 5 || sharingAvailable !== true} onPress={share}>
               {sharingAvailable === null ? 'Checking sharing…' : 'Share receipt'}
@@ -146,6 +146,7 @@ const styles = StyleSheet.create({
   containerCompact: { gap: space.xs, paddingBottom: space.xs, paddingHorizontal: space.sm },
   exportStage: { left: -1000, position: 'absolute', top: 0 },
   safe: { backgroundColor: color.surface, flex: 1 },
+  shareUnavailable: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, paddingLeft: space.sm },
   skeleton: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.lg, padding: space.lg },
   soundControl: { alignItems: 'center', borderBottomColor: color.surfaceRaised, borderBottomWidth: 1, borderTopColor: color.surfaceRaised, borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: space.xs },
   soundLabel: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },

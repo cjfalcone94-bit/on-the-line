@@ -1,7 +1,8 @@
 /* React Native Animated values are intentionally stable refs consumed by native animated styles. */
 /* eslint-disable react-hooks/refs */
 import { forwardRef, useEffect, useRef } from 'react';
-import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, StyleSheet, Text, View } from 'react-native';
+import { BrandWordmark } from '@/components/ui';
 import { color, motion, space, tabularNums, type } from '@/design/tokens';
 import type { GlassReceipt } from '@/lib/settlement/types';
 
@@ -68,14 +69,7 @@ export const GlassReceiptCard = forwardRef<View, {
       <View style={styles.brandRow}>
         {exportMode ? (
           <Text maxFontSizeMultiplier={type.maxScale} style={[styles.brand, { color: ink }]}>ON THE <Text maxFontSizeMultiplier={type.maxScale} style={styles.gold}>LINE</Text></Text>
-        ) : (
-          <Image
-            accessibilityLabel="On the Line"
-            resizeMode="contain"
-            source={require('@/assets/logo/wordmark-horizontal.png')}
-            style={styles.wordmark}
-          />
-        )}
+        ) : <BrandWordmark />}
         <View style={styles.ledgerMark} />
       </View>
       <Text maxFontSizeMultiplier={type.maxScale} style={[styles.kicker, { color: receipt.outcome === 'forfeit' ? color.clayRed : ink }]}>{receipt.outcome === 'success' ? 'SETTLED · SUCCESS' : 'SETTLED · FORFEIT'}</Text>
@@ -125,5 +119,4 @@ const styles = StyleSheet.create({
   title: { fontFamily: type.family.display, fontSize: type.size.xl },
   value: { ...tabularNums, fontFamily: type.family.figureBold, fontSize: type.size.body },
   watermark: { ...tabularNums, fontFamily: type.family.figure, fontSize: 9, letterSpacing: 0.4, marginTop: space.sm, textAlign: 'center' },
-  wordmark: { height: 24, width: 136 },
 });

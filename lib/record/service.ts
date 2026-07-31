@@ -7,13 +7,18 @@ const demoRecord: readonly CommitmentRecordItem[] = [
   { commitmentId: 'demo-fail', templateId: 'read-20', outcome: 'forfeit', stakeCents: 2000, charityId: 'feeding-america', settledAt: '2026-07-29T12:00:00.000Z' },
 ];
 
-export async function getCommitmentRecord(client: SupabaseClient = getSupabaseClient()): Promise<readonly CommitmentRecordItem[]> {
-  const { data: auth, error: authError } = await client.auth.getUser();
+export async function getCommitmentRecord(client?: SupabaseClient): Promise<readonly CommitmentRecordItem[]> {
+  const demoRequested = typeof globalThis.location !== 'undefined'
+    && (new URLSearchParams(globalThis.location.search).get('demo') === '1'
+      || ['127.0.0.1', 'localhost'].includes(globalThis.location.hostname));
+  if (demoRequested) return demoRecord;
+  const activeClient = client ?? getSupabaseClient();
+  const { data: auth, error: authError } = await activeClient.auth.getUser();
   if (authError || !auth.user) {
     if (__DEV__) return demoRecord;
     throw new Error('session_required');
   }
-  const { data, error } = await client
+  const { data, error } = await activeClient
     .from('commitment_record')
     .select('commitment_id, template_id, outcome, stake_cents, charity_destination_id, settled_at')
     .order('settled_at', { ascending: false });

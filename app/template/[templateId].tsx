@@ -38,7 +38,7 @@ export default function TemplateDetailScreen() {
             </View>
           ))}
         </View>
-        <PrimaryButton accessibilityLabel={`Commit to ${template.title}`} onPress={() => router.push(`/commit/${template.id}`)}>
+        <PrimaryButton accessibilityLabel={`Commit to ${template.title}`} onPress={() => router.push(`/commit/${template.id}`)} style={compact ? styles.primaryCompact : undefined}>
           Set stake
         </PrimaryButton>
       </View>
@@ -53,11 +53,12 @@ const styles = StyleSheet.create({
   checklistCompact: { gap: space.sm, padding: space.sm },
   checklistTitle: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg },
   container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingHorizontal: space.lg, paddingBottom: space.md },
-  containerCompact: { gap: space.sm, paddingHorizontal: space.md, paddingBottom: space.sm },
+  containerCompact: { gap: space.sm, paddingHorizontal: space.md, paddingBottom: space.md },
   criterion: { color: color.textPrimary, flex: 1, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   criterionRow: { alignItems: 'flex-start', borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', gap: space.md, paddingTop: space.sm },
   explainer: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   label: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
   number: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption, paddingTop: space.xs },
+  primaryCompact: { marginBottom: space.md },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

@@ -1,6 +1,7 @@
 import { useEffect, useState, type PropsWithChildren, type ReactNode } from 'react';
-import { AccessibilityInfo, Image, Platform, Pressable, StyleSheet, Text, View, type PressableProps, type PressableStateCallbackType, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Platform, Pressable, StyleSheet, Text, View, type PressableProps, type PressableStateCallbackType, type StyleProp, type ViewStyle } from 'react-native';
 import { Animated } from 'react-native';
+import Svg, { Circle, Path } from 'react-native-svg';
 import { color, motion, space, tabularNums, type } from '@/design/tokens';
 
 export const MAX_FONT_SCALE = 1.35;
@@ -106,41 +107,45 @@ export function TextAction({ children, onPress, align = 'start', accessibilityRo
 }
 
 export function BrandWordmark({ layout = 'horizontal' }: { layout?: 'horizontal' | 'stacked' }) {
+  const stacked = layout === 'stacked';
   return (
-    <Image
+    <View
       accessibilityLabel="On the Line"
-      resizeMode="contain"
-      source={layout === 'stacked'
-        ? require('@/assets/logo/wordmark-stacked.png')
-        : require('@/assets/logo/wordmark-horizontal.png')}
-      style={layout === 'stacked' ? styles.wordmarkStacked : styles.wordmarkHorizontal}
+      accessible
+      style={[styles.wordmark, stacked ? styles.wordmarkStacked : styles.wordmarkHorizontal]}
       testID={`brand-wordmark-${layout}`}
-    />
+    >
+      {stacked ? <LedgerMark width={116} height={28} /> : null}
+      <View style={styles.wordmarkTextRow}>
+        <Text allowFontScaling={false} style={styles.wordmarkText}>ON THE </Text>
+        <Text allowFontScaling={false} style={[styles.wordmarkText, styles.wordmarkGold]}>LINE</Text>
+      </View>
+      {!stacked ? <LedgerMark width={54} height={18} /> : null}
+    </View>
+  );
+}
+
+function LedgerMark({ width, height }: { width: number; height: number }) {
+  return (
+    <Svg aria-hidden height={height} viewBox="0 0 120 32" width={width}>
+      <Path d="M2 23H78L102 5" fill="none" stroke={color.gold} strokeLinecap="square" strokeLinejoin="round" strokeWidth="5" />
+      <Circle cx="70" cy="23" fill={color.gold} r="7" />
+    </Svg>
   );
 }
 
 export function BrandSplash() {
   return (
     <View accessibilityLabel="On the Line" style={styles.splash} testID="brand-splash">
-      <Image
-        accessibilityLabel="On the Line"
-        resizeMode="contain"
-        source={require('@/assets/logo/wordmark-stacked.png')}
-        style={styles.splashWordmark}
-      />
+      <BrandWordmark layout="stacked" />
     </View>
   );
 }
 
 export function OnboardingArtwork({ compact = false }: { compact?: boolean }) {
   return (
-    <View style={styles.onboarding} testID="onboarding-artwork">
-      <Image
-        accessibilityLabel="On the Line"
-        resizeMode="contain"
-        source={require('@/assets/logo/wordmark-horizontal.png')}
-        style={[styles.onboardingWordmark, compact && styles.onboardingWordmarkCompact]}
-      />
+    <View style={[styles.onboarding, compact && styles.onboardingCompact]} testID="onboarding-artwork">
+      <BrandWordmark />
     </View>
   );
 }
@@ -160,7 +165,7 @@ const styles = StyleSheet.create({
   bodyCompact: { fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   button: { alignItems: 'center', backgroundColor: color.textPrimary, borderRadius: space.sm, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.lg, paddingVertical: space.md, transform: [{ scale: 1 }] },
   buttonDisabled: { backgroundColor: color.surfaceRaised, borderColor: color.textSecondary, borderWidth: 1, opacity: 0.55 },
-  buttonLabel: { color: color.surface, fontFamily: type.family.bodyMedium, fontSize: type.size.body },
+  buttonLabel: { color: color.surface, fontFamily: type.family.bodyMedium, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.tight },
   buttonLabelDisabled: { color: color.textSecondary },
   eyebrow: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figureBold, fontSize: type.size.caption, letterSpacing: 1.4 },
   header: { gap: space.sm },
@@ -170,11 +175,9 @@ const styles = StyleSheet.create({
     default: { borderColor: color.textPrimary, borderWidth: 2 },
   }),
   interactiveHovered: { opacity: 0.9 },
-  onboarding: { gap: space.sm },
-  onboardingWordmark: { alignSelf: 'center', height: 28, width: 168 },
-  onboardingWordmarkCompact: { height: 22, width: 132 },
+  onboarding: { alignItems: 'center', gap: space.sm },
+  onboardingCompact: { transform: [{ scale: 0.88 }] },
   splash: { alignItems: 'center', backgroundColor: color.surface, flex: 1, justifyContent: 'center', padding: space.xl },
-  splashWordmark: { height: 180, width: '76%' },
   skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs },
   statePanel: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.md, paddingVertical: space.sm, paddingLeft: space.md },
   stateTitle: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg },
@@ -186,6 +189,10 @@ const styles = StyleSheet.create({
   textActionstart: { alignSelf: 'flex-start' },
   title: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.display, lineHeight: type.size.display * type.lineHeight.tight },
   titleCompact: { fontSize: type.size.xl, lineHeight: type.size.xl * type.lineHeight.tight },
-  wordmarkHorizontal: { height: 34, width: 190 },
-  wordmarkStacked: { height: 92, width: 152 },
+  wordmark: { alignItems: 'center', backgroundColor: 'transparent', justifyContent: 'center' },
+  wordmarkGold: { color: color.gold },
+  wordmarkHorizontal: { flexDirection: 'row', gap: space.sm },
+  wordmarkStacked: { gap: space.sm },
+  wordmarkText: { color: color.textPrimary, fontFamily: type.family.displayBold, fontSize: 20, letterSpacing: 0.8 },
+  wordmarkTextRow: { flexDirection: 'row' },
 });

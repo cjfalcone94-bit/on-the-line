@@ -9,6 +9,10 @@ import type { VerificationSubmission } from '@/lib/verification/types';
 
 type ViewState = 'loading' | 'ready' | 'appealing' | 'error';
 
+export function generateStaticParams() {
+  return [{ submissionId: 'demo-passed' }];
+}
+
 export default function VerifyStatusScreen() {
   const compact = useWindowDimensions().height <= 700;
   const { submissionId } = useLocalSearchParams<{ submissionId: string }>();

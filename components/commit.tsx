@@ -71,18 +71,18 @@ export function CharityChoice({ charity, selected, onPress, compact = false }: {
 }
 
 const styles = StyleSheet.create({
-  charity: { alignItems: 'center', borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, flexDirection: 'row', gap: space.sm, minHeight: 58, padding: space.sm },
+  charity: { alignItems: 'center', borderBottomColor: color.surfaceRaised, borderBottomWidth: StyleSheet.hairlineWidth, flexDirection: 'row', gap: space.sm, minHeight: 58, paddingHorizontal: space.xs, paddingVertical: space.sm },
   charityCompact: { minHeight: 48, paddingVertical: space.xs },
   charityCopy: { flex: 1 },
   charityIcon: { height: 42, resizeMode: 'contain', width: 42 },
   charityIconCompact: { height: 32, width: 32 },
-  choice: { borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.md, paddingVertical: space.sm },
+  choice: { borderBottomColor: color.surfaceRaised, borderBottomWidth: StyleSheet.hairlineWidth, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.sm, paddingVertical: space.sm },
   choiceLabel: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body },
   detail: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
   focused: { borderColor: color.textPrimary, borderWidth: 2 },
   hovered: { opacity: 0.9 },
   input: { ...tabularNums, borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body, minHeight: 52, paddingHorizontal: space.md },
   pressed: { opacity: 0.82 },
-  selected: { borderColor: color.textPrimary },
+  selected: { borderBottomColor: color.textPrimary, borderBottomWidth: 2 },
   selectedLabel: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figureBold },
 });

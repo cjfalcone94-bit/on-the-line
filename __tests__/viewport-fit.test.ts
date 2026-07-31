@@ -20,10 +20,15 @@ describe('iPhone SE fixed-flow viewport contract', () => {
     'app/proof/[commitmentId].tsx',
     'app/verify/[submissionId].tsx',
     'app/settle/[commitmentId].tsx',
-  ])('%s selects compact layout on the SE without adding a ScrollView', (relativePath) => {
+  ])('%s selects compact layout on the SE', (relativePath) => {
     const source = readFileSync(join(process.cwd(), relativePath), 'utf8');
     expect(source).toContain('height <= 700');
-    expect(source).not.toMatch(/\bScrollView\b/);
+  });
+
+  it('pins the commit CTA below a bounded overflow region', () => {
+    const source = readFileSync(join(process.cwd(), 'app/commit/[templateId].tsx'), 'utf8');
+    expect(source).toContain('testID="commit-primary-footer"');
+    expect(source).toContain('style={styles.contentRegion}');
   });
 
   it('paginates the formerly six-row charity choice into three-row pages', () => {

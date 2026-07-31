@@ -3,7 +3,7 @@ import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useStripe } from '@/lib/payments/stripe';
 import { useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { CharityChoice, CustomStakeInput, StakeChoice } from '@/components/commit';
 import { LedgerSkeletonLine, PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
@@ -101,10 +101,29 @@ export default function CommitScreen() {
     }
   };
 
+  const primaryAction = step === 'stake'
+    ? { disabled: !stakeCents, label: 'Choose charity', onPress: () => setStep('charity') }
+    : step === 'charity'
+      ? { disabled: !charity, label: 'Review the mechanic', onPress: () => { setStep('disclosure'); track('fee_disclosure_viewed'); } }
+      : step === 'disclosure'
+        ? { disabled: false, label: 'Continue to card authorization', onPress: () => setStep('card') }
+        : step === 'card' && !busy && !error
+          ? { disabled: false, label: 'Authorize stake and pay base fee', onPress: authorize }
+          : step === 'confirmed'
+            ? { disabled: !commitmentId, label: 'Submit today’s proof', onPress: () => router.replace({ pathname: '/proof/[commitmentId]', params: { commitmentId: commitmentId!, templateId: template.id } }) }
+            : undefined;
+
   return (
     <SafeAreaView style={styles.safe} testID="commit-screen">
       <View style={[styles.container, compact && styles.containerCompact]}>
         <TextAction onPress={() => step === 'stake' ? router.back() : setStep(step === 'charity' ? 'stake' : step === 'disclosure' ? 'charity' : 'disclosure')}>‹ Back</TextAction>
+        <ScrollView
+          bounces={false}
+          contentContainerStyle={[styles.content, compact && styles.contentCompact]}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+          style={styles.contentRegion}
+        >
         {step === 'stake' ? (
           <>
             <ScreenHeader compact={compact} eyebrow="01 · stake" title="Put a clear amount on it." body={`${template.title} · ${template.cadence}`} />
@@ -113,7 +132,6 @@ export default function CommitScreen() {
             </View>
             <CustomStakeInput onChange={(value) => { setCustom(value); setStakeCents(dollarsToCents(value)); }} value={custom} />
             <Text maxFontSizeMultiplier={type.maxScale} style={styles.note}>Custom stake: $5–$1,000. Your card will be authorized, not charged.</Text>
-            <PrimaryButton disabled={!stakeCents} onPress={() => setStep('charity')}>Choose charity</PrimaryButton>
           </>
         ) : null}
         {step === 'charity' ? (
@@ -126,7 +144,6 @@ export default function CommitScreen() {
               {charityPage > 0 ? <TextAction onPress={() => setCharityPage(0)}>‹ First 3</TextAction> : <View />}
               {charityPage === 0 ? <TextAction align="end" onPress={() => setCharityPage(1)}>More charities ›</TextAction> : null}
             </View>
-            <PrimaryButton disabled={!charity} onPress={() => { setStep('disclosure'); track('fee_disclosure_viewed'); }}>Review the mechanic</PrimaryButton>
           </>
         ) : null}
         {step === 'disclosure' && stakeCents && charity ? (
@@ -146,7 +163,6 @@ export default function CommitScreen() {
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerBody}>A separate base service fee is charged now. It never comes out of your stake.</Text>
             </View>
             <Text maxFontSizeMultiplier={type.maxScale} style={styles.authorization}>Next, Stripe will authorize a temporary card hold. It does not charge your card.</Text>
-            <PrimaryButton onPress={() => setStep('card')}>Continue to card authorization</PrimaryButton>
           </>
         ) : null}
         {step === 'card' ? (
@@ -159,7 +175,6 @@ export default function CommitScreen() {
             </View>
             {busy ? <AuthorizationSkeleton /> : null}
             {error ? <StatePanel title="Authorization didn’t complete." body={error} actionLabel="Try again" onAction={authorize} /> : null}
-            {!busy && !error ? <PrimaryButton onPress={authorize}>Authorize stake and pay base fee</PrimaryButton> : null}
           </>
         ) : null}
         {step === 'confirmed' ? (
@@ -172,14 +187,12 @@ export default function CommitScreen() {
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerBody}>Authorization review · {expiry ? new Date(expiry).toLocaleDateString() : 'before the next proof window'}</Text>
             </View>
             <Text maxFontSizeMultiplier={type.maxScale} style={styles.authorization}>If this authorization expires, we’ll ask you to re-authorize before the next proof window. If that remains unresolved, the commitment is voided—no charge and no forfeiture.</Text>
-            <PrimaryButton
-              disabled={!commitmentId}
-              onPress={() => router.replace({ pathname: '/proof/[commitmentId]', params: { commitmentId: commitmentId!, templateId: template.id } })}
-            >
-              Submit today’s proof
-            </PrimaryButton>
           </>
         ) : null}
+        </ScrollView>
+        <View style={styles.footer} testID="commit-primary-footer">
+          {primaryAction ? <PrimaryButton disabled={primaryAction.disabled} onPress={primaryAction.onPress}>{primaryAction.label}</PrimaryButton> : null}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -189,10 +202,14 @@ const styles = StyleSheet.create({
   amount: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.xl },
   authorization: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   charities: { gap: space.xs },
-  container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
-  containerCompact: { gap: space.sm, paddingBottom: space.sm, paddingHorizontal: space.md },
+  container: { flex: 1, paddingHorizontal: space.lg },
+  containerCompact: { paddingHorizontal: space.md },
+  content: { gap: space.md, paddingBottom: space.md },
+  contentCompact: { gap: space.sm },
+  contentRegion: { flex: 1 },
+  footer: { borderTopColor: color.surfaceRaised, borderTopWidth: StyleSheet.hairlineWidth, paddingBottom: space.sm, paddingTop: space.sm },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
-  ledger: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.sm, padding: space.md },
+  ledger: { borderLeftColor: color.gold, borderLeftWidth: 2, gap: space.sm, paddingHorizontal: space.md, paddingVertical: space.sm },
   ledgerBody: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   ledgerLabel: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
   note: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },

@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { BrandWordmark, OnboardingArtwork, PrimaryButton, ScreenHeader, TextAction } from '@/components';
+import { OnboardingArtwork, PrimaryButton, ScreenHeader, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { facts } from './trustContent';
@@ -15,7 +15,6 @@ export default function TrustScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="trust-screen">
       <View style={[styles.container, compact && styles.containerCompact]}>
-        <BrandWordmark layout="horizontal" />
         <ScreenHeader compact={compact} eyebrow="How this works" title="Nothing hidden." />
         <OnboardingArtwork compact={compact} />
         <View style={styles.facts}>
@@ -36,7 +35,6 @@ export default function TrustScreen() {
           Browse goal templates
         </PrimaryButton>
         <TextAction accessibilityRole="link" align="center" onPress={() => router.push('/record')}>View Commitment Record</TextAction>
-        <TextAction accessibilityRole="link" align="center" onPress={() => router.push('/settings')}>Settings</TextAction>
       </View>
     </SafeAreaView>
   );
