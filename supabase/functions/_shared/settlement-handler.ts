@@ -136,4 +136,3 @@ export async function handleSettlementRequest(request: Request, outcome: Settlem
     return json({ error: 'settlement_incomplete' }, 502);
   }
 }
-      fallback_used: !declaredCharity,

@@ -20,8 +20,10 @@ Deno.serve(async (request) => {
   const { data: auth, error: authError } = await caller.auth.getUser();
   if (authError || !auth.user) return json({ error: 'unauthorized' }, 401);
 
-  const { submissionId, reason } = await request.json() as { submissionId: string; reason: string };
-  if (!reason || reason.length > 500) return json({ error: 'invalid_reason' }, 400);
+  const body = await request.json().catch(() => null) as { submissionId?: string; reason?: string } | null;
+  if (!body) return json({ error: 'invalid_request' }, 400);
+  const { submissionId, reason } = body;
+  if (!submissionId || !reason || reason.length > 500) return json({ error: 'invalid_reason' }, 400);
   const { data: allowed, error: rateError } = await admin.rpc('consume_appeal_rate_limit', {
     p_limit: 3, p_owner_id: auth.user.id, p_window_seconds: 3600,
   });

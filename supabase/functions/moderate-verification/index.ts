@@ -31,10 +31,14 @@ Deno.serve(async (request) => {
     return json({ queue: data ?? [] });
   }
   if (request.method !== 'POST') return json({ error: 'method_not_allowed' }, 405);
-  const { queueId, decision, reason } = await request.json() as {
-    queueId: string; decision: 'pass' | 'fail'; reason: string;
-  };
-  if (!['pass', 'fail'].includes(decision) || !reason) return json({ error: 'invalid_decision' }, 400);
+  const body = await request.json().catch(() => null) as {
+    queueId?: string; decision?: 'pass' | 'fail'; reason?: string;
+  } | null;
+  if (!body) return json({ error: 'invalid_request' }, 400);
+  const { queueId, decision, reason } = body;
+  if (!queueId || !decision || !['pass', 'fail'].includes(decision) || !reason) {
+    return json({ error: 'invalid_decision' }, 400);
+  }
   const { data: item } = await admin.from('moderation_queue').select('id, submission_id, queue_kind, status')
     .eq('id', queueId).neq('status', 'resolved').maybeSingle();
   if (!item) return json({ error: 'queue_item_not_found' }, 404);

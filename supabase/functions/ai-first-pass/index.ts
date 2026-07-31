@@ -18,7 +18,9 @@ Deno.serve(async (request) => {
   if (request.headers.get('x-internal-secret') !== Deno.env.get('VERIFICATION_INTERNAL_SECRET')) {
     return json({ error: 'unauthorized' }, 401);
   }
-  const { submissionId } = await request.json() as { submissionId: string };
+  const body = await request.json().catch(() => null) as { submissionId?: string } | null;
+  if (!body?.submissionId) return json({ error: 'invalid_request' }, 400);
+  const { submissionId } = body;
   const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
   const { data: submission } = await admin.from('proof_submissions')
     .select('id, storage_path, criteria_snapshot, verification_status, resolved_at')

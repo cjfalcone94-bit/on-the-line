@@ -62,7 +62,8 @@ Deno.serve(async (request) => {
   if (rateError) return response({ error: 'rate_limit_unavailable' }, 503);
   if (!allowed) return response({ error: 'rate_limited' }, 429);
 
-  const input = await request.json() as ProofSubmissionInput;
+  const input = await request.json().catch(() => null) as ProofSubmissionInput | null;
+  if (!input) return response({ error: 'invalid_request' }, 400);
   const { data: commitment } = await admin
     .from('commitments')
     .select('id, owner_id, template_id, state')
