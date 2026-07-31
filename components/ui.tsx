@@ -1,6 +1,7 @@
-import { useState, type PropsWithChildren, type ReactNode } from 'react';
+import { useEffect, useState, type PropsWithChildren, type ReactNode } from 'react';
 import { Image, Platform, Pressable, StyleSheet, Text, View, type PressableProps, type PressableStateCallbackType, type StyleProp, type ViewStyle } from 'react-native';
-import { color, space, type } from '@/design/tokens';
+import { Animated } from 'react-native';
+import { color, motion, space, type } from '@/design/tokens';
 
 export const MAX_FONT_SCALE = 1.35;
 
@@ -39,20 +40,44 @@ export function ScreenHeader({ eyebrow, title, body, compact = false }: { eyebro
 }
 
 export function PrimaryButton({ children, style, ...props }: PropsWithChildren<PressableProps>) {
+  const [press] = useState(() => new Animated.Value(0));
+  const animatePress = (pressed: boolean) => {
+    Animated.timing(press, {
+      duration: motion.duration.fast,
+      toValue: pressed ? 1 : 0,
+      useNativeDriver: true,
+    }).start();
+  };
   return (
     <InteractivePressable
-      accessibilityRole="button"
-      style={({ pressed }) => [
-        styles.button,
-        pressed && styles.buttonPressed,
-        props.disabled && styles.buttonDisabled,
-        typeof style === 'function' ? style({ pressed }) : style,
-      ]}
       {...props}
+      accessibilityRole="button"
+      style={() => [
+        styles.button,
+        props.disabled && styles.buttonDisabled,
+        typeof style === 'function' ? style({ pressed: false }) : style,
+      ]}
+      onPressIn={(event) => { animatePress(true); props.onPressIn?.(event); }}
+      onPressOut={(event) => { animatePress(false); props.onPressOut?.(event); }}
     >
-      <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.buttonLabel, props.disabled && styles.buttonLabelDisabled]}>{children}</Text>
+      <Animated.View style={{ opacity: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.86] }), transform: [{ scale: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.98] }) }] }}>
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.buttonLabel, props.disabled && styles.buttonLabelDisabled]}>{children}</Text>
+      </Animated.View>
     </InteractivePressable>
   );
+}
+
+export function LedgerSkeletonLine({ width = '100%', height = 14 }: { width?: number | `${number}%`; height?: number }) {
+  const [pulse] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    const animation = Animated.loop(Animated.sequence([
+      Animated.timing(pulse, { duration: motion.duration.emphasized, toValue: 1, useNativeDriver: true }),
+      Animated.timing(pulse, { duration: motion.duration.emphasized, toValue: 0, useNativeDriver: true }),
+    ]));
+    animation.start();
+    return () => animation.stop();
+  }, [pulse]);
+  return <Animated.View style={[styles.skeletonLine, { height, opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.12, 0.26] }), width }]} />;
 }
 
 export function TextAction({ children, onPress, align = 'start', accessibilityRole = 'button' }: {
@@ -127,7 +152,6 @@ const styles = StyleSheet.create({
   buttonDisabled: { backgroundColor: color.surfaceRaised, borderColor: color.textSecondary, borderWidth: 1, opacity: 0.55 },
   buttonLabel: { color: color.surface, fontFamily: type.family.bodyMedium, fontSize: type.size.body },
   buttonLabelDisabled: { color: color.textSecondary },
-  buttonPressed: { opacity: 0.86, transform: [{ scale: 0.98 }] },
   eyebrow: { color: color.textSecondary, fontFamily: type.family.monoBold, fontSize: type.size.caption, letterSpacing: 1.4 },
   header: { gap: space.sm },
   headerCompact: { gap: space.xs },
@@ -141,6 +165,7 @@ const styles = StyleSheet.create({
   onboardingWordmarkCompact: { height: 22, width: 132 },
   splash: { alignItems: 'center', backgroundColor: color.surface, flex: 1, justifyContent: 'center', padding: space.xl },
   splashWordmark: { height: 180, width: '76%' },
+  skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs },
   statePanel: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.md, paddingVertical: space.sm, paddingLeft: space.md },
   stateTitle: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg },
   textAction: { justifyContent: 'center', minHeight: 44 },

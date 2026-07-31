@@ -3,12 +3,13 @@ import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, SafeAreaView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { GlassReceiptCard } from '@/components/glass-receipt';
-import { PrimaryButton, StatePanel, TextAction } from '@/components';
-import { color, motion, space } from '@/design/tokens';
+import { InteractivePressable, LedgerSkeletonLine, PrimaryButton, StatePanel, TextAction } from '@/components';
+import { color, motion, space, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
+import { getSoundEnabled, setSoundEnabled as persistSoundEnabled } from '@/lib/preferences/sound';
 import { getGlassReceipt } from '@/lib/settlement/service';
 import type { GlassReceipt } from '@/lib/settlement/types';
 
@@ -27,6 +28,7 @@ export default function SettleScreen() {
   const [reduceMotion, setReduceMotion] = useState(false);
   const [sharingAvailable, setSharingAvailable] = useState<boolean | null>(null);
   const [shareError, setShareError] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(true);
   const exportRef = useRef<View>(null);
   const player = useAudioPlayer(require('@/assets/sounds/ledger-riffle.wav'));
 
@@ -45,6 +47,7 @@ export default function SettleScreen() {
 
   useEffect(() => {
     AccessibilityInfo.isReduceMotionEnabled().then(setReduceMotion);
+    getSoundEnabled().then(setSoundEnabled).catch(() => undefined);
     Sharing.isAvailableAsync().then(setSharingAvailable).catch(() => setSharingAvailable(false));
     setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers' }).catch(() => undefined);
     Promise.resolve().then(load);
@@ -56,13 +59,15 @@ export default function SettleScreen() {
       const revealTimer = setTimeout(() => setVisibleLines(5), 0);
       return () => clearTimeout(revealTimer);
     }
-    // Expo Audio exposes volume as a mutable native-player property.
-    // eslint-disable-next-line react-hooks/immutability
-    player.volume = 0.18;
+    if (soundEnabled) {
+      // Expo Audio exposes volume as a mutable native-player property.
+      // eslint-disable-next-line react-hooks/immutability
+      player.volume = 0.18;
+      player.seekTo(0).then(() => player.play()).catch(() => undefined);
+    }
     const timers = Array.from({ length: 5 }, (_, index) =>
       setTimeout(() => {
         setVisibleLines(index + 1);
-        player.seekTo(0).then(() => player.play()).catch(() => undefined);
       }, motion.duration.emphasized * (index + 1)));
     const hapticTimer = setTimeout(() => {
       const cue = receipt.outcome === 'success'
@@ -71,7 +76,13 @@ export default function SettleScreen() {
       cue.catch(() => undefined);
     }, motion.duration.emphasized * 5);
     return () => [...timers, hapticTimer].forEach(clearTimeout);
-  }, [player, receipt, reduceMotion]);
+  }, [player, receipt, reduceMotion, soundEnabled]);
+
+  const toggleSound = () => {
+    const next = !soundEnabled;
+    setSoundEnabled(next);
+    void persistSoundEnabled(next);
+  };
 
   const share = async () => {
     if (!exportRef.current || !sharingAvailable) {
@@ -96,6 +107,16 @@ export default function SettleScreen() {
         {receipt ? (
           <>
             <GlassReceiptCard compact={compact} receipt={receipt} visibleLines={visibleLines} />
+            <InteractivePressable
+              accessibilityLabel={`Receipt sound ${soundEnabled ? 'on' : 'off'}`}
+              accessibilityRole="switch"
+              accessibilityState={{ checked: soundEnabled }}
+              onPress={toggleSound}
+              style={({ pressed }) => [styles.soundControl, pressed && styles.soundPressed]}
+            >
+              <Text maxFontSizeMultiplier={type.maxScale} style={styles.soundLabel}>RECEIPT SOUND</Text>
+              <Text maxFontSizeMultiplier={type.maxScale} style={styles.soundValue}>{soundEnabled ? 'ON' : 'OFF'}</Text>
+            </InteractivePressable>
             {sharingAvailable === false || shareError ? (
               <StatePanel title="Sharing is unavailable." body="Your receipt is still saved here. Try sharing again from a device with a share service available." actionLabel={sharingAvailable ? 'Try again' : undefined} onAction={sharingAvailable ? share : undefined} />
             ) : null}
@@ -115,7 +136,7 @@ export default function SettleScreen() {
 function ReceiptSkeleton() {
   return (
     <View accessibilityLabel="Loading receipt" style={styles.skeleton} testID="receipt-skeleton">
-      {[80, 180, 260, 240, 280, 220].map((width, index) => <View key={width} style={[styles.skeletonLine, { opacity: 1 - index * 0.1, width }]} />)}
+      {[80, 180, 260, 240, 280, 220].map((width) => <LedgerSkeletonLine height={18} key={width} width={width} />)}
     </View>
   );
 }
@@ -126,5 +147,8 @@ const styles = StyleSheet.create({
   exportStage: { left: -1000, position: 'absolute', top: 0 },
   safe: { backgroundColor: color.surface, flex: 1 },
   skeleton: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.lg, padding: space.lg },
-  skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs, height: 18, opacity: 0.18 },
+  soundControl: { alignItems: 'center', borderBottomColor: color.surfaceRaised, borderBottomWidth: 1, borderTopColor: color.surfaceRaised, borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: space.xs },
+  soundLabel: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
+  soundPressed: { opacity: 0.65 },
+  soundValue: { color: color.textPrimary, fontFamily: type.family.monoBold, fontSize: type.size.caption },
 });
