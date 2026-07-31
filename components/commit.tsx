@@ -1,5 +1,7 @@
-import { Image, Pressable, StyleSheet, Text, TextInput, View, type ImageSourcePropType } from 'react-native';
+import { useState } from 'react';
+import { Image, StyleSheet, Text, TextInput, View, type ImageSourcePropType } from 'react-native';
 import { color, space, type } from '@/design/tokens';
+import { InteractivePressable } from '@/components/ui';
 import type { Charity } from '@/lib/commit/charities';
 import { formatMoney } from '@/lib/commit/money';
 
@@ -14,16 +16,16 @@ const charityIcons: Record<string, ImageSourcePropType> = {
 
 export function Choice({ label, detail, selected, onPress, testID }: { label: string; detail?: string; selected: boolean; onPress: () => void; testID?: string }) {
   return (
-    <Pressable
+    <InteractivePressable
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={({ pressed }) => [styles.choice, selected && styles.selected, pressed && styles.pressed]}
+      style={({ pressed, focused, hovered }) => [styles.choice, selected && styles.selected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
       testID={testID}
     >
-      <Text allowFontScaling style={[styles.choiceLabel, selected && styles.selectedLabel]}>{label}</Text>
-      {detail ? <Text allowFontScaling style={styles.detail}>{detail}</Text> : null}
-    </Pressable>
+      <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.choiceLabel, selected && styles.selectedLabel]}>{label}</Text>
+      {detail ? <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.detail}>{detail}</Text> : null}
+    </InteractivePressable>
   );
 }
 
@@ -32,48 +34,55 @@ export function StakeChoice({ cents, selected, onPress }: { cents: number; selec
 }
 
 export function CustomStakeInput({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  const [focused, setFocused] = useState(false);
   return (
     <TextInput
       accessibilityLabel="Custom stake amount in dollars"
       inputMode="decimal"
       maxLength={8}
       onChangeText={onChange}
+      onBlur={() => setFocused(false)}
+      onFocus={() => setFocused(true)}
       placeholder="$ Custom"
       placeholderTextColor={color.textSecondary}
-      style={styles.input}
+      style={[styles.input, focused && styles.focused]}
       value={value}
     />
   );
 }
 
-export function CharityChoice({ charity, selected, onPress }: { charity: Charity; selected: boolean; onPress: () => void }) {
+export function CharityChoice({ charity, selected, onPress, compact = false }: { charity: Charity; selected: boolean; onPress: () => void; compact?: boolean }) {
   return (
-    <Pressable
+    <InteractivePressable
       accessibilityLabel={`${charity.name}, ${charity.category}`}
       accessibilityRole="radio"
       accessibilityState={{ selected }}
       onPress={onPress}
-      style={({ pressed }) => [styles.charity, selected && styles.selected, pressed && styles.pressed]}
+      style={({ pressed, focused, hovered }) => [styles.charity, compact && styles.charityCompact, selected && styles.selected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
       testID={`charity-${charity.id}`}
     >
-      <Image accessible={false} source={charityIcons[charity.id]} style={styles.charityIcon} tintColor={color.textPrimary} />
+      <Image accessible={false} source={charityIcons[charity.id]} style={[styles.charityIcon, compact && styles.charityIconCompact]} tintColor={color.textPrimary} />
       <View style={styles.charityCopy}>
-        <Text allowFontScaling style={[styles.choiceLabel, selected && styles.selectedLabel]}>{charity.name}</Text>
-        <Text allowFontScaling style={styles.detail}>{charity.category}</Text>
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.choiceLabel, selected && styles.selectedLabel]}>{charity.name}</Text>
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.detail}>{charity.category}</Text>
       </View>
-    </Pressable>
+    </InteractivePressable>
   );
 }
 
 const styles = StyleSheet.create({
   charity: { alignItems: 'center', borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, flexDirection: 'row', gap: space.sm, minHeight: 58, padding: space.sm },
+  charityCompact: { minHeight: 48, paddingVertical: space.xs },
   charityCopy: { flex: 1 },
   charityIcon: { height: 42, resizeMode: 'contain', width: 42 },
+  charityIconCompact: { height: 32, width: 32 },
   choice: { borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.md, paddingVertical: space.sm },
   choiceLabel: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.body },
   detail: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
+  focused: { borderColor: color.textPrimary, borderWidth: 2 },
+  hovered: { opacity: 0.9 },
   input: { borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.body, minHeight: 52, paddingHorizontal: space.md },
   pressed: { opacity: 0.82 },
   selected: { borderColor: color.textPrimary },
-  selectedLabel: { color: color.textPrimary, fontWeight: type.weight.semibold },
+  selectedLabel: { color: color.textPrimary, fontFamily: type.family.monoBold },
 });

@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, SafeAreaView, StyleSheet, View } from 'react-native';
+import { AccessibilityInfo, SafeAreaView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { GlassReceiptCard } from '@/components/glass-receipt';
 import { PrimaryButton, StatePanel, TextAction } from '@/components';
@@ -19,6 +19,7 @@ export function generateStaticParams() {
 }
 
 export default function SettleScreen() {
+  const compact = useWindowDimensions().height <= 700;
   const { commitmentId } = useLocalSearchParams<{ commitmentId: string }>();
   const [receipt, setReceipt] = useState<GlassReceipt>();
   const [state, setState] = useState<ViewState>('loading');
@@ -88,13 +89,13 @@ export default function SettleScreen() {
 
   return (
     <SafeAreaView style={styles.safe} testID="settle-screen">
-      <View style={styles.container}>
+      <View style={[styles.container, compact && styles.containerCompact]}>
         <TextAction align="end" onPress={() => router.replace('/catalog')}>Close</TextAction>
         {state === 'loading' ? <ReceiptSkeleton /> : null}
         {state === 'error' ? <StatePanel title="Receipt is unavailable." body="Check your connection and try again. No settlement state changed." actionLabel="Try again" onAction={load} /> : null}
         {receipt ? (
           <>
-            <GlassReceiptCard receipt={receipt} visibleLines={visibleLines} />
+            <GlassReceiptCard compact={compact} receipt={receipt} visibleLines={visibleLines} />
             {sharingAvailable === false || shareError ? (
               <StatePanel title="Sharing is unavailable." body="Your receipt is still saved here. Try sharing again from a device with a share service available." actionLabel={sharingAvailable ? 'Try again' : undefined} onAction={sharingAvailable ? share : undefined} />
             ) : null}
@@ -121,6 +122,7 @@ function ReceiptSkeleton() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, gap: space.sm, justifyContent: 'center', paddingBottom: space.sm, paddingHorizontal: space.md },
+  containerCompact: { gap: space.xs, paddingBottom: space.xs, paddingHorizontal: space.sm },
   exportStage: { left: -1000, position: 'absolute', top: 0 },
   safe: { backgroundColor: color.surface, flex: 1 },
   skeleton: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.lg, padding: space.lg },

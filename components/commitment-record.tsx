@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { color, space, type } from '@/design/tokens';
+import { InteractivePressable } from '@/components/ui';
 import { findTemplate } from '@/lib/catalog/templates';
 import { findCharity } from '@/lib/commit/charities';
 import { formatMoney } from '@/lib/commit/money';
@@ -13,8 +14,8 @@ export function CommitmentRecordEmpty({ onBrowse }: { onBrowse: () => void }) {
         <View style={styles.emptyRule} />
         <View style={styles.emptyRule} />
       </View>
-      <Text style={styles.emptyCopy}>No commitments yet. Pick a goal, set a stake, and we&apos;ll hold you to it — fairly.</Text>
-      <Pressable accessibilityRole="button" onPress={onBrowse} style={({ pressed }) => [styles.secondaryButton, pressed && styles.pressed]}><Text style={styles.secondaryLabel}>Browse goals</Text></Pressable>
+      <Text maxFontSizeMultiplier={type.maxScale} style={styles.emptyCopy}>No commitments yet. Pick a goal, set a stake, and we&apos;ll hold you to it — fairly.</Text>
+      <InteractivePressable accessibilityRole="button" onPress={onBrowse} style={({ pressed, focused, hovered }) => [styles.secondaryButton, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}><Text maxFontSizeMultiplier={type.maxScale} style={styles.secondaryLabel}>Browse goals</Text></InteractivePressable>
     </View>
   );
 }
@@ -25,12 +26,12 @@ export function CommitmentRecordCard({ item, onReceipt, onRecommit }: { item: Co
   const outcome = item.outcome === 'success' ? 'SETTLED · SUCCESS' : 'SETTLED · FORFEIT';
   return (
     <View accessible accessibilityLabel={`${template?.title ?? 'Past commitment'}, ${outcome}`} style={styles.card} testID={`record-${item.commitmentId}`}>
-      <View style={styles.row}><Text style={[styles.outcome, item.outcome === 'forfeit' && styles.forfeit]}>{outcome}</Text><Text style={styles.date}>{new Date(item.settledAt).toLocaleDateString()}</Text></View>
-      <Text accessibilityRole="header" style={styles.title}>{template?.title ?? 'Archived goal'}</Text>
-      <Text style={styles.meta}>{formatMoney(item.stakeCents)} stake · {charity?.name ?? item.charityId}</Text>
+      <View style={styles.row}><Text maxFontSizeMultiplier={type.maxScale} style={[styles.outcome, item.outcome === 'forfeit' && styles.forfeit]}>{outcome}</Text><Text maxFontSizeMultiplier={type.maxScale} style={styles.date}>{new Date(item.settledAt).toLocaleDateString()}</Text></View>
+      <Text maxFontSizeMultiplier={type.maxScale} accessibilityRole="header" style={styles.title}>{template?.title ?? 'Archived goal'}</Text>
+      <Text maxFontSizeMultiplier={type.maxScale} style={styles.meta}>{formatMoney(item.stakeCents)} stake · {charity?.name ?? item.charityId}</Text>
       <View style={styles.actions}>
-        <Pressable accessibilityRole="button" onPress={onReceipt} style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]} testID={`receipt-${item.commitmentId}`}><Text style={styles.link}>Glass Receipt</Text></Pressable>
-        <Pressable accessibilityRole="button" onPress={onRecommit} style={({ pressed }) => [styles.linkButton, pressed && styles.pressed]} testID={`recommit-${item.commitmentId}`}><Text style={styles.link}>Re-commit</Text></Pressable>
+        <InteractivePressable accessibilityRole="button" onPress={onReceipt} style={({ pressed, focused, hovered }) => [styles.linkButton, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]} testID={`receipt-${item.commitmentId}`}><Text maxFontSizeMultiplier={type.maxScale} style={styles.link}>Glass Receipt</Text></InteractivePressable>
+        <InteractivePressable accessibilityRole="button" onPress={onRecommit} style={({ pressed, focused, hovered }) => [styles.linkButton, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]} testID={`recommit-${item.commitmentId}`}><Text maxFontSizeMultiplier={type.maxScale} style={styles.link}>Re-commit</Text></InteractivePressable>
       </View>
     </View>
   );
@@ -49,14 +50,16 @@ const styles = StyleSheet.create({
   emptyLedger: { borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, gap: space.ledgerLine, paddingVertical: space.lg },
   emptyRule: { backgroundColor: color.textSecondary, height: StyleSheet.hairlineWidth, opacity: 0.35 },
   forfeit: { color: color.clayRed },
-  link: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, fontWeight: type.weight.semibold },
+  focused: { borderColor: color.textPrimary, borderWidth: 2 },
+  hovered: { opacity: 0.9 },
+  link: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.caption },
   linkButton: { alignItems: 'center', borderColor: color.textSecondary, borderRadius: space.sm, borderWidth: 1, flex: 1, justifyContent: 'center', minHeight: 44, paddingHorizontal: space.sm },
   meta: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: type.size.caption },
-  outcome: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: 10, fontWeight: type.weight.bold, letterSpacing: 1 },
+  outcome: { color: color.textPrimary, fontFamily: type.family.monoBold, fontSize: 10, letterSpacing: 1 },
   pressed: { opacity: 0.82, transform: [{ scale: 0.98 }] },
   row: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   secondaryButton: { alignItems: 'center', borderColor: color.textPrimary, borderRadius: space.sm, borderWidth: 1, justifyContent: 'center', minHeight: 52 },
-  secondaryLabel: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.body, fontWeight: type.weight.semibold },
+  secondaryLabel: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.body },
   skeleton: { backgroundColor: color.textSecondary, borderRadius: space.xs, height: 18, opacity: 0.18 },
-  title: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg, fontWeight: type.weight.semibold },
+  title: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg },
 });

@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { SafeAreaView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { AppealAction, VerificationCard } from '@/components/verification';
 import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space } from '@/design/tokens';
@@ -10,6 +10,7 @@ import type { VerificationSubmission } from '@/lib/verification/types';
 type ViewState = 'loading' | 'ready' | 'appealing' | 'error';
 
 export default function VerifyStatusScreen() {
+  const compact = useWindowDimensions().height <= 700;
   const { submissionId } = useLocalSearchParams<{ submissionId: string }>();
   const [submission, setSubmission] = useState<VerificationSubmission>();
   const [viewState, setViewState] = useState<ViewState>('loading');
@@ -53,12 +54,12 @@ export default function VerifyStatusScreen() {
 
   return (
     <SafeAreaView style={styles.safe} testID="verify-status-screen">
-      <View style={styles.container}>
+      <View style={[styles.container, compact && styles.containerCompact]}>
         <TextAction onPress={() => router.back()}>‹ Back</TextAction>
-        <ScreenHeader eyebrow="verification · read only" title="Proof status" body="Only your submission status appears here. Evidence and reviewer records stay private." />
+        <ScreenHeader compact={compact} eyebrow="verification · read only" title="Proof status" body="Only your submission status appears here. Evidence and reviewer records stay private." />
         {viewState === 'loading' ? <StatePanel title="Checking status…" body="Your proof and published review deadline are being loaded." /> : null}
         {viewState === 'error' ? <StatePanel title="Status is unavailable." body="Check your connection and try again. No verification outcome changed." actionLabel="Try again" onAction={load} /> : null}
-        {submission && viewState !== 'loading' ? <VerificationCard submission={submission} /> : null}
+        {submission && viewState !== 'loading' ? <VerificationCard compact={compact} submission={submission} /> : null}
         {submission?.appealAllowed && viewState === 'ready' ? <AppealAction onPress={appeal} /> : null}
         {viewState === 'appealing' ? <StatePanel title="Sending your appeal…" body="Your existing outcome remains protected while a new human review is opened." /> : null}
         <PrimaryButton
@@ -76,5 +77,6 @@ export default function VerifyStatusScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
+  containerCompact: { gap: space.sm, paddingBottom: space.sm, paddingHorizontal: space.md },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { Pressable, SafeAreaView, SectionList, StyleSheet, Text, View } from 'react-native';
-import { ScreenHeader, StatePanel } from '@/components';
+import { SafeAreaView, SectionList, StyleSheet, Text, View } from 'react-native';
+import { InteractivePressable, ScreenHeader, StatePanel } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { groupTemplates, type ChecklistTemplate } from '@/lib/catalog/templates';
@@ -10,27 +10,27 @@ import { catalogQuery } from '@/lib/queries';
 
 export function TemplateCard({ template, onPress }: { template: ChecklistTemplate; onPress: () => void }) {
   return (
-    <Pressable
+    <InteractivePressable
       accessibilityHint="Opens the exact pass criteria"
       accessibilityLabel={`${template.title}. ${template.cadence}. Pass criteria: ${template.criteria.join('. ')}`}
       accessibilityRole="button"
       onPress={onPress}
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+      style={({ pressed, focused, hovered }) => [styles.card, pressed && styles.cardPressed, hovered && styles.cardHovered, focused && styles.cardFocused]}
       testID={`template-${template.id}`}
     >
       <View style={styles.cardHeading}>
-        <Text allowFontScaling style={styles.cardTitle}>{template.title}</Text>
-        <Text allowFontScaling style={styles.arrow}>›</Text>
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cardTitle}>{template.title}</Text>
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.arrow}>›</Text>
       </View>
-      <Text allowFontScaling style={styles.cadence}>{template.cadence}</Text>
-      <Text allowFontScaling numberOfLines={2} style={styles.summary}>{template.summary}</Text>
+      <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cadence}>{template.cadence}</Text>
+      <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling numberOfLines={2} style={styles.summary}>{template.summary}</Text>
       <View style={styles.criteria}>
-        <Text allowFontScaling style={styles.criteriaLabel}>WHAT COUNTS</Text>
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.criteriaLabel}>WHAT COUNTS</Text>
         {template.criteria.map((criterion) => (
-          <Text allowFontScaling key={criterion} numberOfLines={2} style={styles.criterion}>— {criterion}</Text>
+          <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling key={criterion} numberOfLines={2} style={styles.criterion}>— {criterion}</Text>
         ))}
       </View>
-    </Pressable>
+    </InteractivePressable>
   );
 }
 
@@ -60,9 +60,9 @@ export default function CatalogScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="catalog-screen">
       <View style={styles.headerWrap}>
-        <Pressable accessibilityLabel="Back to how this works" accessibilityRole="button" hitSlop={12} onPress={() => router.back()} style={({ pressed }) => [styles.back, pressed && styles.backPressed]}>
-          <Text allowFontScaling style={styles.backLabel}>‹ How this works</Text>
-        </Pressable>
+        <InteractivePressable accessibilityLabel="Back to how this works" accessibilityRole="button" hitSlop={12} onPress={() => router.back()} style={({ pressed, focused, hovered }) => [styles.back, pressed && styles.backPressed, hovered && styles.backHovered, focused && styles.backFocused]}>
+          <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.backLabel}>‹ How this works</Text>
+        </InteractivePressable>
         <ScreenHeader eyebrow="Goal catalog" title="Pick a clear target." body="Every checklist is fixed up front. You see exactly what counts before making any commitment." />
       </View>
       {query.isPending ? <CatalogSkeleton /> : query.isError ? (
@@ -78,7 +78,7 @@ export default function CatalogScreen() {
             track('template_selected', { template_id: item.id });
             router.push({ pathname: '/template/[templateId]', params: { templateId: item.id } });
           }} />}
-          renderSectionHeader={({ section }) => <Text allowFontScaling accessibilityRole="header" style={styles.sectionTitle}>{section.title}</Text>}
+          renderSectionHeader={({ section }) => <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling accessibilityRole="header" style={styles.sectionTitle}>{section.title}</Text>}
           sections={sections}
           stickySectionHeadersEnabled={false}
         />
@@ -90,20 +90,24 @@ export default function CatalogScreen() {
 const styles = StyleSheet.create({
   arrow: { color: color.textSecondary, fontSize: type.size.xl },
   back: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
+  backFocused: { borderColor: color.textPrimary, borderRadius: space.xs, borderWidth: 2 },
+  backHovered: { opacity: 0.82 },
   backLabel: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body },
   backPressed: { opacity: 0.65, transform: [{ scale: 0.98 }] },
   cadence: { color: color.textPrimary, fontFamily: type.family.mono, fontSize: type.size.caption },
   card: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.sm, marginBottom: space.md, padding: space.md, transform: [{ scale: 1 }] },
+  cardFocused: { borderColor: color.textPrimary, borderWidth: 2 },
+  cardHovered: { opacity: 0.9 },
   cardHeading: { alignItems: 'center', flexDirection: 'row', gap: space.sm, justifyContent: 'space-between' },
   cardPressed: { opacity: 0.88, transform: [{ scale: 0.99 }] },
-  cardTitle: { color: color.textPrimary, flex: 1, fontFamily: type.family.display, fontSize: type.size.lg, fontWeight: type.weight.semibold },
+  cardTitle: { color: color.textPrimary, flex: 1, fontFamily: type.family.display, fontSize: type.size.lg },
   criteria: { borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, gap: space.xs, paddingTop: space.sm },
   criteriaLabel: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 11, letterSpacing: 1 },
   criterion: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   headerWrap: { gap: space.xs, paddingHorizontal: space.lg, paddingBottom: space.md },
   list: { paddingBottom: space.xl, paddingHorizontal: space.lg },
   safe: { backgroundColor: color.surface, flex: 1 },
-  sectionTitle: { backgroundColor: color.surface, color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.xl, fontWeight: type.weight.semibold, paddingBottom: space.sm, paddingTop: space.md },
+  sectionTitle: { backgroundColor: color.surface, color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.xl, paddingBottom: space.sm, paddingTop: space.md },
   skeletonCard: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.md, padding: space.md },
   skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs, height: 13, opacity: 0.18, width: '100%' },
   skeletonShort: { width: '42%' },

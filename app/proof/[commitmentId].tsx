@@ -2,7 +2,7 @@ import NetInfo from '@react-native-community/netinfo';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { FixedChecklist, PhotoPreview } from '@/components/proof';
 import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, type } from '@/design/tokens';
@@ -18,6 +18,7 @@ export function generateStaticParams() {
 }
 
 export default function ProofScreen() {
+  const compact = useWindowDimensions().height <= 700;
   const { commitmentId, templateId } = useLocalSearchParams<{ commitmentId: string; templateId: string }>();
   const template = findTemplate(templateId);
   const [photoUri, setPhotoUri] = useState<string>();
@@ -88,16 +89,16 @@ export default function ProofScreen() {
 
   return (
     <SafeAreaView style={styles.safe} testID="proof-screen">
-      <View style={styles.container}>
+      <View style={[styles.container, compact && styles.containerCompact]}>
         <TextAction onPress={() => router.back()}>‹ Back</TextAction>
-        <ScreenHeader eyebrow={`${template.cadence} · proof`} title={template.title} body="Use one photo to show the fixed checklist below. The checklist cannot be edited." />
-        <FixedChecklist criteria={template.criteria} />
+        <ScreenHeader compact={compact} eyebrow={`${template.cadence} · proof`} title={template.title} body="Use one photo to show the fixed checklist below. The checklist cannot be edited." />
+        <FixedChecklist compact={compact} criteria={template.criteria} />
 
         {state === 'capture' && !photoUri ? (
           <View style={styles.capture}>
             <View accessible accessibilityLabel="No proof photo selected" style={styles.cameraFrame}>
-              <Text allowFontScaling style={styles.cameraMark}>＋</Text>
-              <Text allowFontScaling style={styles.cameraCopy}>Camera first. Your photo is the only evidence submitted in this step.</Text>
+              <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cameraMark}>＋</Text>
+              <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cameraCopy}>Camera first. Your photo is the only evidence submitted in this step.</Text>
             </View>
             <PrimaryButton onPress={() => choosePhoto(true)} testID="take-proof-photo">Take photo</PrimaryButton>
             <TextAction align="center" onPress={() => choosePhoto(false)}>Choose from photo library</TextAction>
@@ -122,8 +123,8 @@ export default function ProofScreen() {
         ) : null}
 
         {state === 'capture' && photoUri ? <PrimaryButton onPress={submit} testID="submit-proof">Submit proof</PrimaryButton> : null}
-        {online === false && state === 'capture' ? <Text allowFontScaling style={styles.offline}>OFFLINE · Capture still works. Submission will stay safely on this device until you reconnect.</Text> : null}
-        <Text allowFontScaling style={styles.missed}>A missed window is never an automatic charge. The template’s checklist rules apply, with review in a later step.</Text>
+        {online === false && state === 'capture' ? <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.offline}>OFFLINE · Capture still works. Submission will stay safely on this device until you reconnect.</Text> : null}
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.missed}>A missed window is never an automatic charge. The template’s checklist rules apply, with review in a later step.</Text>
       </View>
     </SafeAreaView>
   );
@@ -135,6 +136,7 @@ const styles = StyleSheet.create({
   cameraMark: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.xl },
   capture: { flex: 1, gap: space.sm },
   container: { flex: 1, gap: space.sm, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
+  containerCompact: { gap: space.xs, paddingBottom: space.sm, paddingHorizontal: space.md },
   missed: { color: color.textSecondary, fontFamily: type.family.body, fontSize: 11, lineHeight: 15 },
   offline: { color: color.textSecondary, fontFamily: type.family.mono, fontSize: 10, lineHeight: 14 },
   safe: { backgroundColor: color.surface, flex: 1 },

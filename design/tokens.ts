@@ -12,28 +12,34 @@
  * shimmer/confetti. Enforce that at the component layer, not by adding more gold
  * tokens here.
  */
-import { Platform } from 'react-native';
-
 // ---- Type scale (§3: Clash Display headlines/receipt totals, Satoshi body/UI,
 // Space Mono ledger line-items/amounts/receipt numbers — a monospace figure
-// column reads as "accounting," reinforcing honesty). Bundle Clash/Satoshi/Space
-// Mono as app fonts (not system fonts) once the app repo exists; System fallback
-// keeps this file usable before those font files are dropped in. ----
-const families = Platform.select({
-  ios: { display: 'ClashDisplay-Semibold', body: 'Satoshi-Regular', mono: 'SpaceMono-Regular' },
-  web: {
-    display: 'var(--font-display, "Clash Display", system-ui)',
-    body: 'var(--font-body, "Satoshi", system-ui)',
-    mono: 'var(--font-mono, "Space Mono", monospace)',
-  },
-  default: { display: 'sans-serif', body: 'sans-serif', mono: 'monospace' },
-})!;
+// column reads as "accounting," reinforcing honesty). These names are the exact
+// keys registered by expo-font in app/_layout.tsx on every platform. There is no
+// system fallback: the root layout does not render until all faces are loaded. ----
+const families = {
+  display: 'ClashDisplay-Semibold',
+  displayBold: 'ClashDisplay-Bold',
+  body: 'Satoshi-Regular',
+  bodyMedium: 'Satoshi-Medium',
+  bodyBold: 'Satoshi-Bold',
+  mono: 'SpaceMono-Regular',
+  monoBold: 'SpaceMono-Bold',
+} as const;
 
 export const type = {
+  // A deliberate accessibility ceiling for fixed-height financial flows. At
+  // 135% the smallest body copy remains 22.95pt while the no-scroll screens
+  // retain their primary action on the 667pt reference viewport.
+  maxScale: 1.35,
   family: {
     display: families.display, // headlines, receipt totals
+    displayBold: families.displayBold,
     body: families.body, // body/UI copy
+    bodyMedium: families.bodyMedium,
+    bodyBold: families.bodyBold,
     mono: families.mono, // ledger line-items, amounts, receipt numbers — NEVER truncate, allow reflow
+    monoBold: families.monoBold,
   },
   size: {
     caption: 13,
