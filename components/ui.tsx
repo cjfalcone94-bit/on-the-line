@@ -89,6 +89,14 @@ export function ScreenHeader({ eyebrow, title, body, compact = false }: { eyebro
   );
 }
 
+export function SandboxBadge() {
+  return (
+    <View accessibilityLabel="Sandbox — no real payment" style={styles.sandboxBadge} testID="sandbox-badge">
+      <Text maxFontSizeMultiplier={type.maxScale} style={styles.sandboxLabel}>SANDBOX — NO REAL PAYMENT</Text>
+    </View>
+  );
+}
+
 export function PrimaryButton({ children, style, ...props }: PropsWithChildren<InteractivePressableProps>) {
   return (
     <InteractivePressable
@@ -216,6 +224,8 @@ const styles = StyleSheet.create({
   interactiveHovered: { opacity: 0.9 },
   onboarding: { alignItems: 'center', gap: space.sm },
   onboardingCompact: { transform: [{ scale: 0.88 }] },
+  sandboxBadge: { alignSelf: 'flex-start', borderColor: color.gold, borderRadius: space.xs, borderWidth: 1, paddingHorizontal: space.sm, paddingVertical: 5 },
+  sandboxLabel: { ...tabularNums, color: color.gold, fontFamily: type.family.figureBold, fontSize: 9, letterSpacing: 0.8 },
   splash: { alignItems: 'center', backgroundColor: color.surface, flex: 1, justifyContent: 'center', padding: space.xl },
   skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs },
   statePanel: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.md, paddingVertical: space.sm, paddingLeft: space.md },

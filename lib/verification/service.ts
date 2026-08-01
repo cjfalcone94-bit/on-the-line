@@ -2,6 +2,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { track } from '@/lib/analytics';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { VerificationSubmission } from './types';
+import { env } from '@/lib/env';
+import { resolveSandboxVerification } from '@/lib/sandbox/service';
 
 const demoSubmissions: Record<string, VerificationSubmission> = {
   'demo-passed': {
@@ -16,6 +18,9 @@ const demoSubmissions: Record<string, VerificationSubmission> = {
 
 export async function getVerificationStatus(submissionId: string, client?: SupabaseClient): Promise<VerificationSubmission> {
   const normalizedSubmissionId = submissionId.replace(/\.html$/, '');
+  if (env.sandbox && normalizedSubmissionId.startsWith('sandbox-submission-')) {
+    return resolveSandboxVerification(normalizedSubmissionId);
+  }
   if (demoSubmissions[normalizedSubmissionId]) return demoSubmissions[normalizedSubmissionId];
   const activeClient = client ?? getSupabaseClient();
   const { data: auth, error: authError } = await activeClient.auth.getUser();

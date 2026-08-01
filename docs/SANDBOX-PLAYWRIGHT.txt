@@ -1,0 +1,5 @@
+
+Running 1 test using 1 worker
+
+[1/1] e2e/sandbox-walk.spec.ts:51:5 › walks sandbox success, record, and forfeit receipts
+  1 passed (23.1s)

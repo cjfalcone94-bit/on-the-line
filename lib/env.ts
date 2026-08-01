@@ -1,4 +1,5 @@
 type PublicEnvironment = Readonly<{
+  sandbox?: boolean;
   supabase: {
     url?: string;
     anonKey?: string;
@@ -22,8 +23,10 @@ const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY;
 const posthogKey = process.env.EXPO_PUBLIC_POSTHOG_KEY;
 const sentryDsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 const stripePublishableKey = process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+const sandbox = process.env.EXPO_PUBLIC_SANDBOX === '1';
 
 export const env: PublicEnvironment = Object.freeze({
+  sandbox,
   supabase: {
     url: supabaseUrl,
     anonKey: supabaseAnonKey,

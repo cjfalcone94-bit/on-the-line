@@ -10,6 +10,11 @@
     },
     "preview": {
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_SANDBOX": "1",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51Tys55RrI9I1WQ3HL62dgpVbJcjNsFtps9uWFxKSu7FE3AbgNnFpCwySdStnfHBiVEWhzW0k3m4NyfPeKKBE7ryb009HXD86S3",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://vnztsjnpvnkjyauqmiom.supabase.co"
+      },
       "ios": {
         "simulator": false
       }
@@ -18,6 +23,9 @@
       "autoIncrement": true,
       "credentialsSource": "local",
       "env": {
+        "EXPO_PUBLIC_SANDBOX": "1",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51Tys55RrI9I1WQ3HL62dgpVbJcjNsFtps9uWFxKSu7FE3AbgNnFpCwySdStnfHBiVEWhzW0k3m4NyfPeKKBE7ryb009HXD86S3",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://vnztsjnpvnkjyauqmiom.supabase.co",
         "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     }

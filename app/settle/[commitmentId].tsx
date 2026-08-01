@@ -5,13 +5,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { GlassReceiptCard } from '@/components/glass-receipt';
-import { InteractivePressable, LedgerSkeletonLine, PrimaryButton, ScreenEntrance, StatePanel, TextAction } from '@/components';
+import { InteractivePressable, LedgerSkeletonLine, PrimaryButton, SandboxBadge, ScreenEntrance, StatePanel, TextAction } from '@/components';
 import { color, motion, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { getSoundEnabled, setSoundEnabled as persistSoundEnabled } from '@/lib/preferences/sound';
 import { getGlassReceipt } from '@/lib/settlement/service';
 import type { GlassReceipt } from '@/lib/settlement/types';
 import { fireHaptic } from '@/lib/feedback';
+import { env } from '@/lib/env';
 
 type ViewState = 'loading' | 'ready' | 'error';
 
@@ -99,6 +100,7 @@ export default function SettleScreen() {
     <SafeAreaView style={styles.safe} testID="settle-screen">
       <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
         <TextAction align="end" onPress={() => router.replace('/catalog')}>Close</TextAction>
+        {env.sandbox ? <SandboxBadge /> : null}
         {state === 'loading' ? <ReceiptSkeleton /> : null}
         {state === 'error' ? <StatePanel title="Receipt is unavailable." body="Check your connection and try again. No settlement state changed." actionLabel="Try again" onAction={load} /> : null}
         {receipt ? (

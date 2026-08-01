@@ -1,0 +1,37 @@
+
+> on-the-line@1.0.0 test
+> jest --ci --runInBand
+
+PASS __tests__/sandbox-flow.test.ts
+PASS __tests__/catalog.test.tsx
+PASS __tests__/settings.test.tsx
+PASS __tests__/commitment-record.test.tsx
+PASS __tests__/glass-receipt.test.tsx
+PASS __tests__/interaction-states.test.tsx
+PASS __tests__/commit-components.test.tsx
+PASS __tests__/verification-components.test.tsx
+PASS __tests__/trust.test.tsx
+PASS __tests__/proof-components.test.tsx
+PASS __tests__/viewport-fit.test.ts
+PASS __tests__/interactive-pressable.test.tsx
+PASS __tests__/settlement-contract.test.ts
+PASS __tests__/proof-queue.test.ts
+PASS __tests__/analytics.test.ts
+PASS __tests__/font-loading.test.ts
+PASS __tests__/proof-contract.test.ts
+PASS __tests__/env.test.ts
+PASS __tests__/commit-contract.test.ts
+PASS __tests__/instrumentation.test.ts
+PASS __tests__/tokens.test.ts
+PASS __tests__/privacy.test.ts
+PASS __tests__/verification-security.test.ts
+PASS __tests__/proof-reminders.test.ts
+PASS __tests__/commitment-record-contract.test.ts
+PASS __tests__/verification-contract.test.ts
+PASS __tests__/commit-logic.test.ts
+
+Test Suites: 27 passed, 27 total
+Tests:       116 passed, 116 total
+Snapshots:   0 total
+Time:        18.017 s
+Ran all test suites.

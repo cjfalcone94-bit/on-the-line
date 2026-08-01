@@ -1,0 +1,31 @@
+[33m› [1m[@sentry/react-native/expo][22m Missing config for [1morganization, project[22m. Environment variables will be used as a fallback during the build. https://docs.sentry.io/platforms/react-native/manual-setup/[0m
+React Compiler enabled
+Starting Metro Bundler
+
+Static rendering is enabled. Learn more: https://docs.expo.dev/router/web/static-rendering/
+λ Bundled 5546ms node_modules/expo/node_modules/@expo/cli/node_modules/@expo/router-server/node/render.js (1999 modules)
+[expo-notifications] Listening to push token changes is not yet fully supported on web. Adding a listener will have no effect.
+Web Bundled 7043ms node_modules/expo-router/entry.js (1930 modules)
+
+› web bundles (1):
+_expo/static/js/web/entry-443d230f4f8d05910076ece39a8adb91.js (4.1MB)
+
+› Static routes (15):
+/ (index) (25KB)
+/record (25KB)
+/catalog (25KB)
+/settings (25KB)
+/_sitemap (23KB)
+/+not-found (23KB)
+/proof/demo-proof (25KB)
+/settle/demo-fail (25KB)
+/verify/demo-passed (25KB)
+/commit/[templateId] (25KB)
+/settle/demo-success (25KB)
+/proof/[commitmentId] (25KB)
+/settle/[commitmentId] (25KB)
+/template/[templateId] (25KB)
+/verify/[submissionId] (25KB)
+
+Exported: dist-sandbox
+Something prevented Expo from exiting, forcefully exiting now.

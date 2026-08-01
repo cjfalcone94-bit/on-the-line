@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { CommitmentRecordItem } from './types';
+import { env } from '@/lib/env';
+import { getSandboxRecord } from '@/lib/sandbox/service';
 
 const demoRecord: readonly CommitmentRecordItem[] = [
   { commitmentId: 'demo-success', templateId: 'daily-walk', outcome: 'success', stakeCents: 4000, charityId: 'direct-relief', settledAt: '2026-07-30T12:00:00.000Z' },
@@ -8,6 +10,7 @@ const demoRecord: readonly CommitmentRecordItem[] = [
 ];
 
 export async function getCommitmentRecord(client?: SupabaseClient): Promise<readonly CommitmentRecordItem[]> {
+  if (env.sandbox) return getSandboxRecord();
   const demoRequested = typeof globalThis.location !== 'undefined'
     && (new URLSearchParams(globalThis.location.search).get('demo') === '1'
       || ['127.0.0.1', 'localhost'].includes(globalThis.location.hostname));

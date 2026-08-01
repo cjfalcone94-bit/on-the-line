@@ -11,6 +11,8 @@ import { enqueueProof, syncProofQueue } from '@/lib/proof/queue';
 import { submitProof } from '@/lib/proof/service';
 import { createProofDraft, type ProofDraft } from '@/lib/proof/types';
 import { fireHaptic } from '@/lib/feedback';
+import { env } from '@/lib/env';
+import { submitSandboxProof } from '@/lib/sandbox/service';
 
 type ScreenState = 'capture' | 'uploading' | 'queued' | 'submitted' | 'error';
 
@@ -69,7 +71,7 @@ export default function ProofScreen() {
 
   const submit = async () => {
     if (!draft) return;
-    if (!online) {
+    if (!env.sandbox && !online) {
       try {
         await enqueueProof(draft);
         setState('queued');
@@ -81,7 +83,7 @@ export default function ProofScreen() {
     }
     setState('uploading');
     try {
-      const result = await submitProof(draft);
+      const result = env.sandbox ? await submitSandboxProof(commitmentId) : await submitProof(draft);
       setSlaHours(result.slaHours);
       setSubmissionId(result.id);
       setState('submitted');
@@ -105,6 +107,7 @@ export default function ProofScreen() {
               <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cameraCopy}>Camera first. Your photo is the only evidence submitted in this step.</Text>
             </View>
             <PrimaryButton onPress={() => choosePhoto(true)} testID="take-proof-photo">Take photo</PrimaryButton>
+            {env.sandbox ? <TextAction align="center" onPress={() => setPhotoUri('sandbox://mock-proof.jpg')}>Use mock sandbox proof</TextAction> : null}
             <TextAction align="center" onPress={() => choosePhoto(false)}>Choose from photo library</TextAction>
           </View>
         ) : null}

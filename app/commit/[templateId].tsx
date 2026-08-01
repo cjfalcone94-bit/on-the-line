@@ -4,7 +4,7 @@ import { useStripe } from '@/lib/payments/stripe';
 import { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { CharityChoice, CustomStakeInput, StakeChoice } from '@/components/commit';
-import { LedgerSkeletonLine, PrimaryButton, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { LedgerSkeletonLine, PrimaryButton, SandboxBadge, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { charities, findCharity } from '@/lib/commit/charities';
@@ -15,6 +15,8 @@ import { findTemplate } from '@/lib/catalog/templates';
 import { scheduleProofReminder } from '@/lib/proof/reminders';
 import { getSoundEnabled } from '@/lib/preferences/sound';
 import { fireHaptic } from '@/lib/feedback';
+import { authorizeSandboxCommitment } from '@/lib/sandbox/service';
+import type { ReceiptOutcome } from '@/lib/settlement/types';
 
 type Step = 'stake' | 'charity' | 'disclosure' | 'card' | 'confirmed';
 
@@ -40,6 +42,7 @@ export default function CommitScreen() {
   const [error, setError] = useState<string>();
   const [expiry, setExpiry] = useState<string>();
   const [commitmentId, setCommitmentId] = useState<string>();
+  const [sandboxOutcome, setSandboxOutcome] = useState<ReceiptOutcome>('success');
   const charity = findCharity(charityId);
 
   useEffect(() => {
@@ -57,7 +60,7 @@ export default function CommitScreen() {
   };
 
   const authorize = async () => {
-    if (!stakeCents || !charity || !env.stripe?.publishableKey) {
+    if (!stakeCents || !charity || (!env.sandbox && !env.stripe?.publishableKey)) {
       setError('Card authorization is unavailable right now. Nothing was charged. Check your connection and try again.');
       void fireHaptic('warning').catch(() => undefined);
       return;
@@ -67,6 +70,15 @@ export default function CommitScreen() {
     track('card_authorization_started');
     let stakeAuthorized = false;
     try {
+      if (env.sandbox) {
+        const result = await authorizeSandboxCommitment({ charityId: charity.id, outcome: sandboxOutcome, stakeCents, templateId: template.id });
+        setExpiry(new Date(new Date(result.createdAt).getTime() + 7 * 24 * 60 * 60 * 1000).toISOString());
+        setCommitmentId(result.commitmentId);
+        setStep('confirmed');
+        track('commitment_created');
+        void fireHaptic('success').catch(() => undefined);
+        return;
+      }
       const prepared = await prepareAuthorization({ templateId: template.id, stakeCents, charityId: charity.id, cadence: template.cadence });
       const initialized = await stripe.initPaymentSheet({
         merchantDisplayName: 'On the Line',
@@ -109,7 +121,7 @@ export default function CommitScreen() {
       : step === 'disclosure'
         ? { disabled: false, label: 'Continue to card authorization', onPress: () => setStep('card') }
         : step === 'card' && !busy && !error
-          ? { disabled: false, label: 'Authorize stake and pay base fee', onPress: authorize }
+          ? { disabled: false, label: env.sandbox ? 'Run mock authorization' : 'Authorize stake and pay base fee', onPress: authorize }
           : step === 'confirmed'
             ? { disabled: !commitmentId, label: 'Submit today’s proof', onPress: () => router.replace({ pathname: '/proof/[commitmentId]', params: { commitmentId: commitmentId!, templateId: template.id } }) }
             : undefined;
@@ -125,6 +137,7 @@ export default function CommitScreen() {
           showsVerticalScrollIndicator={false}
           style={styles.contentRegion}
         >
+        {env.sandbox ? <SandboxBadge /> : null}
         {step === 'stake' ? (
           <>
             <ScreenHeader compact={compact} eyebrow="01 · stake" title="Put a clear amount on it." body={`${template.title} · ${template.cadence}`} />
@@ -168,21 +181,29 @@ export default function CommitScreen() {
         ) : null}
         {step === 'card' ? (
           <>
-            <ScreenHeader compact={compact} eyebrow="04 · authorize" title="Authorize the stake." body="Stripe securely collects your card details. On the Line never sees or stores raw card data." />
+            <ScreenHeader compact={compact} eyebrow="04 · authorize" title={env.sandbox ? 'Authorize a mock stake.' : 'Authorize the stake.'} body={env.sandbox ? 'This founder sandbox simulates authorization locally. It does not contact Stripe, charge a fee, place a hold, or move money.' : 'Stripe securely collects your card details. On the Line never sees or stores raw card data.'} />
             <View style={styles.ledger}>
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerLabel}>TEMPORARY AUTHORIZATION</Text>
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.amount}>{formatMoney(stakeCents ?? 0)}</Text>
-              <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerBody}>This amount is a hold only. The separate base service fee is charged when the commitment is created.</Text>
+              <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerBody}>{env.sandbox ? 'Mock amount only. No hold or base fee will be created.' : 'This amount is a hold only. The separate base service fee is charged when the commitment is created.'}</Text>
             </View>
+            {env.sandbox ? (
+              <View style={styles.sandboxChoice}>
+                <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerLabel}>SANDBOX RECEIPT TO WALK</Text>
+                <TextAction onPress={() => setSandboxOutcome(sandboxOutcome === 'success' ? 'forfeit' : 'success')}>
+                  {sandboxOutcome === 'success' ? 'Success — release mock stake' : 'Forfeit — route mock stake'} · tap to switch
+                </TextAction>
+              </View>
+            ) : null}
             {busy ? <AuthorizationSkeleton /> : null}
             {error ? <StatePanel title="Authorization didn’t complete." body={error} actionLabel="Try again" onAction={authorize} /> : null}
           </>
         ) : null}
         {step === 'confirmed' ? (
           <>
-            <ScreenHeader compact={compact} eyebrow="commitment active" title="Stake authorized." body={`The base fee is paid. The stake is charged only after a verified failure on ${template.cadence}.`} />
+            <ScreenHeader compact={compact} eyebrow="commitment active" title={env.sandbox ? 'Mock stake authorized.' : 'Stake authorized.'} body={env.sandbox ? `Sandbox commitment created for ${template.cadence}. No card, hold, fee, or charge exists.` : `The base fee is paid. The stake is charged only after a verified failure on ${template.cadence}.`} />
             <View style={styles.ledger}>
-              <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerLabel}>STAKE AUTHORIZED</Text>
+              <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerLabel}>{env.sandbox ? 'MOCK STAKE AUTHORIZED' : 'STAKE AUTHORIZED'}</Text>
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.amount}>{formatMoney(stakeCents ?? 0)}</Text>
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerBody}>Destination · {charity?.name}</Text>
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerBody}>Authorization review · {expiry ? new Date(expiry).toLocaleDateString() : 'before the next proof window'}</Text>
@@ -216,6 +237,7 @@ const styles = StyleSheet.create({
   note: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
   pageActions: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', minHeight: 44 },
   rule: { backgroundColor: color.textSecondary, height: StyleSheet.hairlineWidth },
+  sandboxChoice: { borderColor: color.gold, borderRadius: space.sm, borderWidth: StyleSheet.hairlineWidth, gap: space.xs, paddingHorizontal: space.md, paddingVertical: space.sm },
   safe: { backgroundColor: color.surface, flex: 1 },
   successAmount: { color: color.gold },
   skeleton: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.sm, paddingLeft: space.md, paddingVertical: space.sm },

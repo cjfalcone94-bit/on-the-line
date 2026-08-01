@@ -1,6 +1,8 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { getSupabaseClient } from '@/lib/supabase/client';
 import type { GlassReceipt } from './types';
+import { env } from '@/lib/env';
+import { settleSandboxCommitment } from '@/lib/sandbox/service';
 
 const demoReceipts: Record<string, GlassReceipt> = {
   'demo-success': {
@@ -26,6 +28,9 @@ export async function getGlassReceipt(
     ? globalThis.location.pathname.match(/\/settle\/([^/.]+)/)?.[1]
     : undefined;
   const normalizedCommitmentId = (webRouteCommitmentId ?? commitmentId).replace(/\.html$/, '');
+  if (env.sandbox && normalizedCommitmentId.startsWith('sandbox-')) {
+    return settleSandboxCommitment(normalizedCommitmentId);
+  }
   if (demoReceipts[normalizedCommitmentId]) return demoReceipts[normalizedCommitmentId];
   const activeClient = client ?? getSupabaseClient();
   const { data: auth, error: authError } = await activeClient.auth.getUser();

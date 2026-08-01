@@ -10,6 +10,24 @@ const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 export type ReceiptLine = Readonly<{ label: string; value: string; detail?: string }>;
 
 export function receiptLines(receipt: GlassReceipt): ReceiptLine[] {
+  const sandbox = receipt.transactionReference === 'SANDBOX-NO-PAYMENT';
+  if (sandbox) {
+    return receipt.outcome === 'success'
+      ? [
+        { label: 'Mock authorization', value: money(receipt.stakeCents), detail: 'Simulated release' },
+        { label: 'Real stake captured', value: '$0.00' },
+        { label: 'Real base fee', value: '$0.00', detail: 'No payment in sandbox' },
+        { label: 'Real success fee', value: '$0.00', detail: 'No payment in sandbox' },
+        { label: 'Real forfeiture', value: '$0.00', detail: 'Simulation only' },
+      ]
+      : [
+        { label: 'Mock stake outcome', value: money(receipt.stakeCents), detail: 'Simulated forfeit' },
+        { label: 'Mock charity route', value: money(receipt.stakeCents), detail: receipt.charityName },
+        { label: 'Real base fee', value: '$0.00', detail: 'No payment in sandbox' },
+        { label: 'Real success fee', value: '$0.00', detail: 'No payment in sandbox' },
+        { label: 'Real money moved', value: '$0.00', detail: 'Simulation only' },
+      ];
+  }
   return receipt.outcome === 'success'
     ? [
       { label: 'Stake authorization', value: money(receipt.stakeCents), detail: 'Released' },
@@ -64,6 +82,7 @@ export const GlassReceiptCard = forwardRef<View, {
   const ink = exportMode ? color.textOnLight : color.textPrimary;
   const muted = exportMode ? '#595959' : color.textSecondary;
   const accent = receipt.outcome === 'success' ? color.gold : color.clayRed;
+  const sandbox = receipt.transactionReference === 'SANDBOX-NO-PAYMENT';
   return (
     <View collapsable={false} ref={ref} style={[styles.card, compact && !exportMode && styles.cardCompact, exportMode && styles.exportCard]} testID={exportMode ? 'glass-receipt-export' : 'glass-receipt'}>
       <View style={styles.brandRow}>
@@ -88,7 +107,9 @@ export const GlassReceiptCard = forwardRef<View, {
       ) : null)}
       <View style={[styles.rule, { backgroundColor: muted }]} />
       <Text maxFontSizeMultiplier={type.maxScale} style={[styles.confirmation, { color: ink }]} testID="receipt-confirmation">
-        {receipt.outcome === 'success'
+        {sandbox
+          ? `Sandbox simulation complete: ${receipt.outcome}. No card was charged and no money moved.`
+          : receipt.outcome === 'success'
           ? 'Your authorization was released. Nothing was captured from your stake.'
           : `Your full ${money(receipt.stakeCents)} stake was routed to ${receipt.charityName}.`}
       </Text>

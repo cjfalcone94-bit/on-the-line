@@ -7,6 +7,7 @@ import { color, space } from '@/design/tokens';
 import { appealVerification, getVerificationStatus } from '@/lib/verification/service';
 import type { VerificationSubmission } from '@/lib/verification/types';
 import { fireHaptic } from '@/lib/feedback';
+import { env } from '@/lib/env';
 
 type ViewState = 'loading' | 'ready' | 'appealing' | 'error';
 
@@ -73,10 +74,11 @@ export default function VerifyStatusScreen() {
         <PrimaryButton
           disabled={viewState !== 'ready' || !submission}
           onPress={() => submission?.status === 'passed'
-            ? router.replace({ pathname: '/settle/[commitmentId]', params: { commitmentId: 'demo-success' } })
+            || (env.sandbox && submission?.resolutionType === 'human_fail')
+            ? router.replace({ pathname: '/settle/[commitmentId]', params: { commitmentId: env.sandbox ? submissionId?.replace('sandbox-submission-', '') : 'demo-success' } })
             : router.replace('/catalog')}
         >
-          {viewState === 'loading' ? 'Checking status…' : viewState === 'appealing' ? 'Sending appeal…' : submission?.status === 'passed' ? 'View Glass Receipt' : 'Done'}
+          {viewState === 'loading' ? 'Checking status…' : viewState === 'appealing' ? 'Sending appeal…' : submission?.status === 'passed' || (env.sandbox && submission?.resolutionType === 'human_fail') ? 'Settle mock outcome' : 'Done'}
         </PrimaryButton>
       </ScreenEntrance>
     </SafeAreaView>
