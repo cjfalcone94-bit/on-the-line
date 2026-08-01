@@ -1,4 +1,4 @@
-appId: com.ontheline.app
+appId: com.falconlabs.ontheline
 name: Founder device truth — complete critical path
 ---
 - launchApp:
@@ -60,3 +60,4 @@ name: Founder device truth — complete critical path
     visible: "Daily outdoor walk"
     timeout: 10000
 - assertVisible: "SETTLED · SUCCESS"
+- takeScreenshot: critical-path-complete

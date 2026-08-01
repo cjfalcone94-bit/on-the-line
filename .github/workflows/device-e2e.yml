@@ -1,0 +1,130 @@
+name: Device truth (iOS + Maestro)
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: device-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-device-e2e:
+    name: ${{ matrix.device }} · critical path + tap crawl
+    runs-on: macos-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        device:
+          - iPhone SE (3rd generation)
+          - iPhone 15
+    env:
+      EXPO_PUBLIC_SANDBOX: "1"
+      MAESTRO_CLI_NO_ANALYTICS: "1"
+      APP_ID: com.falconlabs.ontheline
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install Java for Maestro
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install JavaScript dependencies
+        run: npm ci
+
+      - name: Generate the native iOS project
+        run: npx expo prebuild --platform ios --clean --no-install
+
+      - name: Install CocoaPods dependencies
+        run: npx pod-install ios
+
+      - name: Boot reference simulator
+        id: simulator
+        env:
+          DEVICE_NAME: ${{ matrix.device }}
+        run: |
+          UDID="$(xcrun simctl list devices available -j | python3 -c 'import json,os,sys; data=json.load(sys.stdin); name=os.environ["DEVICE_NAME"]; matches=[d["udid"] for devices in data["devices"].values() for d in devices if d["name"] == name and d.get("isAvailable", False)]; print(matches[-1] if matches else "")')"
+          if [ -z "$UDID" ]; then
+            echo "Required reference simulator is unavailable: $DEVICE_NAME" >&2
+            xcrun simctl list devices available
+            exit 1
+          fi
+          xcrun simctl shutdown all || true
+          xcrun simctl boot "$UDID"
+          open -a Simulator
+          xcrun simctl bootstatus "$UDID" -b
+          echo "udid=$UDID" >> "$GITHUB_OUTPUT"
+
+      - name: Build sandbox app for iOS Simulator
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -workspace ios/OntheLine.xcworkspace \
+            -scheme OntheLine \
+            -configuration Release \
+            -sdk iphonesimulator \
+            -destination "platform=iOS Simulator,id=$UDID" \
+            -derivedDataPath build/ios \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee build/xcodebuild.log
+
+      - name: Install sandbox app
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          APP_PATH="$(find build/ios/Build/Products/Release-iphonesimulator -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$APP_PATH"
+          xcrun simctl install "$UDID" "$APP_PATH"
+          xcrun simctl launch "$UDID" "$APP_ID"
+
+      - name: Install Maestro
+        run: |
+          curl -fsSL "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Run blocking device-truth flows
+        env:
+          DEVICE_NAME: ${{ matrix.device }}
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/maestro artifacts/screenshots artifacts/video
+          SAFE_DEVICE="$(printf '%s' "$DEVICE_NAME" | tr ' ()' '---')"
+          VIDEO="artifacts/video/${SAFE_DEVICE}.mp4"
+          xcrun simctl io "$UDID" recordVideo --codec=h264 "$VIDEO" >/tmp/sim-video.log 2>&1 &
+          VIDEO_PID=$!
+          cleanup() {
+            xcrun simctl io "$UDID" screenshot "artifacts/screenshots/${SAFE_DEVICE}-final.png" || true
+            kill -INT "$VIDEO_PID" 2>/dev/null || true
+            wait "$VIDEO_PID" 2>/dev/null || true
+          }
+          trap cleanup EXIT
+          maestro --device "$UDID" test \
+            --format junit \
+            --output "artifacts/maestro/${SAFE_DEVICE}.xml" \
+            e2e/critical-path.yaml e2e/route-reachability.yaml
+
+      - name: Upload device evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-e2e-${{ matrix.device }}
+          path: |
+            artifacts/
+            build/xcodebuild.log
+            ~/.maestro/tests/
+          if-no-files-found: warn
+          retention-days: 14

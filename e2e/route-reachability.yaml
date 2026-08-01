@@ -1,0 +1,104 @@
+appId: com.falconlabs.ontheline
+name: Route reachability tap crawl
+---
+# This crawl deliberately navigates by taps instead of deep links. A rendered
+# route is not sufficient: every transition below must respond on the device.
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: trust-screen
+- tapOn:
+    id: browse-templates-button
+- assertVisible:
+    id: catalog-screen
+
+# Crawl every catalog goal card and prove its back control returns to catalog.
+- tapOn:
+    id: template-daily-walk
+- assertVisible:
+    id: template-detail-screen
+- tapOn: "‹ Catalog"
+- assertVisible:
+    id: catalog-screen
+- tapOn:
+    id: template-gym-checkin
+- assertVisible:
+    id: template-detail-screen
+- tapOn: "‹ Catalog"
+- assertVisible:
+    id: catalog-screen
+- tapOn:
+    id: template-morning-run
+- assertVisible:
+    id: template-detail-screen
+- tapOn: "‹ Catalog"
+- assertVisible:
+    id: catalog-screen
+
+# Prove the catalog/trust round trip is a real tap path.
+- tapOn: "How this works"
+- assertVisible:
+    id: trust-screen
+- tapOn:
+    id: browse-templates-button
+- assertVisible:
+    id: catalog-screen
+
+# Create a sandbox record through every interactive commitment stage.
+- tapOn:
+    id: template-daily-walk
+- tapOn: "Set stake"
+- assertVisible:
+    id: commit-screen
+- tapOn:
+    id: stake-4000
+- tapOn: "Choose charity"
+- tapOn:
+    id: charity-direct-relief
+- tapOn: "Review the mechanic"
+- tapOn: "Continue to card authorization"
+- tapOn: "Run mock authorization"
+- extendedWaitUntil:
+    visible: "Mock stake authorized."
+    timeout: 10000
+- tapOn: "Submit today’s proof"
+- assertVisible:
+    id: proof-screen
+- tapOn: "Use mock sandbox proof"
+- tapOn:
+    id: submit-proof
+- extendedWaitUntil:
+    visible: "Submitted — under review."
+    timeout: 10000
+- tapOn: "View status"
+- extendedWaitUntil:
+    visible:
+      id: verification-passed
+    timeout: 10000
+- tapOn: "Settle mock outcome"
+- extendedWaitUntil:
+    visible:
+      id: receipt-confirmation
+    timeout: 10000
+- tapOn: "View Commitment Record"
+- assertVisible:
+    id: commitment-record-screen
+
+# Crawl record -> settings -> record, then record -> receipt -> record.
+- tapOn: "Settings"
+- assertVisible:
+    id: settings-screen
+- tapOn:
+    id: app-sound-toggle
+- tapOn: "‹ Back"
+- assertVisible:
+    id: commitment-record-screen
+- tapOn:
+    text: "Glass Receipt"
+    index: 0
+- assertVisible:
+    id: settle-screen
+- tapOn: "Close"
+- assertVisible:
+    id: catalog-screen
+- takeScreenshot: route-reachability-complete
