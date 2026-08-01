@@ -2,10 +2,10 @@ import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { GlassReceiptCard } from '@/components/glass-receipt';
-import { InteractivePressable, LedgerSkeletonLine, PrimaryButton, SandboxBadge, ScreenEntrance, StatePanel, TextAction } from '@/components';
+import { InteractivePressable, LedgerSkeletonLine, PrimaryButton, SandboxBadge, ScreenEntrance, ScreenScaffold, StatePanel, TextAction } from '@/components';
 import { color, motion, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { getSoundEnabled, setSoundEnabled as persistSoundEnabled } from '@/lib/preferences/sound';
@@ -97,9 +97,13 @@ export default function SettleScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} testID="settle-screen">
-      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
-        <TextAction align="end" onPress={() => router.replace('/catalog')}>Close</TextAction>
+    <ScreenScaffold
+      contentContainerStyle={[styles.container, compact && styles.containerCompact]}
+      footer={receipt ? <><PrimaryButton accessibilityLabel="Share Glass Receipt" disabled={visibleLines < 5 || sharingAvailable !== true} onPress={share}>{sharingAvailable === null ? 'Checking sharing…' : 'Share receipt'}</PrimaryButton><TextAction align="center" onPress={() => router.replace('/record')}>View Commitment Record</TextAction></> : null}
+      header={<View style={styles.header}><TextAction align="end" onPress={() => router.replace('/catalog')}>Close</TextAction></View>}
+      testID="settle-screen"
+    >
+      <ScreenEntrance direction="right" style={styles.entrance}>
         {env.sandbox ? <SandboxBadge /> : null}
         {state === 'loading' ? <ReceiptSkeleton /> : null}
         {state === 'error' ? <StatePanel title="Receipt is unavailable." body="Check your connection and try again. No settlement state changed." actionLabel="Try again" onAction={load} /> : null}
@@ -120,17 +124,13 @@ export default function SettleScreen() {
             {sharingAvailable === false || shareError ? (
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.shareUnavailable}>Sharing unavailable here · your receipt is still saved.</Text>
             ) : null}
-            <PrimaryButton accessibilityLabel="Share Glass Receipt" disabled={visibleLines < 5 || sharingAvailable !== true} onPress={share}>
-              {sharingAvailable === null ? 'Checking sharing…' : 'Share receipt'}
-            </PrimaryButton>
-            <TextAction align="center" onPress={() => router.replace('/record')}>View Commitment Record</TextAction>
             <View pointerEvents="none" style={styles.exportStage}>
               <GlassReceiptCard exportMode receipt={receipt} ref={exportRef} />
             </View>
           </>
         ) : null}
       </ScreenEntrance>
-    </SafeAreaView>
+    </ScreenScaffold>
   );
 }
 
@@ -146,7 +146,8 @@ const styles = StyleSheet.create({
   container: { flex: 1, gap: space.sm, justifyContent: 'center', paddingBottom: space.sm, paddingHorizontal: space.md },
   containerCompact: { gap: space.xs, paddingBottom: space.xs, paddingHorizontal: space.sm },
   exportStage: { left: -1000, position: 'absolute', top: 0 },
-  safe: { backgroundColor: color.surface, flex: 1 },
+  entrance: { gap: space.sm },
+  header: { paddingHorizontal: space.md },
   shareUnavailable: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, paddingLeft: space.sm },
   skeleton: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.lg, padding: space.lg },
   soundControl: { alignItems: 'center', borderBottomColor: color.surfaceRaised, borderBottomWidth: 1, borderTopColor: color.surfaceRaised, borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: space.xs },

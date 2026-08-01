@@ -2,3 +2,4 @@ export { BrandSplash, BrandWordmark, InteractivePressable, LedgerSkeletonLine, O
 export { AppealAction, VerificationCard } from './verification';
 export { GlassReceiptCard, receiptLines } from './glass-receipt';
 export { CommitmentRecordCard, CommitmentRecordEmpty, CommitmentRecordSkeleton } from './commitment-record';
+export { ScreenScaffold } from './ScreenScaffold';

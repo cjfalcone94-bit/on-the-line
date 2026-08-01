@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { OnboardingArtwork, PrimaryButton, ScreenEntrance, ScreenHeader, TextAction } from '@/components';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { OnboardingArtwork, PrimaryButton, ScreenEntrance, ScreenHeader, ScreenScaffold, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { facts } from './trustContent';
@@ -13,8 +13,12 @@ export default function TrustScreen() {
   }, []);
 
   return (
-    <SafeAreaView style={styles.safe} testID="trust-screen">
-      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
+    <ScreenScaffold
+      contentContainerStyle={[styles.container, compact && styles.containerCompact]}
+      footer={<><PrimaryButton accessibilityLabel="Browse goal templates" onPress={() => router.push('/catalog')} testID="browse-templates-button">Browse goal templates</PrimaryButton><TextAction accessibilityRole="link" align="center" onPress={() => router.push('/record')}>View Commitment Record</TextAction></>}
+      testID="trust-screen"
+    >
+      <ScreenEntrance direction="right" style={styles.entrance}>
         <ScreenHeader compact={compact} eyebrow="How this works" title="Nothing hidden." />
         <OnboardingArtwork compact={compact} />
         <View style={styles.facts}>
@@ -31,12 +35,8 @@ export default function TrustScreen() {
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.footnote}>
           About $1 at commit, plus a small success fee only when you succeed. On failure, we keep none of your stake.
         </Text>
-        <PrimaryButton accessibilityLabel="Browse goal templates" onPress={() => router.push('/catalog')} testID="browse-templates-button">
-          Browse goal templates
-        </PrimaryButton>
-        <TextAction accessibilityRole="link" align="center" onPress={() => router.push('/record')}>View Commitment Record</TextAction>
       </ScreenEntrance>
-    </SafeAreaView>
+    </ScreenScaffold>
   );
 }
 
@@ -51,5 +51,5 @@ const styles = StyleSheet.create({
   facts: { gap: space.sm },
   footnote: { ...tabularNums, borderLeftColor: color.gold, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.figure, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, paddingLeft: space.sm },
   number: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption, paddingTop: space.xs },
-  safe: { backgroundColor: color.surface, flex: 1 },
+  entrance: { gap: space.md },
 });

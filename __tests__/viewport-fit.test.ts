@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { availableContentHeight, referenceViewport, totalBudget, viewportBudgets } from '@/lib/ui/viewport';
+import { referenceViewport } from '@/lib/ui/viewport';
 import { type } from '@/design/tokens';
 
 describe('iPhone SE fixed-flow viewport contract', () => {
@@ -9,8 +9,28 @@ describe('iPhone SE fixed-flow viewport contract', () => {
     expect(type.maxScale).toBeGreaterThanOrEqual(1.35);
   });
 
-  it.each(Object.entries(viewportBudgets))('%s stays within the safe-area-adjusted height', (_screen, parts) => {
-    expect(totalBudget(parts)).toBeLessThanOrEqual(availableContentHeight);
+  it.each([
+    'screens/TrustScreen.tsx',
+    'screens/CatalogScreen.tsx',
+    'app/template/[templateId].tsx',
+    'app/commit/[templateId].tsx',
+    'app/proof/[commitmentId].tsx',
+    'app/verify/[submissionId].tsx',
+    'app/settle/[commitmentId].tsx',
+    'app/record.tsx',
+    'app/settings.tsx',
+  ])('%s uses the shared overflow-safe scaffold', (relativePath) => {
+    const source = readFileSync(join(process.cwd(), relativePath), 'utf8');
+    expect(source).toContain('ScreenScaffold');
+    expect(source).not.toContain('<SafeAreaView');
+  });
+
+  it('defines the class-level safe-area, flexGrow scroll, and pinned-footer contract once', () => {
+    const source = readFileSync(join(process.cwd(), 'components/ScreenScaffold.tsx'), 'utf8');
+    expect(source).toContain("edges={['top', 'bottom']}");
+    expect(source).toContain('contentContainer: { flexGrow: 1 }');
+    expect(source).toContain('testID="screen-scaffold-footer"');
+    expect(source.indexOf('<ScrollView')).toBeLessThan(source.indexOf('{footer ?'));
   });
 
   it.each([
@@ -20,15 +40,9 @@ describe('iPhone SE fixed-flow viewport contract', () => {
     'app/proof/[commitmentId].tsx',
     'app/verify/[submissionId].tsx',
     'app/settle/[commitmentId].tsx',
-  ])('%s selects compact layout on the SE', (relativePath) => {
+  ])('%s puts its primary action in the scaffold footer', (relativePath) => {
     const source = readFileSync(join(process.cwd(), relativePath), 'utf8');
-    expect(source).toContain('height <= 700');
-  });
-
-  it('pins the commit CTA below a bounded overflow region', () => {
-    const source = readFileSync(join(process.cwd(), 'app/commit/[templateId].tsx'), 'utf8');
-    expect(source).toContain('testID="commit-primary-footer"');
-    expect(source).toContain('style={styles.contentRegion}');
+    expect(source).toMatch(/footer=\{/);
   });
 
   it('paginates the formerly six-row charity choice into three-row pages', () => {

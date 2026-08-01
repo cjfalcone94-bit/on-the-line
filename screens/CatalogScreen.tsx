@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { SafeAreaView, SectionList, StyleSheet, Text, View } from 'react-native';
-import { InteractivePressable, LedgerSkeletonLine, ScreenEntrance, ScreenHeader, StatePanel } from '@/components';
+import { StyleSheet, Text, View } from 'react-native';
+import { InteractivePressable, LedgerSkeletonLine, ScreenEntrance, ScreenHeader, ScreenScaffold, StatePanel } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { groupTemplates, type ChecklistTemplate } from '@/lib/catalog/templates';
@@ -62,32 +62,26 @@ export default function CatalogScreen() {
 
   const sections = groupTemplates(query.data ?? []);
   return (
-    <SafeAreaView style={styles.safe} testID="catalog-screen">
-      <ScreenEntrance direction="right" style={styles.headerWrap}>
+    <ScreenScaffold header={<ScreenEntrance direction="right" style={styles.headerWrap}>
         <InteractivePressable accessibilityLabel="Back to how this works" accessibilityRole="button" hitSlop={12} onPress={() => router.back()} style={({ pressed, focused, hovered }) => [styles.back, pressed && styles.backPressed, hovered && styles.backHovered, focused && styles.backFocused]}>
           <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.backLabel}>‹ How this works</Text>
         </InteractivePressable>
         <ScreenHeader eyebrow="Goal catalog" title="Pick a clear target." body="Every checklist is fixed up front. You see exactly what counts before making any commitment." />
-      </ScreenEntrance>
+      </ScreenEntrance>} testID="catalog-screen">
       {query.isPending ? <CatalogSkeleton /> : query.isError ? (
         <View style={styles.stateWrap}><StatePanel title="The catalog didn’t load." body="Nothing changed. Try loading the templates again." actionLabel="Try again" onAction={() => query.refetch()} /></View>
       ) : sections.length === 0 ? (
         <View style={styles.stateWrap}><StatePanel title="No templates yet." body="There are no goal checklists to browse right now." actionLabel="Check again" onAction={() => query.refetch()} /></View>
       ) : (
-        <SectionList
-          contentContainerStyle={styles.list}
-          initialNumToRender={6}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <TemplateCard template={item} onPress={() => {
+        <View style={styles.list}>{sections.map((section) => <View key={section.title}>
+          <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling accessibilityRole="header" style={styles.sectionTitle}>{section.title}</Text>
+          {section.data.map((item) => <TemplateCard key={item.id} template={item} onPress={() => {
             track('template_selected', { template_id: item.id });
             router.push({ pathname: '/template/[templateId]', params: { templateId: item.id } });
-          }} />}
-          renderSectionHeader={({ section }) => <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling accessibilityRole="header" style={styles.sectionTitle}>{section.title}</Text>}
-          sections={sections}
-          stickySectionHeadersEnabled={false}
-        />
+          }} />)}
+        </View>)}</View>
       )}
-    </SafeAreaView>
+    </ScreenScaffold>
   );
 }
 
@@ -110,7 +104,6 @@ const styles = StyleSheet.create({
   criterion: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   headerWrap: { gap: space.xs, paddingHorizontal: space.lg, paddingBottom: space.md },
   list: { paddingBottom: space.xl, paddingHorizontal: space.lg },
-  safe: { backgroundColor: color.surface, flex: 1 },
   sectionTitle: { backgroundColor: color.surface, borderLeftColor: color.gold, borderLeftWidth: 2, color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.xl, marginTop: space.sm, paddingBottom: space.sm, paddingLeft: space.sm, paddingTop: space.md },
   skeletonCard: { borderBottomColor: color.textSecondary, borderBottomWidth: StyleSheet.hairlineWidth, gap: space.md, paddingBottom: space.lg, paddingTop: space.md },
   skeletonWrap: { gap: space.md, paddingHorizontal: space.lg },

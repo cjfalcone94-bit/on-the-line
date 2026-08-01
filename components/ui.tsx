@@ -24,8 +24,9 @@ export function InteractivePressable({ style, haptic = 'light', onFocus, onBlur,
     opacity: 1 - pressedProgress.value * 0.12,
     transform: [{ scale: 1 - pressedProgress.value * 0.03 }],
   }));
+  const PressableComponent = Platform.OS === 'web' ? Pressable : AnimatedPressable;
   return (
-    <AnimatedPressable
+    <PressableComponent
       {...props}
       onPress={(event) => { void fireHaptic(haptic).catch(() => undefined); onPress?.(event); }}
       onPressIn={(event) => {

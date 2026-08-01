@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { PrimaryButton, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { PrimaryButton, ScreenEntrance, ScreenHeader, ScreenScaffold, StatePanel, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { findTemplate } from '@/lib/catalog/templates';
 
@@ -11,17 +11,21 @@ export default function TemplateDetailScreen() {
 
   if (!template) {
     return (
-      <SafeAreaView style={styles.safe} testID="template-not-found">
+      <ScreenScaffold testID="template-not-found">
         <View style={styles.container}>
           <StatePanel title="Template not found." body="This goal checklist is no longer available." actionLabel="Back to catalog" onAction={() => router.replace('/catalog')} />
         </View>
-      </SafeAreaView>
+      </ScreenScaffold>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safe} testID="template-detail-screen">
-      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
+    <ScreenScaffold
+      contentContainerStyle={[styles.container, compact && styles.containerCompact]}
+      footer={<PrimaryButton accessibilityLabel={`Commit to ${template.title}`} onPress={() => router.push(`/commit/${template.id}`)}>Set stake</PrimaryButton>}
+      testID="template-detail-screen"
+    >
+      <ScreenEntrance direction="right" style={styles.entrance}>
         <TextAction onPress={() => router.back()}>‹ Catalog</TextAction>
         <ScreenHeader compact={compact} eyebrow={template.category} title={template.title} body={template.summary} />
         <View accessible accessibilityLabel={`Cadence: ${template.cadence}`} style={styles.cadenceRow}>
@@ -38,11 +42,8 @@ export default function TemplateDetailScreen() {
             </View>
           ))}
         </View>
-        <PrimaryButton accessibilityLabel={`Commit to ${template.title}`} onPress={() => router.push(`/commit/${template.id}`)} style={compact ? styles.primaryCompact : undefined}>
-          Set stake
-        </PrimaryButton>
       </ScreenEntrance>
-    </SafeAreaView>
+    </ScreenScaffold>
   );
 }
 
@@ -59,6 +60,5 @@ const styles = StyleSheet.create({
   explainer: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   label: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
   number: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: type.size.caption, paddingTop: space.xs },
-  primaryCompact: { marginBottom: space.md },
-  safe: { backgroundColor: color.surface, flex: 1 },
+  entrance: { gap: space.md },
 });

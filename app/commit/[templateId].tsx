@@ -2,9 +2,9 @@ import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useStripe } from '@/lib/payments/stripe';
 import { useEffect, useState } from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { CharityChoice, CustomStakeInput, StakeChoice } from '@/components/commit';
-import { LedgerSkeletonLine, PrimaryButton, SandboxBadge, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { LedgerSkeletonLine, PrimaryButton, SandboxBadge, ScreenEntrance, ScreenHeader, ScreenScaffold, StatePanel, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { charities, findCharity } from '@/lib/commit/charities';
@@ -50,7 +50,7 @@ export default function CommitScreen() {
   }, []);
 
   if (!template) {
-    return <SafeAreaView style={styles.safe}><View style={styles.container}><StatePanel title="Goal unavailable." body="This template can’t be committed to right now. Nothing changed." actionLabel="Back to catalog" onAction={() => router.replace('/catalog')} /></View></SafeAreaView>;
+    return <ScreenScaffold><View style={styles.container}><StatePanel title="Goal unavailable." body="This template can’t be committed to right now. Nothing changed." actionLabel="Back to catalog" onAction={() => router.replace('/catalog')} /></View></ScreenScaffold>;
   }
 
   const selectStake = (cents: number) => {
@@ -120,23 +120,20 @@ export default function CommitScreen() {
       ? { disabled: !charity, label: 'Review the mechanic', onPress: () => { setStep('disclosure'); track('fee_disclosure_viewed'); } }
       : step === 'disclosure'
         ? { disabled: false, label: 'Continue to card authorization', onPress: () => setStep('card') }
-        : step === 'card' && !busy && !error
-          ? { disabled: false, label: env.sandbox ? 'Run mock authorization' : 'Authorize stake and pay base fee', onPress: authorize }
+        : step === 'card'
+          ? { disabled: busy, label: busy ? 'Authorizing…' : error ? 'Try authorization again' : env.sandbox ? 'Run mock authorization' : 'Authorize stake and pay base fee', onPress: authorize }
           : step === 'confirmed'
             ? { disabled: !commitmentId, label: 'Submit today’s proof', onPress: () => router.replace({ pathname: '/proof/[commitmentId]', params: { commitmentId: commitmentId!, templateId: template.id } }) }
             : undefined;
 
   return (
-    <SafeAreaView style={styles.safe} testID="commit-screen">
-      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
-        <TextAction onPress={() => step === 'stake' ? router.back() : setStep(step === 'charity' ? 'stake' : step === 'disclosure' ? 'charity' : 'disclosure')}>‹ Back</TextAction>
-        <ScrollView
-          bounces={false}
-          contentContainerStyle={[styles.content, compact && styles.contentCompact]}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-          style={styles.contentRegion}
-        >
+    <ScreenScaffold
+      contentContainerStyle={[styles.content, compact && styles.contentCompact]}
+      footer={primaryAction ? <PrimaryButton disabled={primaryAction.disabled} haptic={step === 'card' ? 'none' : 'light'} onPress={primaryAction.onPress}>{primaryAction.label}</PrimaryButton> : null}
+      header={<View style={[styles.header, compact && styles.headerCompact]}><TextAction onPress={() => step === 'stake' ? router.back() : setStep(step === 'charity' ? 'stake' : step === 'disclosure' ? 'charity' : 'disclosure')}>‹ Back</TextAction></View>}
+      testID="commit-screen"
+    >
+      <ScreenEntrance direction="right" style={styles.entrance}>
         {env.sandbox ? <SandboxBadge /> : null}
         {step === 'stake' ? (
           <>
@@ -196,7 +193,7 @@ export default function CommitScreen() {
               </View>
             ) : null}
             {busy ? <AuthorizationSkeleton /> : null}
-            {error ? <StatePanel title="Authorization didn’t complete." body={error} actionLabel="Try again" onAction={authorize} /> : null}
+                {error ? <StatePanel title="Authorization didn’t complete." body={error} /> : null}
           </>
         ) : null}
         {step === 'confirmed' ? (
@@ -211,12 +208,8 @@ export default function CommitScreen() {
             <Text maxFontSizeMultiplier={type.maxScale} style={styles.authorization}>If this authorization expires, we’ll ask you to re-authorize before the next proof window. If that remains unresolved, the commitment is voided—no charge and no forfeiture.</Text>
           </>
         ) : null}
-        </ScrollView>
-        <View style={styles.footer} testID="commit-primary-footer">
-          {primaryAction ? <PrimaryButton disabled={primaryAction.disabled} haptic={step === 'card' ? 'none' : 'light'} onPress={primaryAction.onPress}>{primaryAction.label}</PrimaryButton> : null}
-        </View>
       </ScreenEntrance>
-    </SafeAreaView>
+    </ScreenScaffold>
   );
 }
 
@@ -228,8 +221,7 @@ const styles = StyleSheet.create({
   containerCompact: { paddingHorizontal: space.md },
   content: { gap: space.md, paddingBottom: space.md },
   contentCompact: { gap: space.sm },
-  contentRegion: { flex: 1 },
-  footer: { borderTopColor: color.surfaceRaised, borderTopWidth: StyleSheet.hairlineWidth, paddingBottom: space.sm, paddingTop: space.sm },
+  entrance: { gap: space.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   ledger: { borderLeftColor: color.gold, borderLeftWidth: 2, gap: space.sm, paddingHorizontal: space.md, paddingVertical: space.sm },
   ledgerBody: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
@@ -238,7 +230,8 @@ const styles = StyleSheet.create({
   pageActions: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', minHeight: 44 },
   rule: { backgroundColor: color.textSecondary, height: StyleSheet.hairlineWidth },
   sandboxChoice: { borderColor: color.gold, borderRadius: space.sm, borderWidth: StyleSheet.hairlineWidth, gap: space.xs, paddingHorizontal: space.md, paddingVertical: space.sm },
-  safe: { backgroundColor: color.surface, flex: 1 },
+  header: { paddingHorizontal: space.lg },
+  headerCompact: { paddingHorizontal: space.md },
   successAmount: { color: color.gold },
   skeleton: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.sm, paddingLeft: space.md, paddingVertical: space.sm },
 });

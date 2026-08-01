@@ -2,9 +2,9 @@ import NetInfo from '@react-native-community/netinfo';
 import * as ImagePicker from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { FixedChecklist, PhotoPreview } from '@/components/proof';
-import { PrimaryButton, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { PrimaryButton, ScreenEntrance, ScreenHeader, ScreenScaffold, StatePanel, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { findTemplate } from '@/lib/catalog/templates';
 import { enqueueProof, syncProofQueue } from '@/lib/proof/queue';
@@ -50,7 +50,7 @@ export default function ProofScreen() {
   }, []);
 
   if (!template || !commitmentId) {
-    return <SafeAreaView style={styles.safe}><View style={styles.container}><StatePanel title="Proof window unavailable." body="We could not match this window to an active commitment. Nothing was submitted." actionLabel="Back" onAction={() => router.back()} /></View></SafeAreaView>;
+    return <ScreenScaffold><View style={styles.container}><StatePanel title="Proof window unavailable." body="We could not match this window to an active commitment. Nothing was submitted." actionLabel="Back" onAction={() => router.back()} /></View></ScreenScaffold>;
   }
 
   const choosePhoto = async (camera: boolean) => {
@@ -94,9 +94,13 @@ export default function ProofScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} testID="proof-screen">
-      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
-        <TextAction onPress={() => router.back()}>‹ Back</TextAction>
+    <ScreenScaffold
+      contentContainerStyle={[styles.container, compact && styles.containerCompact]}
+      footer={state === 'capture' ? <PrimaryButton onPress={photoUri ? submit : () => choosePhoto(true)} testID={photoUri ? 'submit-proof' : 'take-proof-photo'}>{photoUri ? 'Submit proof' : 'Take photo'}</PrimaryButton> : null}
+      header={<View style={styles.header}><TextAction onPress={() => router.back()}>‹ Back</TextAction></View>}
+      testID="proof-screen"
+    >
+      <ScreenEntrance direction="right" style={styles.entrance}>
         <ScreenHeader compact={compact} eyebrow={`${template.cadence} · proof`} title={template.title} body="Use one photo to show the fixed checklist below. The checklist cannot be edited." />
         <FixedChecklist compact={compact} criteria={template.criteria} />
 
@@ -106,7 +110,6 @@ export default function ProofScreen() {
               <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cameraMark}>＋</Text>
               <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cameraCopy}>Camera first. Your photo is the only evidence submitted in this step.</Text>
             </View>
-            <PrimaryButton onPress={() => choosePhoto(true)} testID="take-proof-photo">Take photo</PrimaryButton>
             {env.sandbox ? <TextAction align="center" onPress={() => setPhotoUri('sandbox://mock-proof.jpg')}>Use mock sandbox proof</TextAction> : null}
             <TextAction align="center" onPress={() => choosePhoto(false)}>Choose from photo library</TextAction>
           </View>
@@ -129,11 +132,10 @@ export default function ProofScreen() {
           <StatePanel title="Your proof was not submitted." body="Check photo access and your connection, then try again. No financial outcome changed." actionLabel="Try again" onAction={() => setState('capture')} />
         ) : null}
 
-        {state === 'capture' && photoUri ? <PrimaryButton onPress={submit} testID="submit-proof">Submit proof</PrimaryButton> : null}
         {online === false && state === 'capture' ? <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.offline}>OFFLINE · Capture still works. Submission will stay safely on this device until you reconnect.</Text> : null}
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.missed}>A missed window is never an automatic charge. The template’s checklist rules apply, with review in a later step.</Text>
       </ScreenEntrance>
-    </SafeAreaView>
+    </ScreenScaffold>
   );
 }
 
@@ -146,5 +148,6 @@ const styles = StyleSheet.create({
   containerCompact: { gap: space.xs, paddingBottom: space.sm, paddingHorizontal: space.md },
   missed: { color: color.textSecondary, fontFamily: type.family.body, fontSize: 11, lineHeight: 15 },
   offline: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 10, lineHeight: 14 },
-  safe: { backgroundColor: color.surface, flex: 1 },
+  entrance: { gap: space.sm },
+  header: { paddingHorizontal: space.lg },
 });

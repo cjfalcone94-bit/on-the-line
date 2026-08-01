@@ -1,9 +1,9 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, useWindowDimensions } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { AppealAction, VerificationCard } from '@/components/verification';
-import { PrimaryButton, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
-import { color, space } from '@/design/tokens';
+import { PrimaryButton, ScreenEntrance, ScreenHeader, ScreenScaffold, StatePanel, TextAction } from '@/components';
+import { space } from '@/design/tokens';
 import { appealVerification, getVerificationStatus } from '@/lib/verification/service';
 import type { VerificationSubmission } from '@/lib/verification/types';
 import { fireHaptic } from '@/lib/feedback';
@@ -62,31 +62,30 @@ export default function VerifyStatusScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} testID="verify-status-screen">
-      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
-        <TextAction onPress={() => router.back()}>‹ Back</TextAction>
+    <ScreenScaffold
+      contentContainerStyle={[styles.container, compact && styles.containerCompact]}
+      footer={<PrimaryButton
+        disabled={viewState !== 'ready' || !submission}
+        onPress={() => submission?.status === 'passed' || (env.sandbox && submission?.resolutionType === 'human_fail') ? router.replace({ pathname: '/settle/[commitmentId]', params: { commitmentId: env.sandbox ? submissionId?.replace('sandbox-submission-', '') : 'demo-success' } }) : router.replace('/catalog')}
+      >{viewState === 'loading' ? 'Checking status…' : viewState === 'appealing' ? 'Sending appeal…' : submission?.status === 'passed' || (env.sandbox && submission?.resolutionType === 'human_fail') ? 'Settle mock outcome' : 'Done'}</PrimaryButton>}
+      header={<View style={styles.header}><TextAction onPress={() => router.back()}>‹ Back</TextAction></View>}
+      testID="verify-status-screen"
+    >
+      <ScreenEntrance direction="right" style={styles.entrance}>
         <ScreenHeader compact={compact} eyebrow="verification · read only" title="Proof status" body="Only your submission status appears here. Evidence and reviewer records stay private." />
         {viewState === 'loading' ? <StatePanel title="Checking status…" body="Your proof and published review deadline are being loaded." /> : null}
         {viewState === 'error' ? <StatePanel title="Status is unavailable." body="Check your connection and try again. No verification outcome changed." actionLabel="Try again" onAction={load} /> : null}
         {submission && viewState !== 'loading' ? <VerificationCard compact={compact} submission={submission} /> : null}
         {submission?.appealAllowed && viewState === 'ready' ? <AppealAction onPress={appeal} /> : null}
         {viewState === 'appealing' ? <StatePanel title="Sending your appeal…" body="Your existing outcome remains protected while a new human review is opened." /> : null}
-        <PrimaryButton
-          disabled={viewState !== 'ready' || !submission}
-          onPress={() => submission?.status === 'passed'
-            || (env.sandbox && submission?.resolutionType === 'human_fail')
-            ? router.replace({ pathname: '/settle/[commitmentId]', params: { commitmentId: env.sandbox ? submissionId?.replace('sandbox-submission-', '') : 'demo-success' } })
-            : router.replace('/catalog')}
-        >
-          {viewState === 'loading' ? 'Checking status…' : viewState === 'appealing' ? 'Sending appeal…' : submission?.status === 'passed' || (env.sandbox && submission?.resolutionType === 'human_fail') ? 'Settle mock outcome' : 'Done'}
-        </PrimaryButton>
       </ScreenEntrance>
-    </SafeAreaView>
+    </ScreenScaffold>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
   containerCompact: { gap: space.sm, paddingBottom: space.sm, paddingHorizontal: space.md },
-  safe: { backgroundColor: color.surface, flex: 1 },
+  entrance: { gap: space.md },
+  header: { paddingHorizontal: space.lg },
 });

@@ -1,8 +1,7 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { InteractivePressable, ScreenHeader, TextAction } from '@/components';
+import { StyleSheet, Text, View } from 'react-native';
+import { InteractivePressable, ScreenHeader, ScreenScaffold, TextAction } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { getSoundEnabled, setSoundEnabled } from '@/lib/preferences/sound';
 
@@ -20,8 +19,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} testID="settings-screen">
-      <ScrollView contentContainerStyle={styles.content}>
+    <ScreenScaffold contentContainerStyle={styles.content} testID="settings-screen">
         <View><TextAction onPress={() => router.back()}>‹ Back</TextAction>
         <ScreenHeader eyebrow="App controls" title="Settings" body="Sound and haptics follow one device preference." /></View>
         <View style={styles.section}>
@@ -41,15 +39,13 @@ export default function SettingsScreen() {
             <Text maxFontSizeMultiplier={type.maxScale} style={styles.value}>{soundEnabled ? 'ON' : 'OFF'}</Text>
           </InteractivePressable>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+    </ScreenScaffold>
   );
 }
 
 const styles = StyleSheet.create({
   content: { gap: space.lg, paddingBottom: space.xl, paddingHorizontal: space.lg },
   pressed: { opacity: 0.65 },
-  safe: { backgroundColor: color.surface, flex: 1 },
   section: { borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth },
   settingBody: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   settingCopy: { flex: 1, gap: space.xs, paddingRight: space.md },
