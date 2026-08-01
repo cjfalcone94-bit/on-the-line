@@ -19,6 +19,7 @@ export function Choice({ label, detail, selected, onPress, testID }: { label: st
     <InteractivePressable
       accessibilityRole="radio"
       accessibilityState={{ selected }}
+      haptic="selection"
       onPress={onPress}
       style={({ pressed, focused, hovered }) => [styles.choice, selected && styles.selected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
       testID={testID}

@@ -1,33 +1,82 @@
 import { useEffect, useState, type PropsWithChildren, type ReactNode } from 'react';
 import { AccessibilityInfo, Platform, Pressable, StyleSheet, Text, View, type PressableProps, type PressableStateCallbackType, type StyleProp, type ViewStyle } from 'react-native';
 import { Animated } from 'react-native';
+import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { color, motion, space, tabularNums, type } from '@/design/tokens';
+import { fireHaptic, type HapticCue } from '@/lib/feedback';
 
 export const MAX_FONT_SCALE = 1.35;
 
 type InteractionState = PressableStateCallbackType & { focused: boolean; hovered: boolean };
 type InteractivePressableProps = Omit<PressableProps, 'style'> & {
   style?: StyleProp<ViewStyle> | ((state: InteractionState) => StyleProp<ViewStyle>);
+  haptic?: HapticCue;
 };
 
-export function InteractivePressable({ style, onFocus, onBlur, onHoverIn, onHoverOut, ...props }: InteractivePressableProps) {
+const AnimatedPressable = Reanimated.createAnimatedComponent(Pressable);
+
+export function InteractivePressable({ style, haptic = 'light', onFocus, onBlur, onHoverIn, onHoverOut, onPress, onPressIn, onPressOut, ...props }: InteractivePressableProps) {
   const [focused, setFocused] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const pressedProgress = useSharedValue(0);
+  const pressStyle = useAnimatedStyle(() => ({
+    opacity: 1 - pressedProgress.value * 0.12,
+    transform: [{ scale: 1 - pressedProgress.value * 0.03 }],
+  }));
   return (
-    <Pressable
+    <AnimatedPressable
       {...props}
+      onPress={(event) => { void fireHaptic(haptic).catch(() => undefined); onPress?.(event); }}
+      onPressIn={(event) => {
+        pressedProgress.value = withSpring(1, motion.easing.settle);
+        onPressIn?.(event);
+      }}
+      onPressOut={(event) => {
+        pressedProgress.value = withSpring(0, motion.easing.settle);
+        onPressOut?.(event);
+      }}
       onBlur={(event) => { setFocused(false); onBlur?.(event); }}
       onFocus={(event) => { setFocused(true); onFocus?.(event); }}
       onHoverIn={(event) => { setHovered(true); onHoverIn?.(event); }}
       onHoverOut={(event) => { setHovered(false); onHoverOut?.(event); }}
-      style={(state) => [
+      style={(state: PressableStateCallbackType) => [
+        pressStyle,
         typeof style === 'function' ? style({ ...state, focused, hovered }) : style,
         hovered && styles.interactiveHovered,
         focused && styles.interactiveFocused,
       ]}
     />
   );
+}
+
+export function ScreenEntrance({ children, direction = 'right', delay = 0, style }: PropsWithChildren<{
+  direction?: 'left' | 'right' | 'up'; delay?: number; style?: StyleProp<ViewStyle>;
+}>) {
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const progress = useSharedValue(0);
+  useEffect(() => {
+    let active = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    AccessibilityInfo.isReduceMotionEnabled().then((reduced) => {
+      if (!active) return;
+      setReduceMotion(reduced);
+      timer = setTimeout(() => {
+        progress.value = withTiming(1, {
+          duration: reduced ? motion.duration.fast : motion.duration.standard,
+          easing: Easing.bezier(...motion.easing.standardEaseOut),
+        });
+      }, reduced ? 0 : delay);
+    });
+    return () => { active = false; if (timer) clearTimeout(timer); };
+  }, [delay, progress]);
+  const animatedStyle = useAnimatedStyle(() => {
+    const distance = reduceMotion ? 4 : 18;
+    const x = direction === 'left' ? -distance : direction === 'right' ? distance : 0;
+    const y = direction === 'up' ? distance : 0;
+    return { opacity: progress.value, transform: [{ translateX: x * (1 - progress.value) }, { translateY: y * (1 - progress.value) }] };
+  });
+  return <Reanimated.View style={[style, animatedStyle]}>{children}</Reanimated.View>;
 }
 
 export function ScreenHeader({ eyebrow, title, body, compact = false }: { eyebrow: string; title: string; body?: string; compact?: boolean }) {
@@ -40,15 +89,7 @@ export function ScreenHeader({ eyebrow, title, body, compact = false }: { eyebro
   );
 }
 
-export function PrimaryButton({ children, style, ...props }: PropsWithChildren<PressableProps>) {
-  const [press] = useState(() => new Animated.Value(0));
-  const animatePress = (pressed: boolean) => {
-    Animated.timing(press, {
-      duration: motion.duration.fast,
-      toValue: pressed ? 1 : 0,
-      useNativeDriver: true,
-    }).start();
-  };
+export function PrimaryButton({ children, style, ...props }: PropsWithChildren<InteractivePressableProps>) {
   return (
     <InteractivePressable
       {...props}
@@ -56,14 +97,12 @@ export function PrimaryButton({ children, style, ...props }: PropsWithChildren<P
       style={() => [
         styles.button,
         props.disabled && styles.buttonDisabled,
-        typeof style === 'function' ? style({ pressed: false }) : style,
+        typeof style === 'function' ? style({ pressed: false, focused: false, hovered: false }) : style,
       ]}
-      onPressIn={(event) => { animatePress(true); props.onPressIn?.(event); }}
-      onPressOut={(event) => { animatePress(false); props.onPressOut?.(event); }}
     >
-      <Animated.View style={{ opacity: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.86] }), transform: [{ scale: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.98] }) }] }}>
+      <View>
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.buttonLabel, props.disabled && styles.buttonLabelDisabled]}>{children}</Text>
-      </Animated.View>
+      </View>
     </InteractivePressable>
   );
 }

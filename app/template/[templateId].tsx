@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { PrimaryButton, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { findTemplate } from '@/lib/catalog/templates';
 
@@ -21,7 +21,7 @@ export default function TemplateDetailScreen() {
 
   return (
     <SafeAreaView style={styles.safe} testID="template-detail-screen">
-      <View style={[styles.container, compact && styles.containerCompact]}>
+      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
         <TextAction onPress={() => router.back()}>‹ Catalog</TextAction>
         <ScreenHeader compact={compact} eyebrow={template.category} title={template.title} body={template.summary} />
         <View accessible accessibilityLabel={`Cadence: ${template.cadence}`} style={styles.cadenceRow}>
@@ -41,7 +41,7 @@ export default function TemplateDetailScreen() {
         <PrimaryButton accessibilityLabel={`Commit to ${template.title}`} onPress={() => router.push(`/commit/${template.id}`)} style={compact ? styles.primaryCompact : undefined}>
           Set stake
         </PrimaryButton>
-      </View>
+      </ScreenEntrance>
     </SafeAreaView>
   );
 }

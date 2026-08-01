@@ -1,16 +1,16 @@
-import * as Haptics from 'expo-haptics';
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { InteractivePressable } from '@/components/ui';
 import { statusCopy, type VerificationSubmission } from '@/lib/verification/types';
+import { fireHaptic } from '@/lib/feedback';
 
 export function VerificationCard({ submission, compact = false }: { submission: VerificationSubmission; compact?: boolean }) {
   const copy = statusCopy[submission.status];
   const isPass = submission.status === 'passed';
   useEffect(() => {
     if (submission.resolutionType === 'sla_auto_pass') {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void fireHaptic('light').catch(() => undefined);
     }
   }, [submission.resolutionType]);
   return (

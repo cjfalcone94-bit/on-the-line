@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { InteractivePressable, ScreenHeader, TextAction } from '@/components';
+import { InteractivePressable, ScreenEntrance, ScreenHeader, TextAction } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { getSoundEnabled, setSoundEnabled } from '@/lib/preferences/sound';
 
@@ -22,24 +22,25 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="settings-screen">
       <ScrollView contentContainerStyle={styles.content}>
-        <TextAction onPress={() => router.back()}>‹ Back</TextAction>
-        <ScreenHeader eyebrow="App controls" title="Settings" body="Quiet by default. Your preference stays on this device." />
-        <View style={styles.section}>
+        <ScreenEntrance direction="right"><TextAction onPress={() => router.back()}>‹ Back</TextAction>
+        <ScreenHeader eyebrow="App controls" title="Settings" body="Sound and haptics follow one device preference." /></ScreenEntrance>
+        <ScreenEntrance delay={45} direction="left" style={styles.section}>
           <InteractivePressable
             accessibilityLabel={`App sound ${soundEnabled ? 'on' : 'off'}`}
             accessibilityRole="switch"
             accessibilityState={{ checked: soundEnabled }}
+            haptic="selection"
             onPress={toggleSound}
             style={({ pressed }) => [styles.settingRow, pressed && styles.pressed]}
             testID="app-sound-toggle"
           >
             <View style={styles.settingCopy}>
-              <Text maxFontSizeMultiplier={type.maxScale} style={styles.settingTitle}>App sound</Text>
-              <Text maxFontSizeMultiplier={type.maxScale} style={styles.settingBody}>Commitment confirmation and Glass Receipt cues. The hardware silent switch is always respected.</Text>
+              <Text maxFontSizeMultiplier={type.maxScale} style={styles.settingTitle}>Sound &amp; haptics</Text>
+              <Text maxFontSizeMultiplier={type.maxScale} style={styles.settingBody}>Press feedback, commitment confirmation, and Glass Receipt cues. The hardware silent switch is always respected.</Text>
             </View>
             <Text maxFontSizeMultiplier={type.maxScale} style={styles.value}>{soundEnabled ? 'ON' : 'OFF'}</Text>
           </InteractivePressable>
-        </View>
+        </ScreenEntrance>
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,11 +1,10 @@
-import * as Haptics from 'expo-haptics';
 import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useStripe } from '@/lib/payments/stripe';
 import { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { CharityChoice, CustomStakeInput, StakeChoice } from '@/components/commit';
-import { LedgerSkeletonLine, PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { LedgerSkeletonLine, PrimaryButton, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { charities, findCharity } from '@/lib/commit/charities';
@@ -15,6 +14,7 @@ import { env } from '@/lib/env';
 import { findTemplate } from '@/lib/catalog/templates';
 import { scheduleProofReminder } from '@/lib/proof/reminders';
 import { getSoundEnabled } from '@/lib/preferences/sound';
+import { fireHaptic } from '@/lib/feedback';
 
 type Step = 'stake' | 'charity' | 'disclosure' | 'card' | 'confirmed';
 
@@ -53,13 +53,13 @@ export default function CommitScreen() {
   const selectStake = (cents: number) => {
     setStakeCents(cents);
     setCustom('');
-    Haptics.selectionAsync();
     track('stake_amount_selected');
   };
 
   const authorize = async () => {
     if (!stakeCents || !charity || !env.stripe?.publishableKey) {
       setError('Card authorization is unavailable right now. Nothing was charged. Check your connection and try again.');
+      void fireHaptic('warning').catch(() => undefined);
       return;
     }
     setBusy(true);
@@ -83,7 +83,7 @@ export default function CommitScreen() {
       setCommitmentId(result.commitmentId);
       setStep('confirmed');
       track('commitment_created');
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      void fireHaptic('success').catch(() => undefined);
       void getSoundEnabled().then(async (enabled) => {
         if (!enabled) return;
         // Expo Audio exposes volume as a mutable native-player property.
@@ -96,6 +96,7 @@ export default function CommitScreen() {
       setError(stakeAuthorized
         ? 'We could not confirm the commitment. Do not try again yet. Check your commitments—the base fee may have been charged, but your stake was not captured.'
         : 'We could not authorize your card. Nothing was charged. Please try again.');
+      void fireHaptic('warning').catch(() => undefined);
     } finally {
       setBusy(false);
     }
@@ -115,7 +116,7 @@ export default function CommitScreen() {
 
   return (
     <SafeAreaView style={styles.safe} testID="commit-screen">
-      <View style={[styles.container, compact && styles.containerCompact]}>
+      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
         <TextAction onPress={() => step === 'stake' ? router.back() : setStep(step === 'charity' ? 'stake' : step === 'disclosure' ? 'charity' : 'disclosure')}>‹ Back</TextAction>
         <ScrollView
           bounces={false}
@@ -138,7 +139,7 @@ export default function CommitScreen() {
           <>
             <ScreenHeader compact={compact} eyebrow="02 · destination" title="Choose where failure goes." body="This destination is locked after you commit. To change it, you must void and start again." />
             <View accessibilityRole="radiogroup" style={styles.charities}>
-              {charities.slice(charityPage * 3, charityPage * 3 + 3).map((item) => <CharityChoice charity={item} compact={compact} key={item.id} onPress={() => { setCharityId(item.id); Haptics.selectionAsync(); track('charity_destination_selected'); }} selected={charityId === item.id} />)}
+              {charities.slice(charityPage * 3, charityPage * 3 + 3).map((item) => <CharityChoice charity={item} compact={compact} key={item.id} onPress={() => { setCharityId(item.id); track('charity_destination_selected'); }} selected={charityId === item.id} />)}
             </View>
             <View style={styles.pageActions}>
               {charityPage > 0 ? <TextAction onPress={() => setCharityPage(0)}>‹ First 3</TextAction> : <View />}
@@ -191,9 +192,9 @@ export default function CommitScreen() {
         ) : null}
         </ScrollView>
         <View style={styles.footer} testID="commit-primary-footer">
-          {primaryAction ? <PrimaryButton disabled={primaryAction.disabled} onPress={primaryAction.onPress}>{primaryAction.label}</PrimaryButton> : null}
+          {primaryAction ? <PrimaryButton disabled={primaryAction.disabled} haptic={step === 'card' ? 'none' : 'light'} onPress={primaryAction.onPress}>{primaryAction.label}</PrimaryButton> : null}
         </View>
-      </View>
+      </ScreenEntrance>
     </SafeAreaView>
   );
 }

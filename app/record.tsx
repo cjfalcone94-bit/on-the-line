@@ -3,11 +3,12 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { FlatList, RefreshControl, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { CommitmentRecordCard, CommitmentRecordEmpty, CommitmentRecordSkeleton } from '@/components/commitment-record';
-import { ScreenHeader, StatePanel, TextAction } from '@/components';
+import { ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { getCommitmentRecord } from '@/lib/record/service';
 import type { CommitmentRecordItem } from '@/lib/record/types';
+import { fireHaptic } from '@/lib/feedback';
 
 type ViewState = 'loading' | 'ready' | 'error';
 
@@ -24,6 +25,7 @@ export default function CommitmentRecordScreen() {
       track('commitment_record_viewed', { total_resolved_count: next.length });
     } catch {
       setState('error');
+      void fireHaptic('warning').catch(() => undefined);
     }
   }, []);
   useEffect(() => {
@@ -41,10 +43,10 @@ export default function CommitmentRecordScreen() {
         contentContainerStyle={styles.content}
         data={state === 'ready' ? items : []}
         keyExtractor={(item) => item.commitmentId}
-        ListHeaderComponent={<View style={styles.header}><View style={styles.headerActions}><TextAction onPress={() => router.back()}>‹ Back</TextAction><TextAction align="end" onPress={() => router.push('/settings')}>Settings</TextAction></View><ScreenHeader eyebrow="Your history" title="Commitment Record" body="Every resolved goal and its itemized receipt, tied to your account." />{offline ? <Text maxFontSizeMultiplier={type.maxScale} accessibilityLiveRegion="polite" style={styles.offline}>You&apos;re offline. Reconnect to restore the latest account record.</Text> : null}</View>}
+        ListHeaderComponent={<ScreenEntrance direction="right" style={styles.header}><View style={styles.headerActions}><TextAction onPress={() => router.back()}>‹ Back</TextAction><TextAction align="end" onPress={() => router.push('/settings')}>Settings</TextAction></View><ScreenHeader eyebrow="Your history" title="Commitment Record" body="Every resolved goal and its itemized receipt, tied to your account." />{offline ? <Text maxFontSizeMultiplier={type.maxScale} accessibilityLiveRegion="polite" style={styles.offline}>You&apos;re offline. Reconnect to restore the latest account record.</Text> : null}</ScreenEntrance>}
         ListEmptyComponent={state === 'loading' ? <CommitmentRecordSkeleton /> : state === 'error' ? <StatePanel title="Record unavailable." body="We couldn't restore your account history. Check your connection and try again." actionLabel="Try again" onAction={load} /> : <CommitmentRecordEmpty onBrowse={() => router.replace('/catalog')} />}
         refreshControl={<RefreshControl onRefresh={load} refreshing={state === 'loading'} tintColor={color.textPrimary} />}
-        renderItem={({ item }) => <CommitmentRecordCard item={item} onReceipt={() => router.push({ pathname: '/settle/[commitmentId]', params: { commitmentId: item.commitmentId } })} onRecommit={() => recommit(item)} />}
+        renderItem={({ item, index }) => <ScreenEntrance delay={index * 45} direction="left"><CommitmentRecordCard item={item} onReceipt={() => router.push({ pathname: '/settle/[commitmentId]', params: { commitmentId: item.commitmentId } })} onRecommit={() => recommit(item)} /></ScreenEntrance>}
       />
     </SafeAreaView>
   );

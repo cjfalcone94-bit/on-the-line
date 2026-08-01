@@ -4,12 +4,13 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { FixedChecklist, PhotoPreview } from '@/components/proof';
-import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { PrimaryButton, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { findTemplate } from '@/lib/catalog/templates';
 import { enqueueProof, syncProofQueue } from '@/lib/proof/queue';
 import { submitProof } from '@/lib/proof/service';
 import { createProofDraft, type ProofDraft } from '@/lib/proof/types';
+import { fireHaptic } from '@/lib/feedback';
 
 type ScreenState = 'capture' | 'uploading' | 'queued' | 'submitted' | 'error';
 
@@ -57,6 +58,7 @@ export default function ProofScreen() {
       : await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       setState('error');
+      void fireHaptic('warning').catch(() => undefined);
       return;
     }
     const result = camera
@@ -73,6 +75,7 @@ export default function ProofScreen() {
         setState('queued');
       } catch {
         setState('error');
+        void fireHaptic('warning').catch(() => undefined);
       }
       return;
     }
@@ -84,12 +87,13 @@ export default function ProofScreen() {
       setState('submitted');
     } catch {
       setState('error');
+      void fireHaptic('warning').catch(() => undefined);
     }
   };
 
   return (
     <SafeAreaView style={styles.safe} testID="proof-screen">
-      <View style={[styles.container, compact && styles.containerCompact]}>
+      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
         <TextAction onPress={() => router.back()}>‹ Back</TextAction>
         <ScreenHeader compact={compact} eyebrow={`${template.cadence} · proof`} title={template.title} body="Use one photo to show the fixed checklist below. The checklist cannot be edited." />
         <FixedChecklist compact={compact} criteria={template.criteria} />
@@ -125,7 +129,7 @@ export default function ProofScreen() {
         {state === 'capture' && photoUri ? <PrimaryButton onPress={submit} testID="submit-proof">Submit proof</PrimaryButton> : null}
         {online === false && state === 'capture' ? <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.offline}>OFFLINE · Capture still works. Submission will stay safely on this device until you reconnect.</Text> : null}
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.missed}>A missed window is never an automatic charge. The template’s checklist rules apply, with review in a later step.</Text>
-      </View>
+      </ScreenEntrance>
     </SafeAreaView>
   );
 }

@@ -1,11 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { SafeAreaView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView, StyleSheet, useWindowDimensions } from 'react-native';
 import { AppealAction, VerificationCard } from '@/components/verification';
-import { PrimaryButton, ScreenHeader, StatePanel, TextAction } from '@/components';
+import { PrimaryButton, ScreenEntrance, ScreenHeader, StatePanel, TextAction } from '@/components';
 import { color, space } from '@/design/tokens';
 import { appealVerification, getVerificationStatus } from '@/lib/verification/service';
 import type { VerificationSubmission } from '@/lib/verification/types';
+import { fireHaptic } from '@/lib/feedback';
 
 type ViewState = 'loading' | 'ready' | 'appealing' | 'error';
 
@@ -23,6 +24,7 @@ export default function VerifyStatusScreen() {
     await Promise.resolve();
     if (!submissionId) {
       setViewState('error');
+      void fireHaptic('warning').catch(() => undefined);
       return;
     }
     setViewState('loading');
@@ -31,6 +33,7 @@ export default function VerifyStatusScreen() {
       setViewState('ready');
     } catch {
       setViewState('error');
+      void fireHaptic('warning').catch(() => undefined);
     }
   }, [submissionId]);
 
@@ -41,7 +44,7 @@ export default function VerifyStatusScreen() {
         setSubmission(result);
         setViewState('ready');
       })
-      .catch(() => setViewState('error'));
+      .catch(() => { setViewState('error'); void fireHaptic('warning').catch(() => undefined); });
   }, [submissionId]);
 
   const appeal = async () => {
@@ -53,12 +56,13 @@ export default function VerifyStatusScreen() {
       setViewState('ready');
     } catch {
       setViewState('error');
+      void fireHaptic('warning').catch(() => undefined);
     }
   };
 
   return (
     <SafeAreaView style={styles.safe} testID="verify-status-screen">
-      <View style={[styles.container, compact && styles.containerCompact]}>
+      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
         <TextAction onPress={() => router.back()}>‹ Back</TextAction>
         <ScreenHeader compact={compact} eyebrow="verification · read only" title="Proof status" body="Only your submission status appears here. Evidence and reviewer records stay private." />
         {viewState === 'loading' ? <StatePanel title="Checking status…" body="Your proof and published review deadline are being loaded." /> : null}
@@ -74,7 +78,7 @@ export default function VerifyStatusScreen() {
         >
           {viewState === 'loading' ? 'Checking status…' : viewState === 'appealing' ? 'Sending appeal…' : submission?.status === 'passed' ? 'View Glass Receipt' : 'Done'}
         </PrimaryButton>
-      </View>
+      </ScreenEntrance>
     </SafeAreaView>
   );
 }

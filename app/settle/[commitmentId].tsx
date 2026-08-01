@@ -1,17 +1,17 @@
 import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
-import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AccessibilityInfo, SafeAreaView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { GlassReceiptCard } from '@/components/glass-receipt';
-import { InteractivePressable, LedgerSkeletonLine, PrimaryButton, StatePanel, TextAction } from '@/components';
+import { InteractivePressable, LedgerSkeletonLine, PrimaryButton, ScreenEntrance, StatePanel, TextAction } from '@/components';
 import { color, motion, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { getSoundEnabled, setSoundEnabled as persistSoundEnabled } from '@/lib/preferences/sound';
 import { getGlassReceipt } from '@/lib/settlement/service';
 import type { GlassReceipt } from '@/lib/settlement/types';
+import { fireHaptic } from '@/lib/feedback';
 
 type ViewState = 'loading' | 'ready' | 'error';
 
@@ -42,6 +42,7 @@ export default function SettleScreen() {
       track('glass_receipt_viewed', { outcome: next.outcome });
     } catch {
       setState('error');
+      void fireHaptic('warning').catch(() => undefined);
     }
   }, [commitmentId]);
 
@@ -55,26 +56,20 @@ export default function SettleScreen() {
 
   useEffect(() => {
     if (!receipt) return;
-    if (reduceMotion) {
-      const revealTimer = setTimeout(() => setVisibleLines(5), 0);
-      return () => clearTimeout(revealTimer);
-    }
     if (soundEnabled) {
       // Expo Audio exposes volume as a mutable native-player property.
       // eslint-disable-next-line react-hooks/immutability
       player.volume = 0.18;
       player.seekTo(0).then(() => player.play()).catch(() => undefined);
     }
+    const interval = reduceMotion ? motion.duration.fast : motion.duration.emphasized;
     const timers = Array.from({ length: 5 }, (_, index) =>
       setTimeout(() => {
         setVisibleLines(index + 1);
-      }, motion.duration.emphasized * (index + 1)));
+      }, interval * (index + 1)));
     const hapticTimer = setTimeout(() => {
-      const cue = receipt.outcome === 'success'
-        ? Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
-        : Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
-      cue.catch(() => undefined);
-    }, motion.duration.emphasized * 5);
+      void fireHaptic(receipt.outcome === 'success' ? 'success' : 'rigid').catch(() => undefined);
+    }, interval * 5 + motion.duration.fast);
     return () => [...timers, hapticTimer].forEach(clearTimeout);
   }, [player, receipt, reduceMotion, soundEnabled]);
 
@@ -87,6 +82,7 @@ export default function SettleScreen() {
   const share = async () => {
     if (!exportRef.current || !sharingAvailable) {
       setShareError(true);
+      void fireHaptic('warning').catch(() => undefined);
       return;
     }
     setShareError(false);
@@ -95,12 +91,13 @@ export default function SettleScreen() {
       await Sharing.shareAsync(uri, { dialogTitle: 'Share your Glass Receipt', mimeType: 'image/png', UTI: 'public.png' });
     } catch {
       setShareError(true);
+      void fireHaptic('warning').catch(() => undefined);
     }
   };
 
   return (
     <SafeAreaView style={styles.safe} testID="settle-screen">
-      <View style={[styles.container, compact && styles.containerCompact]}>
+      <ScreenEntrance direction="right" style={[styles.container, compact && styles.containerCompact]}>
         <TextAction align="end" onPress={() => router.replace('/catalog')}>Close</TextAction>
         {state === 'loading' ? <ReceiptSkeleton /> : null}
         {state === 'error' ? <StatePanel title="Receipt is unavailable." body="Check your connection and try again. No settlement state changed." actionLabel="Try again" onAction={load} /> : null}
@@ -111,6 +108,7 @@ export default function SettleScreen() {
               accessibilityLabel={`Receipt sound ${soundEnabled ? 'on' : 'off'}`}
               accessibilityRole="switch"
               accessibilityState={{ checked: soundEnabled }}
+              haptic="selection"
               onPress={toggleSound}
               style={({ pressed }) => [styles.soundControl, pressed && styles.soundPressed]}
             >
@@ -128,7 +126,7 @@ export default function SettleScreen() {
             </View>
           </>
         ) : null}
-      </View>
+      </ScreenEntrance>
     </SafeAreaView>
   );
 }

@@ -2,11 +2,12 @@ import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 import { SafeAreaView, SectionList, StyleSheet, Text, View } from 'react-native';
-import { InteractivePressable, LedgerSkeletonLine, ScreenHeader, StatePanel } from '@/components';
+import { InteractivePressable, LedgerSkeletonLine, ScreenEntrance, ScreenHeader, StatePanel } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { groupTemplates, type ChecklistTemplate } from '@/lib/catalog/templates';
 import { catalogQuery } from '@/lib/queries';
+import { fireHaptic } from '@/lib/feedback';
 
 export function TemplateCard({ template, onPress }: { template: ChecklistTemplate; onPress: () => void }) {
   return (
@@ -55,16 +56,19 @@ export default function CatalogScreen() {
   useEffect(() => {
     track('template_catalog_viewed');
   }, []);
+  useEffect(() => {
+    if (query.isError) void fireHaptic('warning').catch(() => undefined);
+  }, [query.isError]);
 
   const sections = groupTemplates(query.data ?? []);
   return (
     <SafeAreaView style={styles.safe} testID="catalog-screen">
-      <View style={styles.headerWrap}>
+      <ScreenEntrance direction="right" style={styles.headerWrap}>
         <InteractivePressable accessibilityLabel="Back to how this works" accessibilityRole="button" hitSlop={12} onPress={() => router.back()} style={({ pressed, focused, hovered }) => [styles.back, pressed && styles.backPressed, hovered && styles.backHovered, focused && styles.backFocused]}>
           <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.backLabel}>‹ How this works</Text>
         </InteractivePressable>
         <ScreenHeader eyebrow="Goal catalog" title="Pick a clear target." body="Every checklist is fixed up front. You see exactly what counts before making any commitment." />
-      </View>
+      </ScreenEntrance>
       {query.isPending ? <CatalogSkeleton /> : query.isError ? (
         <View style={styles.stateWrap}><StatePanel title="The catalog didn’t load." body="Nothing changed. Try loading the templates again." actionLabel="Try again" onAction={() => query.refetch()} /></View>
       ) : sections.length === 0 ? (
@@ -74,10 +78,10 @@ export default function CatalogScreen() {
           contentContainerStyle={styles.list}
           initialNumToRender={6}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <TemplateCard template={item} onPress={() => {
+          renderItem={({ item, index }) => <ScreenEntrance delay={index * 45} direction="left"><TemplateCard template={item} onPress={() => {
             track('template_selected', { template_id: item.id });
             router.push({ pathname: '/template/[templateId]', params: { templateId: item.id } });
-          }} />}
+          }} /></ScreenEntrance>}
           renderSectionHeader={({ section }) => <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling accessibilityRole="header" style={styles.sectionTitle}>{section.title}</Text>}
           sections={sections}
           stickySectionHeadersEnabled={false}
