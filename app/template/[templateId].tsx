@@ -49,7 +49,7 @@ export default function TemplateDetailScreen() {
 const styles = StyleSheet.create({
   cadence: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body },
   cadenceRow: { borderBottomColor: color.surfaceRaised, borderBottomWidth: 1, borderTopColor: color.surfaceRaised, borderTopWidth: 1, gap: space.xs, paddingVertical: space.md },
-  checklist: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.md, paddingLeft: space.md, paddingVertical: space.sm },
+  checklist: { borderLeftColor: color.gold, borderLeftWidth: 2, gap: space.md, paddingLeft: space.md, paddingVertical: space.sm },
   checklistCompact: { gap: space.sm, padding: space.sm },
   checklistTitle: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg },
   container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingHorizontal: space.lg, paddingBottom: space.md },
@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
   criterion: { color: color.textPrimary, flex: 1, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   criterionRow: { alignItems: 'flex-start', borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', gap: space.md, paddingTop: space.sm },
   explainer: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
-  label: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
-  number: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption, paddingTop: space.xs },
+  label: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
+  number: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: type.size.caption, paddingTop: space.xs },
   primaryCompact: { marginBottom: space.md },
   safe: { backgroundColor: color.surface, flex: 1 },
 });

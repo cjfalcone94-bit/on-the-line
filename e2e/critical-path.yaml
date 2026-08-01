@@ -1,0 +1,62 @@
+appId: com.ontheline.app
+name: Founder device truth — complete critical path
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: trust-screen
+- tapOn:
+    id: browse-templates-button
+- assertVisible:
+    id: catalog-screen
+- tapOn:
+    id: template-daily-walk
+- assertVisible:
+    id: template-detail-screen
+- tapOn: "Set stake"
+- assertVisible:
+    id: commit-screen
+- tapOn:
+    id: stake-4000
+- tapOn: "Choose charity"
+- tapOn:
+    id: charity-direct-relief
+- tapOn: "Review the mechanic"
+- assertVisible: "No surprises."
+- tapOn: "Continue to card authorization"
+- assertVisible: "Authorize a mock stake."
+- tapOn: "Run mock authorization"
+- extendedWaitUntil:
+    visible: "Mock stake authorized."
+    timeout: 10000
+- tapOn: "Submit today’s proof"
+- assertVisible:
+    id: proof-screen
+- tapOn: "Use mock sandbox proof"
+- tapOn:
+    id: submit-proof
+- extendedWaitUntil:
+    visible: "Submitted — under review."
+    timeout: 10000
+- tapOn: "View status"
+- assertVisible:
+    id: verify-status-screen
+- extendedWaitUntil:
+    visible:
+      id: verification-passed
+    timeout: 10000
+- tapOn: "Settle mock outcome"
+- assertVisible:
+    id: settle-screen
+- extendedWaitUntil:
+    visible:
+      id: receipt-confirmation
+    timeout: 10000
+- assertVisible: "Sandbox simulation complete: success. No card was charged and no money moved."
+- tapOn: "View Commitment Record"
+- assertVisible:
+    id: commitment-record-screen
+- extendedWaitUntil:
+    visible: "Daily outdoor walk"
+    timeout: 10000
+- assertVisible: "SETTLED · SUCCESS"

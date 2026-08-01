@@ -80,10 +80,10 @@ const styles = StyleSheet.create({
   choice: { borderBottomColor: color.surfaceRaised, borderBottomWidth: StyleSheet.hairlineWidth, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.sm, paddingVertical: space.sm },
   choiceLabel: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body },
   detail: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
-  focused: { borderColor: color.textPrimary, borderWidth: 2 },
+  focused: { borderColor: color.gold, borderWidth: 2 },
   hovered: { opacity: 0.9 },
   input: { ...tabularNums, borderColor: color.surfaceRaised, borderRadius: space.sm, borderWidth: 1, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body, minHeight: 52, paddingHorizontal: space.md },
   pressed: { opacity: 0.82 },
-  selected: { borderBottomColor: color.textPrimary, borderBottomWidth: 2 },
-  selectedLabel: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figureBold },
+  selected: { borderBottomColor: color.gold, borderBottomWidth: 2 },
+  selectedLabel: { ...tabularNums, color: color.gold, fontFamily: type.family.figureBold },
 });

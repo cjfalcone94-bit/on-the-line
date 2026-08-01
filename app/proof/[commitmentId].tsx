@@ -140,7 +140,7 @@ export default function ProofScreen() {
 const styles = StyleSheet.create({
   cameraCopy: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, maxWidth: 240, textAlign: 'center' },
   cameraFrame: { alignItems: 'center', borderColor: color.textSecondary, borderRadius: space.md, borderStyle: 'dashed', borderWidth: 1, flex: 1, gap: space.sm, justifyContent: 'center', minHeight: 120 },
-  cameraMark: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.xl },
+  cameraMark: { color: color.gold, fontFamily: type.family.body, fontSize: type.size.xl },
   capture: { flex: 1, gap: space.sm },
   container: { flex: 1, gap: space.sm, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
   containerCompact: { gap: space.xs, paddingBottom: space.sm, paddingHorizontal: space.md },

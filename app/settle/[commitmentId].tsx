@@ -123,6 +123,7 @@ export default function SettleScreen() {
             <PrimaryButton accessibilityLabel="Share Glass Receipt" disabled={visibleLines < 5 || sharingAvailable !== true} onPress={share}>
               {sharingAvailable === null ? 'Checking sharing…' : 'Share receipt'}
             </PrimaryButton>
+            <TextAction align="center" onPress={() => router.replace('/record')}>View Commitment Record</TextAction>
             <View pointerEvents="none" style={styles.exportStage}>
               <GlassReceiptCard exportMode receipt={receipt} ref={exportRef} />
             </View>

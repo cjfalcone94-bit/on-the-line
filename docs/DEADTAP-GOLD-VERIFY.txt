@@ -1,0 +1,23 @@
+On the Line — dead-tap/gold remediation verification
+Date: 2026-08-01 UTC
+
+npm run typecheck
+PASS — tsc --noEmit, exit 0, 0 errors
+
+npm run lint
+PASS — expo lint, exit 0, 0 errors
+
+npm test -- --ci
+PASS — 27/27 suites, 116/116 tests, 0 snapshots, exit 0
+
+Virtualized-list touch audit
+Files containing SectionList/FlatList:
+- screens/CatalogScreen.tsx
+- app/record.tsx
+
+grep -RInE "renderItem=.*ScreenEntrance|ListHeaderComponent=.*ScreenEntrance" app screens --include='*.tsx'
+PASS — zero matches. Neither virtualized list wraps row/header pressables in ScreenEntrance.
+
+Maestro definition validation
+PASS — e2e/critical-path.yaml parses as two YAML documents with 33 journey steps.
+NOT EXECUTED ON DEVICE IN THIS WORKSPACE — no Maestro executable or attached iOS runner is available. The founder/device runner remains the binding device-truth execution.

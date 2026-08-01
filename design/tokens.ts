@@ -9,10 +9,10 @@ import type { TextStyle } from 'react-native';
  * app hardcodes a color, size, spacing, duration, or haptic; everything reads
  * from here, which is what makes `design-conformance` auditable (Phase 7).
  *
- * Anti-casino guardrail (§3, mandatory): gold is used ONLY for brand mark, the
- * ledger accent, and success/settled amounts — never a fill/glow/gradient/
- * shimmer/confetti. Enforce that at the component layer, not by adding more gold
- * tokens here.
+ * Anti-casino guardrail (§3, mandatory): gold is a disciplined brand accent on
+ * the mark, ledger lines, headers/eyebrows, affordance chevrons, and active or
+ * focused interactions, plus success/settled amounts — never a fill/glow/
+ * gradient/shimmer/confetti. Enforce the allowlist at the component layer.
  */
 // ---- Type scale (§3: Bricolage Grotesque headlines/receipt titles and
 // Hanken Grotesk body/UI/ledger figures). Figures stay proportional and use
@@ -94,8 +94,9 @@ export const color = {
   textPrimary: '#FFFFFF',
   textSecondary: '#B8B8B8',
 
-  // The ONE brand/value accent — gold. Anti-casino rule: mark/ledger-accent/
-  // success-amount ONLY. Never a fill, glow, gradient, or celebratory flourish.
+  // The ONE brand/value accent — gold. Allowlist: mark/ledger accent, headers
+  // and eyebrows, chevrons, active/selected/focused interaction, success amount.
+  // Never a fill, glow, gradient, shimmer, or celebratory flourish.
   gold: '#F5C518',
 
   // Forfeit/failure — the only other semantic color (§1: "no more than the two

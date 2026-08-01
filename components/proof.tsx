@@ -31,19 +31,19 @@ export function PhotoPreview({ uri, onRetake }: { uri: string; onRetake: () => v
 }
 
 const styles = StyleSheet.create({
-  checklist: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, gap: space.sm, paddingLeft: space.md, paddingVertical: space.sm },
+  checklist: { borderLeftColor: color.gold, borderLeftWidth: 2, gap: space.sm, paddingLeft: space.md, paddingVertical: space.sm },
   checklistCompact: { gap: space.xs, padding: space.sm },
   checklistHeading: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' },
   criterion: { alignItems: 'flex-start', flexDirection: 'row', gap: space.sm },
   criterionText: { color: color.textPrimary, flex: 1, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
-  focused: { borderColor: color.textPrimary, borderRadius: space.xs, borderWidth: 2 },
+  focused: { borderColor: color.gold, borderRadius: space.xs, borderWidth: 2 },
   hovered: { opacity: 0.82 },
-  label: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
-  number: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption },
+  label: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
+  number: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: type.size.caption },
   preview: { borderRadius: space.md, flex: 1, width: '100%' },
   previewWrap: { flex: 1, gap: space.sm, minHeight: 180 },
   pressed: { opacity: 0.65, transform: [{ scale: 0.98 }] },
   readOnly: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 10 },
   retake: { alignItems: 'center', justifyContent: 'center', minHeight: 44 },
-  retakeText: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, textDecorationLine: 'underline' },
+  retakeText: { color: color.gold, fontFamily: type.family.body, fontSize: type.size.caption, textDecorationLine: 'underline' },
 });

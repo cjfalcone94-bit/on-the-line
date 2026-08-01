@@ -78,10 +78,10 @@ export default function CatalogScreen() {
           contentContainerStyle={styles.list}
           initialNumToRender={6}
           keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => <ScreenEntrance delay={index * 45} direction="left"><TemplateCard template={item} onPress={() => {
+          renderItem={({ item }) => <TemplateCard template={item} onPress={() => {
             track('template_selected', { template_id: item.id });
             router.push({ pathname: '/template/[templateId]', params: { templateId: item.id } });
-          }} /></ScreenEntrance>}
+          }} />}
           renderSectionHeader={({ section }) => <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling accessibilityRole="header" style={styles.sectionTitle}>{section.title}</Text>}
           sections={sections}
           stickySectionHeadersEnabled={false}
@@ -92,26 +92,26 @@ export default function CatalogScreen() {
 }
 
 const styles = StyleSheet.create({
-  arrow: { color: color.textSecondary, fontSize: type.size.xl },
+  arrow: { color: color.gold, fontSize: type.size.xl },
   back: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' },
-  backFocused: { borderColor: color.textPrimary, borderRadius: space.xs, borderWidth: 2 },
+  backFocused: { borderColor: color.gold, borderRadius: space.xs, borderWidth: 2 },
   backHovered: { opacity: 0.82 },
-  backLabel: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body },
+  backLabel: { color: color.gold, fontFamily: type.family.body, fontSize: type.size.body },
   backPressed: { opacity: 0.65, transform: [{ scale: 0.98 }] },
-  cadence: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption },
+  cadence: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: type.size.caption },
   card: { borderBottomColor: color.textSecondary, borderBottomWidth: StyleSheet.hairlineWidth, gap: space.sm, marginBottom: space.sm, paddingBottom: space.lg, paddingTop: space.md, transform: [{ scale: 1 }] },
-  cardFocused: { borderColor: color.textPrimary, borderWidth: 2 },
+  cardFocused: { borderColor: color.gold, borderWidth: 2 },
   cardHovered: { opacity: 0.9 },
   cardHeading: { alignItems: 'center', flexDirection: 'row', gap: space.sm, justifyContent: 'space-between' },
   cardPressed: { opacity: 0.88, transform: [{ scale: 0.99 }] },
   cardTitle: { color: color.textPrimary, flex: 1, fontFamily: type.family.display, fontSize: type.size.lg },
   criteria: { borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, gap: space.xs, paddingTop: space.sm },
-  criteriaLabel: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
+  criteriaLabel: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
   criterion: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   headerWrap: { gap: space.xs, paddingHorizontal: space.lg, paddingBottom: space.md },
   list: { paddingBottom: space.xl, paddingHorizontal: space.lg },
   safe: { backgroundColor: color.surface, flex: 1 },
-  sectionTitle: { backgroundColor: color.surface, color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.xl, paddingBottom: space.sm, paddingTop: space.md },
+  sectionTitle: { backgroundColor: color.surface, borderLeftColor: color.gold, borderLeftWidth: 2, color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.xl, marginTop: space.sm, paddingBottom: space.sm, paddingLeft: space.sm, paddingTop: space.md },
   skeletonCard: { borderBottomColor: color.textSecondary, borderBottomWidth: StyleSheet.hairlineWidth, gap: space.md, paddingBottom: space.lg, paddingTop: space.md },
   skeletonWrap: { gap: space.md, paddingHorizontal: space.lg },
   stateWrap: { paddingHorizontal: space.lg, paddingTop: space.lg },

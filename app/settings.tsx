@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { InteractivePressable, ScreenEntrance, ScreenHeader, TextAction } from '@/components';
+import { InteractivePressable, ScreenHeader, TextAction } from '@/components';
 import { color, space, type } from '@/design/tokens';
 import { getSoundEnabled, setSoundEnabled } from '@/lib/preferences/sound';
 
@@ -22,9 +22,9 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.safe} testID="settings-screen">
       <ScrollView contentContainerStyle={styles.content}>
-        <ScreenEntrance direction="right"><TextAction onPress={() => router.back()}>‹ Back</TextAction>
-        <ScreenHeader eyebrow="App controls" title="Settings" body="Sound and haptics follow one device preference." /></ScreenEntrance>
-        <ScreenEntrance delay={45} direction="left" style={styles.section}>
+        <View><TextAction onPress={() => router.back()}>‹ Back</TextAction>
+        <ScreenHeader eyebrow="App controls" title="Settings" body="Sound and haptics follow one device preference." /></View>
+        <View style={styles.section}>
           <InteractivePressable
             accessibilityLabel={`App sound ${soundEnabled ? 'on' : 'off'}`}
             accessibilityRole="switch"
@@ -40,7 +40,7 @@ export default function SettingsScreen() {
             </View>
             <Text maxFontSizeMultiplier={type.maxScale} style={styles.value}>{soundEnabled ? 'ON' : 'OFF'}</Text>
           </InteractivePressable>
-        </ScreenEntrance>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -55,5 +55,5 @@ const styles = StyleSheet.create({
   settingCopy: { flex: 1, gap: space.xs, paddingRight: space.md },
   settingRow: { alignItems: 'center', borderBottomColor: color.textSecondary, borderBottomWidth: StyleSheet.hairlineWidth, flexDirection: 'row', justifyContent: 'space-between', minHeight: 88, paddingVertical: space.md },
   settingTitle: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.body },
-  value: { color: color.textPrimary, fontFamily: type.family.bodyBold, fontSize: type.size.caption },
+  value: { color: color.gold, fontFamily: type.family.bodyBold, fontSize: type.size.caption },
 });
