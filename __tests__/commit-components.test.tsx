@@ -7,7 +7,7 @@ describe('commit controls', () => {
     const onPress = jest.fn();
     const { getByTestId, getByText } = render(<StakeChoice cents={4000} onPress={onPress} selected />);
     expect(getByText('$40')).toBeTruthy();
-    expect(getByTestId('stake-4000').props.accessibilityState).toEqual({ selected: true });
+    expect(getByTestId('stake-4000').props.accessibilityState).toEqual(expect.objectContaining({ checked: true, selected: true }));
     fireEvent.press(getByTestId('stake-4000'));
     expect(onPress).toHaveBeenCalledTimes(1);
   });
@@ -28,6 +28,6 @@ describe('commit controls', () => {
 
   it('exposes choices as radio controls', () => {
     const { getByRole } = render(<Choice label="Daily" detail="30 days" selected={false} onPress={jest.fn()} />);
-    expect(getByRole('radio').props.accessibilityState).toEqual({ selected: false });
+    expect(getByRole('radio').props.accessibilityState).toEqual(expect.objectContaining({ checked: false, selected: false }));
   });
 });

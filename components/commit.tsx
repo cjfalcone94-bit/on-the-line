@@ -18,7 +18,8 @@ export function Choice({ label, detail, selected, onPress, testID }: { label: st
   return (
     <InteractivePressable
       accessibilityRole="radio"
-      accessibilityState={{ selected }}
+      accessibilityState={{ checked: selected, selected }}
+      aria-checked={selected}
       haptic="selection"
       onPress={onPress}
       style={({ pressed, focused, hovered }) => [styles.choice, selected && styles.selected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
@@ -57,7 +58,8 @@ export function CharityChoice({ charity, selected, onPress, compact = false }: {
     <InteractivePressable
       accessibilityLabel={`${charity.name}, ${charity.category}`}
       accessibilityRole="radio"
-      accessibilityState={{ selected }}
+      accessibilityState={{ checked: selected, selected }}
+      aria-checked={selected}
       onPress={onPress}
       style={({ pressed, focused, hovered }) => [styles.charity, compact && styles.charityCompact, selected && styles.selected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
       testID={`charity-${charity.id}`}

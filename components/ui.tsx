@@ -51,17 +51,15 @@ export function InteractivePressable({ style, haptic = 'light', onFocus, onBlur,
   );
 }
 
-export function ScreenEntrance({ children, direction = 'right', delay = 0, style }: PropsWithChildren<{
+export function ScreenEntrance({ children, delay = 0, style }: PropsWithChildren<{
   direction?: 'left' | 'right' | 'up'; delay?: number; style?: StyleProp<ViewStyle>;
 }>) {
-  const [reduceMotion, setReduceMotion] = useState(false);
   const progress = useSharedValue(0);
   useEffect(() => {
     let active = true;
     let timer: ReturnType<typeof setTimeout> | undefined;
     AccessibilityInfo.isReduceMotionEnabled().then((reduced) => {
       if (!active) return;
-      setReduceMotion(reduced);
       timer = setTimeout(() => {
         progress.value = withTiming(1, {
           duration: reduced ? motion.duration.fast : motion.duration.standard,
@@ -71,13 +69,8 @@ export function ScreenEntrance({ children, direction = 'right', delay = 0, style
     });
     return () => { active = false; if (timer) clearTimeout(timer); };
   }, [delay, progress]);
-  const animatedStyle = useAnimatedStyle(() => {
-    const distance = reduceMotion ? 4 : 18;
-    const x = direction === 'left' ? -distance : direction === 'right' ? distance : 0;
-    const y = direction === 'up' ? distance : 0;
-    return { opacity: progress.value, transform: [{ translateX: x * (1 - progress.value) }, { translateY: y * (1 - progress.value) }] };
-  });
-  return <Reanimated.View style={[style, animatedStyle]}>{children}</Reanimated.View>;
+  const animatedStyle = useAnimatedStyle(() => ({ opacity: progress.value }));
+  return <Reanimated.View pointerEvents="box-none" style={[style, animatedStyle]}>{children}</Reanimated.View>;
 }
 
 export function ScreenHeader({ eyebrow, title, body, compact = false }: { eyebrow: string; title: string; body?: string; compact?: boolean }) {

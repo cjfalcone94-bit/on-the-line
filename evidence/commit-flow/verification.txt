@@ -1,0 +1,24 @@
+Commit-flow fix verification — 2026-08-02
+
+Sandbox export
+  EXPO_PUBLIC_SANDBOX=1 npx expo export --platform web --output-dir dist-commit-flow
+  Result: PASS — 15 static routes exported.
+
+Rendered click-through
+  npx playwright test e2e/commit-flow-fix.spec.ts --reporter=line
+  Result: PASS — 1 passed (12.5s).
+  Viewport: 375x667.
+  Assertions include stake radio checked + Choose charity enabled, charity radio checked + Review the mechanic enabled, passed verification, SETTLED · SUCCESS Glass Receipt, and the new Commitment Record entry.
+
+Code gate
+  npm run typecheck
+  Result: PASS — exit 0.
+
+  npm run lint
+  Result: PASS — exit 0, zero warnings.
+
+  npm test -- --ci --runInBand
+  Result: PASS — 28 suites, 115 tests, 0 failures.
+
+Device-truth boundary
+  This artifact is the founder-requested built-web Playwright click-through. It is not an iOS Simulator/Maestro workflow run and must not be used as a substitute for the blocking device-e2e gate in docs/DONE-GATE.md.
