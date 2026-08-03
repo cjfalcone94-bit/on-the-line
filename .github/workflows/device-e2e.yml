@@ -42,6 +42,22 @@ jobs:
       - name: Install JavaScript dependencies
         run: npm ci
 
+      - name: Cache CocoaPods download cache
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/CocoaPods
+          key: pods-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'package-lock.json') }}
+          restore-keys: |
+            pods-${{ runner.os }}-
+
+      - name: Cache Xcode DerivedData (incremental compile)
+        uses: actions/cache@v4
+        with:
+          path: build/ios
+          key: deriveddata-${{ runner.os }}-${{ hashFiles('ios/Podfile.lock', 'package-lock.json') }}
+          restore-keys: |
+            deriveddata-${{ runner.os }}-
+
       - name: Generate the native iOS project
         run: npx expo prebuild --platform ios --clean --no-install
 
