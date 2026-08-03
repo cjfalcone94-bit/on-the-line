@@ -19,6 +19,11 @@ jobs:
       EXPO_PUBLIC_SANDBOX: "1"
       MAESTRO_CLI_NO_ANALYTICS: "1"
       APP_ID: com.falconlabs.ontheline
+      # The app has a Sentry source-map upload build phase. eas.json sets this for
+      # production builds; CI must set it too or `sentry-cli` fails the whole
+      # xcodebuild with "An organization ID or slug is required" (no org/token in CI).
+      SENTRY_DISABLE_AUTO_UPLOAD: "true"
+      SENTRY_ALLOW_FAILURE: "true"
 
     steps:
       - uses: actions/checkout@v4
