@@ -64,12 +64,20 @@ name: Route reachability tap crawl
 - tapOn: "Submit today’s proof"
 - assertVisible:
     id: proof-screen
+- scrollUntilVisible:
+    element:
+      text: "Use mock sandbox proof"
+    direction: DOWN
 - tapOn: "Use mock sandbox proof"
 - tapOn:
     id: submit-proof
 - extendedWaitUntil:
     visible: "Submitted — under review."
     timeout: 10000
+- scrollUntilVisible:
+    element:
+      text: "View status"
+    direction: DOWN
 - tapOn: "View status"
 - extendedWaitUntil:
     visible:
