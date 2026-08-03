@@ -116,7 +116,12 @@ Deno.serve(async (request) => {
     return response({ error: 'invalid_payment_intent' }, 400);
   }
 
-  const intent = await stripe.paymentIntents.retrieve(body.paymentIntentId);
+  let intent;
+  try {
+    intent = await stripe.paymentIntents.retrieve(body.paymentIntentId);
+  } catch {
+    return response({ error: 'authorization_not_confirmed' }, 409);
+  }
   if (!templateIds.has(intent.metadata.template_id) || !charityIds.has(intent.metadata.charity_destination_id)) {
     return response({ error: 'authorization_not_confirmed' }, 409);
   }
