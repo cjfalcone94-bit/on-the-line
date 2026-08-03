@@ -79,6 +79,14 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             | tee build/xcodebuild.log
 
+      - name: Surface iOS build errors (on failure)
+        if: failure()
+        run: |
+          echo "===== xcodebuild ERROR lines ====="
+          grep -nE "error:|error G[0-9]+:| error: |ld: |fatal error:|The following build commands failed|Command .* failed with a nonzero exit code" build/xcodebuild.log 2>/dev/null | tail -120 || echo "(no build/xcodebuild.log found)"
+          echo "===== last 200 lines of xcodebuild.log ====="
+          tail -200 build/xcodebuild.log 2>/dev/null || echo "(no log)"
+
       - name: Install and launch sandbox app
         env:
           UDID: ${{ steps.simulator.outputs.udid }}
