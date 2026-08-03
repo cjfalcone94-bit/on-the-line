@@ -63,7 +63,7 @@ export default function CatalogScreen() {
   const sections = groupTemplates(query.data ?? []);
   return (
     <ScreenScaffold header={<ScreenEntrance direction="right" style={styles.headerWrap}>
-        <InteractivePressable accessibilityLabel="Back to how this works" accessibilityRole="button" hitSlop={12} onPress={() => router.back()} style={({ pressed, focused, hovered }) => [styles.back, pressed && styles.backPressed, hovered && styles.backHovered, focused && styles.backFocused]}>
+        <InteractivePressable accessibilityLabel="How this works" accessibilityRole="button" hitSlop={12} onPress={() => router.back()} style={({ pressed, focused, hovered }) => [styles.back, pressed && styles.backPressed, hovered && styles.backHovered, focused && styles.backFocused]}>
           <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.backLabel}>‹ How this works</Text>
         </InteractivePressable>
         <ScreenHeader eyebrow="Goal catalog" title="Pick a clear target." body="Every checklist is fixed up front. You see exactly what counts before making any commitment." />

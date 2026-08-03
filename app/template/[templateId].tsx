@@ -22,7 +22,7 @@ export default function TemplateDetailScreen() {
   return (
     <ScreenScaffold
       contentContainerStyle={[styles.container, compact && styles.containerCompact]}
-      footer={<PrimaryButton accessibilityLabel={`Commit to ${template.title}`} onPress={() => router.push(`/commit/${template.id}`)}>Set stake</PrimaryButton>}
+      footer={<PrimaryButton accessibilityLabel={`Set stake - commit to ${template.title}`} onPress={() => router.push(`/commit/${template.id}`)}>Set stake</PrimaryButton>}
       testID="template-detail-screen"
     >
       <ScreenEntrance direction="right" style={styles.entrance}>
