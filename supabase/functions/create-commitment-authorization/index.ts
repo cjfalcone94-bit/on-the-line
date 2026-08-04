@@ -11,7 +11,6 @@ const corsHeaders = {
 const charityIds = new Set([
   'direct-relief',
   'donorschoose',
-  'rainforest-trust',
   'best-friends',
   'team-rubicon',
   'feeding-america',

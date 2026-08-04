@@ -7,7 +7,6 @@ export type Charity = Readonly<{
 export const charities: readonly Charity[] = [
   { id: 'direct-relief', name: 'Direct Relief', category: 'Health' },
   { id: 'donorschoose', name: 'DonorsChoose', category: 'Education' },
-  { id: 'rainforest-trust', name: 'Rainforest Trust', category: 'Environment' },
   { id: 'best-friends', name: 'Best Friends Animal Society', category: 'Animal welfare' },
   { id: 'team-rubicon', name: 'Team Rubicon', category: 'Disaster relief' },
   { id: 'feeding-america', name: 'Feeding America', category: 'Community' },

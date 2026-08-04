@@ -8,7 +8,6 @@ import { formatMoney } from '@/lib/commit/money';
 const charityIcons: Record<string, ImageSourcePropType> = {
   'direct-relief': require('@/assets/charity-icons/health.png'),
   donorschoose: require('@/assets/charity-icons/education.png'),
-  'rainforest-trust': require('@/assets/charity-icons/environment.png'),
   'best-friends': require('@/assets/charity-icons/animal-welfare.png'),
   'team-rubicon': require('@/assets/charity-icons/disaster-relief.png'),
   'feeding-america': require('@/assets/charity-icons/community.png'),
