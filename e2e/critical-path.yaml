@@ -32,11 +32,6 @@ name: Founder device truth — complete critical path
 - tapOn: "Submit today’s proof"
 - assertVisible:
     id: proof-screen
-- scrollUntilVisible:
-    element:
-      id: "use-mock-proof"
-    direction: DOWN
-    centerElement: true
 - tapOn:
     id: "use-mock-proof"
 - tapOn:

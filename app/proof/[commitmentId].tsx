@@ -96,7 +96,14 @@ export default function ProofScreen() {
   return (
     <ScreenScaffold
       contentContainerStyle={[styles.container, compact && styles.containerCompact]}
-      footer={state === 'capture' ? <PrimaryButton onPress={photoUri ? submit : () => choosePhoto(true)} testID={photoUri ? 'submit-proof' : 'take-proof-photo'}>{photoUri ? 'Submit proof' : 'Take photo'}</PrimaryButton> : null}
+      footer={state === 'capture' ? (
+        <View style={styles.footerStack}>
+          {env.sandbox && !photoUri ? (
+            <PrimaryButton onPress={() => setPhotoUri('sandbox://mock-proof.jpg')} testID="use-mock-proof">Use mock sandbox proof</PrimaryButton>
+          ) : null}
+          <PrimaryButton onPress={photoUri ? submit : () => choosePhoto(true)} testID={photoUri ? 'submit-proof' : 'take-proof-photo'}>{photoUri ? 'Submit proof' : 'Take photo'}</PrimaryButton>
+        </View>
+      ) : null}
       header={<View style={styles.header}><TextAction onPress={() => router.back()}>‹ Back</TextAction></View>}
       testID="proof-screen"
     >
@@ -110,7 +117,6 @@ export default function ProofScreen() {
               <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cameraMark}>＋</Text>
               <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cameraCopy}>Camera first. Your photo is the only evidence submitted in this step.</Text>
             </View>
-            {env.sandbox ? <TextAction align="center" testID="use-mock-proof" onPress={() => setPhotoUri('sandbox://mock-proof.jpg')}>Use mock sandbox proof</TextAction> : null}
             <TextAction align="center" onPress={() => choosePhoto(false)}>Choose from photo library</TextAction>
           </View>
         ) : null}
@@ -145,6 +151,7 @@ const styles = StyleSheet.create({
   cameraMark: { color: color.gold, fontFamily: type.family.body, fontSize: type.size.xl },
   capture: { flex: 1, gap: space.sm },
   container: { flex: 1, gap: space.sm, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
+  footerStack: { gap: space.sm },
   containerCompact: { gap: space.xs, paddingBottom: space.sm, paddingHorizontal: space.md },
   missed: { color: color.textSecondary, fontFamily: type.family.body, fontSize: 11, lineHeight: 15 },
   offline: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 10, lineHeight: 14 },

@@ -64,11 +64,6 @@ name: Route reachability tap crawl
 - tapOn: "Submit today’s proof"
 - assertVisible:
     id: proof-screen
-- scrollUntilVisible:
-    element:
-      id: "use-mock-proof"
-    direction: DOWN
-    centerElement: true
 - tapOn:
     id: "use-mock-proof"
 - tapOn:
