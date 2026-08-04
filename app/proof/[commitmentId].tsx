@@ -110,7 +110,7 @@ export default function ProofScreen() {
               <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cameraMark}>＋</Text>
               <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cameraCopy}>Camera first. Your photo is the only evidence submitted in this step.</Text>
             </View>
-            {env.sandbox ? <TextAction align="center" onPress={() => setPhotoUri('sandbox://mock-proof.jpg')}>Use mock sandbox proof</TextAction> : null}
+            {env.sandbox ? <TextAction align="center" testID="use-mock-proof" onPress={() => setPhotoUri('sandbox://mock-proof.jpg')}>Use mock sandbox proof</TextAction> : null}
             <TextAction align="center" onPress={() => choosePhoto(false)}>Choose from photo library</TextAction>
           </View>
         ) : null}

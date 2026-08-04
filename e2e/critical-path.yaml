@@ -34,9 +34,11 @@ name: Founder device truth — complete critical path
     id: proof-screen
 - scrollUntilVisible:
     element:
-      text: "Use mock sandbox proof"
+      id: "use-mock-proof"
     direction: DOWN
-- tapOn: "Use mock sandbox proof"
+    centerElement: true
+- tapOn:
+    id: "use-mock-proof"
 - tapOn:
     id: submit-proof
 - extendedWaitUntil:

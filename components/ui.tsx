@@ -132,14 +132,15 @@ export function LedgerSkeletonLine({ width = '100%', height = 14 }: { width?: nu
   return <Animated.View style={[styles.skeletonLine, { height, opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.12, 0.26] }), width }]} />;
 }
 
-export function TextAction({ children, onPress, align = 'start', accessibilityRole = 'button' }: {
-  children: ReactNode; onPress: () => void; align?: 'start' | 'center' | 'end'; accessibilityRole?: 'button' | 'link';
+export function TextAction({ children, onPress, align = 'start', accessibilityRole = 'button', testID }: {
+  children: ReactNode; onPress: () => void; align?: 'start' | 'center' | 'end'; accessibilityRole?: 'button' | 'link'; testID?: string;
 }) {
   return (
     <InteractivePressable
       accessibilityRole={accessibilityRole}
       hitSlop={8}
       onPress={onPress}
+      testID={testID}
       style={({ pressed }) => [styles.textAction, styles[`textAction${align}`], pressed && styles.textActionPressed]}
     >
       <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.textActionLabel}>{children}</Text>
