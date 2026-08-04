@@ -3,6 +3,7 @@ import {
   canAppeal,
   checkRateLimit,
   decideAiFirstPass,
+  forfeitResolutionAt,
   slaResolutionAt,
 } from '../supabase/functions/_shared/verification-contract';
 
@@ -52,5 +53,53 @@ describe('Sprint 5 verification trust contracts', () => {
     expect(source).toContain("verification_status: 'passed'");
     expect(source).toContain(".is('resolved_at', null)");
     expect(source).not.toMatch(/verification_status:\s*['"]needs_review['"]/);
+  });
+});
+
+describe('Sprint 8 unappealed-fail auto-forfeit closes the charity gap', () => {
+  const deadline = '2026-07-30T12:00:00.000Z';
+  const unappealedFail = {
+    id: 'proof-1', resolutionType: 'human_fail', appealStatus: 'none', appealDeadline: deadline,
+  };
+
+  it('forfeits an unappealed human fail exactly once the appeal window elapses, never before', () => {
+    expect(forfeitResolutionAt(unappealedFail, new Date('2026-07-30T11:59:59.999Z'))).toBe('pending');
+    expect(forfeitResolutionAt(unappealedFail, new Date(deadline))).toBe('auto_forfeit');
+    expect(forfeitResolutionAt(unappealedFail, new Date('2026-07-30T12:00:00.001Z'))).toBe('auto_forfeit');
+  });
+
+  it('never forfeits once the user has appealed: the appeal flow always wins', () => {
+    expect(forfeitResolutionAt(
+      { ...unappealedFail, appealStatus: 'pending' }, new Date('2026-08-30T00:00:00.000Z'),
+    )).toBe('pending');
+    expect(forfeitResolutionAt(
+      { ...unappealedFail, appealStatus: 'resolved' }, new Date('2026-08-30T00:00:00.000Z'),
+    )).toBe('pending');
+  });
+
+  it('only ever forfeits a human_fail, and only when a deadline was stamped', () => {
+    expect(forfeitResolutionAt(
+      { ...unappealedFail, resolutionType: 'human_pass' }, new Date('2026-08-30T00:00:00.000Z'),
+    )).toBe('pending');
+    expect(forfeitResolutionAt(
+      { ...unappealedFail, appealDeadline: null }, new Date('2026-08-30T00:00:00.000Z'),
+    )).toBe('pending');
+  });
+
+  it('moderate-verification stamps an appeal deadline on an initial fail but never charges immediately', () => {
+    const source = readFileSync('supabase/functions/moderate-verification/index.ts', 'utf8');
+    expect(source).toContain("decision === 'fail' && item.queue_kind !== 'appeal'");
+    expect(source).toContain('appeal_deadline: appealDeadline');
+    // Immediate charge stays gated to the appeal path only.
+    expect(source).toContain("if (decision === 'fail' && item.queue_kind === 'appeal') await triggerSettlement('charge-on-fail'");
+  });
+
+  it('forfeit sweep resolves the appeal status then charges, guarded by a compare-and-set on appeal_status=none', () => {
+    const source = readFileSync('supabase/functions/forfeit-sweep/index.ts', 'utf8');
+    expect(source).toContain("get('FORFEIT_SWEEP_SECRET')");
+    expect(source).toContain("appeal_status: 'resolved'");
+    expect(source).toContain(".eq('appeal_status', 'none')");
+    expect(source).toContain("'x-settlement-secret'");
+    expect(source).toContain('charge-on-fail');
   });
 });

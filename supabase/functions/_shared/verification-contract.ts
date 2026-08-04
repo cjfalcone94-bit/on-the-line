@@ -31,6 +31,28 @@ export function slaResolutionAt(submission: SweepSubmission, now: Date): 'pendin
   return now.getTime() >= new Date(submission.slaDeadline).getTime() ? 'sla_auto_pass' : 'pending';
 }
 
+// Appeal window (in hours) a user has after a moderator initial_review fail
+// before the stake auto-forfeits to charity. The user may appeal within it; if
+// they do nothing, forfeit-sweep finalizes the forfeit after it elapses.
+export const APPEAL_WINDOW_HOURS = 48;
+
+export type ForfeitSubmission = Readonly<{
+  id: string;
+  resolutionType: string;
+  appealStatus: string;
+  appealDeadline: string | null;
+}>;
+
+// Mirror of slaResolutionAt: a pure, now-injected guard the forfeit-sweep uses so
+// only an unappealed human fail whose bounded appeal window has elapsed forfeits.
+// An appeal (appealStatus !== 'none') always wins and leaves this 'pending'.
+export function forfeitResolutionAt(submission: ForfeitSubmission, now: Date): 'pending' | 'auto_forfeit' {
+  if (submission.resolutionType !== 'human_fail') return 'pending';
+  if (submission.appealStatus !== 'none') return 'pending';
+  if (!submission.appealDeadline) return 'pending';
+  return now.getTime() >= new Date(submission.appealDeadline).getTime() ? 'auto_forfeit' : 'pending';
+}
+
 export type AppealState = Readonly<{
   verificationStatus: string;
   appealStatus: string;

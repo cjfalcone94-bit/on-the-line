@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { APPEAL_WINDOW_HOURS } from '../_shared/verification-contract.ts';
 
 const json = (body: Record<string, unknown>, status = 200) => new Response(JSON.stringify(body), {
   headers: { 'Content-Type': 'application/json' }, status,
@@ -44,7 +45,16 @@ Deno.serve(async (request) => {
   if (!item) return json({ error: 'queue_item_not_found' }, 404);
   const status = decision === 'pass' ? 'passed' : 'needs_review';
   const resolutionType = decision === 'pass' ? 'human_pass' : 'human_fail';
+  // An initial_review fail is NOT charged immediately: the user still has a bounded
+  // appeal window. We stamp appeal_deadline so forfeit-sweep can finalize the
+  // forfeit if the window elapses without an appeal. Every other outcome (pass, or
+  // an appeal decision that resolves immediately) carries no deadline.
+  const isInitialFail = decision === 'fail' && item.queue_kind !== 'appeal';
+  const appealDeadline = isInitialFail
+    ? new Date(Date.now() + APPEAL_WINDOW_HOURS * 60 * 60 * 1000).toISOString()
+    : null;
   await admin.from('proof_submissions').update({
+    appeal_deadline: appealDeadline,
     appeal_status: item.queue_kind === 'appeal' ? 'resolved' : 'none',
     resolution_type: resolutionType, resolved_at: new Date().toISOString(), verification_status: status,
   }).eq('id', item.submission_id).is('resolved_at', null);
