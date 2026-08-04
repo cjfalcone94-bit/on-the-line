@@ -29,14 +29,33 @@ export interface SettlementProcessor {
     kind: 'base' | 'success';
     commitmentId: string;
   }): Promise<{ id: string }>;
-  captureStake(reference: string, amount: number, idempotencyKey: string): Promise<{ id: string }>;
-  transferToCharity(input: {
+  // captureStake collects the forfeited stake. H1 fix: the manual-capture auth hold
+  // can expire (~7d) before the SLA + human review + appeal window + sweep timeline
+  // completes. Because the authorization PaymentIntent is created with
+  // setup_future_usage:'off_session', the saved payment method lets the processor
+  // fall back to an off-session charge if the hold is already gone — so a verified
+  // forfeit is always collectible. The fallback is gated on the hold being provably
+  // dead (canceled, nothing captured) to make double-charge impossible.
+  captureStake(input: {
+    authReference: string;
     amount: number;
     currency: 'usd';
-    charityDestinationId: string;
-    sourceReference: string;
+    paymentMethodReference: string;
     idempotencyKey: string;
+    fallbackIdempotencyKey: string;
   }): Promise<{ id: string }>;
+  // disburseToCharity moves the forfeited stake onward to the chosen 501(c)(3) via
+  // the disbursement provider (Change). Unlike the retired Stripe Connect transfer,
+  // there is no on-platform source charge to pull from — Change invoices us monthly —
+  // so `sourceReference` is gone. Idempotency is preserved by our own external_id =
+  // commitmentId guard plus the deterministic idempotency key.
+  disburseToCharity(input: {
+    amount: number;
+    currency: 'usd';
+    nonprofitId: string;
+    idempotencyKey: string;
+    commitmentId: string;
+  }): Promise<{ id: string; status?: string }>;
 }
 
 export function successFeeCents(stakeCents: number): number {
@@ -85,21 +104,40 @@ export async function settleSuccess(processor: SettlementProcessor, commitment: 
   return Object.freeze({ feeAmount, feeReference: fee.id, releasedReference: released.id });
 }
 
+// Forfeit money-flow (see docs/CHARITY-DISBURSEMENT-PLAN.md §3.7):
+//   1. captureStake   — the forfeited stake lands in our Stripe balance. From here it
+//                       is a LIABILITY OWED TO CHARITY, never platform fee revenue.
+//   2. disburseToCharity — IMMEDIATELY earmark it to the chosen 501(c)(3) via Change
+//                       (no batching/delay), so the amount is never commingled with or
+//                       accounted as our fee income. The base/success fees are strictly
+//                       separate off-session charges (chargeFee), so "100% to charity"
+//                       stays literally true.
+// Both legs are idempotent; the handler wraps disburseToCharity in a durable pending
+// row so a failed Change call is retryable and captured-but-owed money is never lost.
 export async function settleForfeit(processor: SettlementProcessor, commitment: SettlementCommitment) {
   assertSettleable(commitment, 'forfeit');
-  const captured = await processor.captureStake(
-    commitment.processorAuthReference,
-    commitment.stakeCents,
-    `commitment:${commitment.id}:capture:v1`,
-  );
-  const transfer = await processor.transferToCharity({
+  const captured = await processor.captureStake({
+    authReference: commitment.processorAuthReference,
     amount: commitment.stakeCents,
-    charityDestinationId: commitment.charityDestinationId,
     currency: commitment.currency,
-    idempotencyKey: `commitment:${commitment.id}:charity-transfer:v1`,
-    sourceReference: captured.id,
+    paymentMethodReference: commitment.paymentMethodReference,
+    idempotencyKey: `commitment:${commitment.id}:capture:v1`,
+    fallbackIdempotencyKey: `commitment:${commitment.id}:stake-offsession-capture:v1`,
   });
-  return Object.freeze({ capturedAmount: commitment.stakeCents, capturedReference: captured.id, feeAmount: 0, transferReference: transfer.id });
+  const disbursement = await processor.disburseToCharity({
+    amount: commitment.stakeCents,
+    currency: commitment.currency,
+    nonprofitId: commitment.charityDestinationId,
+    idempotencyKey: `commitment:${commitment.id}:charity-disburse:v1`,
+    commitmentId: commitment.id,
+  });
+  return Object.freeze({
+    capturedAmount: commitment.stakeCents,
+    capturedReference: captured.id,
+    feeAmount: 0,
+    disbursementReference: disbursement.id,
+    disbursementStatus: disbursement.status ?? 'pending',
+  });
 }
 
 export function rateLimitAllows(hitCount: number, limit: number): boolean {

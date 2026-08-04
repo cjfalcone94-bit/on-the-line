@@ -181,12 +181,35 @@ Deno.serve(async (request) => {
         off_session: true,
         payment_method: paymentMethod,
       }, { idempotencyKey: `commitment:${intent.metadata.commitment_id}:base-fee:v1` });
-    } catch {
-      await stripe.paymentIntents.cancel(intent.id, {}, {
-        idempotencyKey: `commitment:${intent.metadata.commitment_id}:base-fee-failed-release:v1`,
-      }).catch(() => undefined);
+    } catch (baseFeeError) {
+      console.error('base_fee_failed', JSON.stringify({
+        commitmentId: intent.metadata.commitment_id,
+        error: baseFeeError instanceof Error ? baseFeeError.message : String(baseFeeError),
+      }));
+      let released = false;
+      try {
+        await stripe.paymentIntents.cancel(intent.id, {}, {
+          idempotencyKey: `commitment:${intent.metadata.commitment_id}:base-fee-failed-release:v1`,
+        });
+        released = true;
+      } catch (cancelError) {
+        // H3 fix: do NOT swallow the release failure. If the base fee failed AND the
+        // auth-release cancel also failed, the user would otherwise be left with a
+        // lingering hold and no record that a release is owed. Record a durable
+        // pending-release job so release-sweep retries the cancel to completion.
+        console.error('auth_release_failed', JSON.stringify({
+          commitmentId: intent.metadata.commitment_id,
+          error: cancelError instanceof Error ? cancelError.message : String(cancelError),
+        }));
+        await admin.from('private_pending_releases').upsert({
+          commitment_id: result.id,
+          auth_reference: intent.id,
+          reason: 'base_fee_failed_release',
+          last_error: cancelError instanceof Error ? cancelError.message : String(cancelError),
+        }, { onConflict: 'commitment_id', ignoreDuplicates: true });
+      }
       await admin.from('commitments').update({ state: 'voided' }).eq('id', result.id).eq('state', 'authorized');
-      return response({ error: 'base_fee_failed' }, 402);
+      return response({ error: 'base_fee_failed', released }, 402);
     }
     const { error: feeWriteError } = await admin.from('commitments')
       .update({ base_fee_reference: baseFee.id })
@@ -194,7 +217,13 @@ Deno.serve(async (request) => {
       .is('base_fee_reference', null);
     if (feeWriteError) return response({ error: 'commitment_write_retry' }, 503);
     return response({ commitmentId: result.id, authorizedAt: result.authorizedAt, authorizationExpiresAt: result.authorizationExpiresAt });
-  } catch {
+  } catch (writeError) {
+    // H2: never swallow a money-path failure silently. Log the concrete error so a stuck
+    // authorization is queryable rather than invisible.
+    console.error('commitment_write_failed', JSON.stringify({
+      commitmentId: intent.metadata.commitment_id,
+      error: writeError instanceof Error ? writeError.message : String(writeError),
+    }));
     return response({ error: 'commitment_write_failed' }, 409);
   }
 });

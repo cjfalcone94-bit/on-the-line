@@ -21,5 +21,11 @@ verify_jwt = false
 [functions.processor-webhook]
 verify_jwt = false
 
+[functions.change-webhook]
+verify_jwt = false
+
+[functions.release-sweep]
+verify_jwt = false
+
 [functions.settlement-sweep]
 verify_jwt = false

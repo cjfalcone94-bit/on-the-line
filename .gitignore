@@ -48,3 +48,4 @@ credentials/*.p8
 
 credentials/
 credentials.json
+supabase/.temp/

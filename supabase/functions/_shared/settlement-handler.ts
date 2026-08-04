@@ -1,7 +1,15 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import Stripe from 'npm:stripe@18';
-import { settleForfeit, settleSuccess, type SettlementCommitment, type SettlementOutcome } from './settlement-contract.ts';
+import {
+  settleForfeit,
+  settleSuccess,
+  type SettlementCommitment,
+  type SettlementOutcome,
+  type SettlementProcessor,
+} from './settlement-contract.ts';
 import { stripeSettlementProcessor } from './stripe-settlement.ts';
+import { createChangeClient, createDisbursementStore } from './change-disbursement.ts';
+import { disburseWithGuard } from './disbursement-contract.ts';
 
 const json = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), { headers: { 'Content-Type': 'application/json' }, status });
@@ -19,6 +27,13 @@ export async function handleSettlementRequest(request: Request, outcome: Settlem
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   const stripeKey = Deno.env.get('STRIPE_SECRET_KEY');
   if (!url || !serviceKey || !stripeKey) return json({ error: 'server_not_configured' }, 503);
+  // Forfeit needs Change keys to move money onward; fail closed (never a silent skip)
+  // exactly like the Stripe/Supabase secret gating above (plan §3.6).
+  if (outcome === 'forfeit') {
+    const changePublic = Deno.env.get('CHANGE_PUBLIC_KEY');
+    const changeSecret = Deno.env.get('CHANGE_SECRET_KEY');
+    if (!changePublic || !changeSecret) return json({ error: 'server_not_configured' }, 503);
+  }
   const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
   const { data: proof } = await admin.from('proof_submissions')
     .select('id, commitment_id, verification_status, resolution_type, appeal_status')
@@ -31,25 +46,29 @@ export async function handleSettlementRequest(request: Request, outcome: Settlem
   if (row.state === 'settled-success' || row.state === 'settled-forfeit') return json({ status: row.state });
   if (row.state === 'voided') return json({ error: 'commitment_voided' }, 409);
 
-  type CharityRoute = { id: string; stripe_destination_id: string; version: number };
+  type CharityRoute = { id: string; provider_nonprofit_id: string | null; version: number };
   let declaredCharity: CharityRoute | null = {
-    id: row.charity_destination_id, stripe_destination_id: '', version: 1,
+    id: row.charity_destination_id, provider_nonprofit_id: null, version: 1,
   };
   let routedCharity: CharityRoute | null = declaredCharity;
   if (outcome === 'forfeit') {
     const { data } = await admin.from('charity_destinations')
-      .select('id, version, stripe_destination_id')
+      .select('id, version, provider_nonprofit_id')
       .eq('id', row.charity_destination_id).eq('version', 1).eq('active', true).maybeSingle();
     declaredCharity = data;
     const { data: fallbackCharity } = declaredCharity ? { data: null } : await admin.from('charity_destinations')
-      .select('id, version, stripe_destination_id').eq('active', true).eq('is_fallback', true).maybeSingle();
+      .select('id, version, provider_nonprofit_id').eq('active', true).eq('is_fallback', true).maybeSingle();
     routedCharity = declaredCharity ?? fallbackCharity;
-    if (!routedCharity) return json({ error: 'charity_destination_unavailable' }, 503);
+    // Fail BEFORE any capture if there is no payable nonprofit id — this keeps C2's
+    // dangerous "captured-then-stranded" branch unreachable: no destination, no capture.
+    if (!routedCharity || !routedCharity.provider_nonprofit_id) {
+      return json({ error: 'charity_destination_unavailable' }, 503);
+    }
   }
 
   const commitment: SettlementCommitment = {
     appealStatus: proof.appeal_status,
-    charityDestinationId: routedCharity.stripe_destination_id,
+    charityDestinationId: routedCharity.provider_nonprofit_id ?? '',
     currency: row.currency,
     id: row.id,
     ownerId: row.owner_id,
@@ -65,7 +84,29 @@ export async function handleSettlementRequest(request: Request, outcome: Settlem
   }).eq('id', row.id).eq('state', 'authorized').select('id').maybeSingle();
   if (!claimed && row.state !== 'settling') return json({ error: 'settlement_already_claimed' }, 409);
 
-  const processor = stripeSettlementProcessor(new Stripe(stripeKey));
+  // Compose: Stripe owns capture/fees/release; Change owns the onward disbursement,
+  // wrapped in the durable per-commitment guard (C2/R3) so a failed Change call marks a
+  // retryable 'failed' row and the captured stake is tracked as owed, never lost.
+  const stripeProcessor = stripeSettlementProcessor(new Stripe(stripeKey));
+  const processor: SettlementProcessor = {
+    ...stripeProcessor,
+    disburseToCharity: async (input) => {
+      const changeClient = createChangeClient();
+      const store = createDisbursementStore(admin);
+      const result = await disburseWithGuard(changeClient, store, {
+        commitmentId: input.commitmentId,
+        ownerId: row.owner_id,
+        nonprofitId: input.nonprofitId,
+        charityDestinationId: row.charity_destination_id,
+        amountCents: input.amount,
+        currency: input.currency,
+        externalId: input.commitmentId,
+        idempotencyKey: input.idempotencyKey,
+      });
+      return { id: result.id, status: result.status };
+    },
+  };
+
   try {
     let successFee: number;
     let stakeReference: string;
@@ -82,7 +123,7 @@ export async function handleSettlementRequest(request: Request, outcome: Settlem
       successFee = result.feeAmount;
       stakeReference = result.capturedReference;
       feeReference = null;
-      transferReference = result.transferReference;
+      transferReference = result.disbursementReference;
     }
     const settledAt = new Date().toISOString();
     const receipt = {
@@ -131,8 +172,16 @@ export async function handleSettlementRequest(request: Request, outcome: Settlem
       }).catch(() => undefined);
     }
     return json({ feeCharged: successFee > 0, outcome, status: 'settled' });
-  } catch {
-    // Keep `settling`: retries are safe because every processor operation uses a stable idempotency key.
+  } catch (error) {
+    // H2 fix: never swallow a money-path failure. Log the concrete error with the
+    // commitment id + outcome so it is queryable; keep `settling` for a safe retry
+    // (every processor leg carries a stable idempotency key). On forfeit, the durable
+    // charity_disbursements row already records the owed/failed disbursement (C2), so a
+    // captured-but-not-disbursed stake is tracked and retryable, never silently kept.
+    const detail = error instanceof Error ? error.message : String(error);
+    console.error('settlement_incomplete', JSON.stringify({
+      commitmentId: row.id, submissionId, outcome, error: detail,
+    }));
     return json({ error: 'settlement_incomplete' }, 502);
   }
 }

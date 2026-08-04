@@ -18,6 +18,7 @@
   "exclude": [
     "supabase/functions/**/index.ts",
     "supabase/functions/_shared/settlement-handler.ts",
-    "supabase/functions/_shared/stripe-settlement.ts"
+    "supabase/functions/_shared/stripe-settlement.ts",
+    "supabase/functions/_shared/change-disbursement.ts"
   ]
 }

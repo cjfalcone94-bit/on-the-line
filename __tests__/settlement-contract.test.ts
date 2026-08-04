@@ -35,7 +35,7 @@ function processor(): SettlementProcessor & Record<string, jest.Mock> {
     captureStake: jest.fn(async () => ({ id: 'ch_stake' })),
     chargeFee: jest.fn(async ({ kind }) => ({ id: kind === 'base' ? 'pi_base' : 'pi_success' })),
     releaseAuthorization: jest.fn(async () => ({ id: 'pi_stake' })),
-    transferToCharity: jest.fn(async () => ({ id: 'tr_charity' })),
+    disburseToCharity: jest.fn(async () => ({ id: 'don_charity', status: 'created' })),
   };
 }
 
@@ -53,7 +53,7 @@ describe('Sprint 6 mandatory hybrid payment contracts', () => {
     await expect(settleForfeit(stripe, { ...failure, state: 'voided' })).rejects.toThrow('commitment_voided');
     expect(stripe.captureStake).not.toHaveBeenCalled();
     expect(stripe.chargeFee).not.toHaveBeenCalled();
-    expect(stripe.transferToCharity).not.toHaveBeenCalled();
+    expect(stripe.disburseToCharity).not.toHaveBeenCalled();
   });
 
   it('3. settlement is server-only and a client cannot trigger capture', async () => {
@@ -73,20 +73,38 @@ describe('Sprint 6 mandatory hybrid payment contracts', () => {
     await settleSuccess(stripe, { ...success, resolutionType: 'sla_auto_pass' });
     expect(stripe.releaseAuthorization).toHaveBeenCalledTimes(1);
     expect(stripe.captureStake).not.toHaveBeenCalled();
-    expect(stripe.transferToCharity).not.toHaveBeenCalled();
+    expect(stripe.disburseToCharity).not.toHaveBeenCalled();
   });
 
-  it('5. forfeit routes 100% of the stake to the immutable declared charity and keeps none', async () => {
+  it('5. forfeit captures the stake then disburses 100% to the immutable declared charity and keeps none', async () => {
     const stripe = processor();
     const result = await settleForfeit(stripe, failure);
-    expect(stripe.captureStake).toHaveBeenCalledWith('pi_stake', 4000, 'commitment:commitment-1:capture:v1');
-    expect(stripe.transferToCharity).toHaveBeenCalledWith(expect.objectContaining({
+    expect(stripe.captureStake).toHaveBeenCalledWith(expect.objectContaining({
+      authReference: 'pi_stake',
       amount: 4000,
-      charityDestinationId: 'acct_charity_declared',
-      sourceReference: 'ch_stake',
+      paymentMethodReference: 'pm_1',
+      idempotencyKey: 'commitment:commitment-1:capture:v1',
+      fallbackIdempotencyKey: 'commitment:commitment-1:stake-offsession-capture:v1',
+    }));
+    expect(stripe.disburseToCharity).toHaveBeenCalledWith(expect.objectContaining({
+      amount: 4000,
+      nonprofitId: 'acct_charity_declared',
+      commitmentId: 'commitment-1',
+      idempotencyKey: 'commitment:commitment-1:charity-disburse:v1',
     }));
     expect(stripe.chargeFee).not.toHaveBeenCalled();
-    expect(result).toEqual(expect.objectContaining({ capturedAmount: 4000, feeAmount: 0 }));
+    expect(result).toEqual(expect.objectContaining({
+      capturedAmount: 4000,
+      feeAmount: 0,
+      disbursementReference: 'don_charity',
+    }));
+  });
+
+  it('5b. disburse runs only after capture: a capture failure never moves money to charity', async () => {
+    const stripe = processor();
+    (stripe.captureStake as jest.Mock).mockRejectedValueOnce(new Error('capture_failed'));
+    await expect(settleForfeit(stripe, failure)).rejects.toThrow('capture_failed');
+    expect(stripe.disburseToCharity).not.toHaveBeenCalled();
   });
 
   it('6. base and success fees are separate from stake; base is every commit and success fee is win-only', async () => {
