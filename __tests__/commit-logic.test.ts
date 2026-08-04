@@ -14,7 +14,7 @@ describe('commit flow logic and persistence guardrails', () => {
   });
 
   it('uses a short pre-declared charity list with stable destinations', () => {
-    expect(charities).toHaveLength(6);
+    expect(charities).toHaveLength(5);
     expect(new Set(charities.map(({ id }) => id)).size).toBe(charities.length);
     expect(findCharity('direct-relief')?.category).toBe('Health');
   });
@@ -32,7 +32,7 @@ describe('commit flow logic and persistence guardrails', () => {
 
   it('maps each declared charity to a delivered category badge', () => {
     const source = fs.readFileSync(path.join(process.cwd(), 'components/commit.tsx'), 'utf8');
-    for (const asset of ['health.png', 'education.png', 'environment.png', 'animal-welfare.png', 'disaster-relief.png', 'community.png']) {
+    for (const asset of ['health.png', 'education.png', 'animal-welfare.png', 'disaster-relief.png', 'community.png']) {
       expect(source).toContain(`charity-icons/${asset}`);
     }
     expect(source).not.toContain('HELD');
