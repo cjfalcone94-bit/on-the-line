@@ -61,8 +61,10 @@ name: Founder device truth — complete critical path
 - tapOn: "View Commitment Record"
 - assertVisible:
     id: commitment-record-screen
-- extendedWaitUntil:
-    visible: "Daily outdoor walk"
+- scrollUntilVisible:
+    element:
+      text: "Daily outdoor walk, SETTLED · SUCCESS"
+    direction: DOWN
     timeout: 10000
-- assertVisible: "SETTLED · SUCCESS"
+- assertVisible: "Daily outdoor walk, SETTLED · SUCCESS"
 - takeScreenshot: critical-path-complete
