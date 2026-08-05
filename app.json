@@ -25,10 +25,10 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS",
         "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.RECORD_AUDIO"
       ],
       "intentFilters": [
         {
@@ -41,7 +41,10 @@
               "pathPrefix": "/"
             }
           ],
-          "category": ["BROWSABLE", "DEFAULT"]
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
         }
       ]
     },
@@ -77,11 +80,11 @@
       "typedRoutes": true,
       "reactCompiler": true
     },
-    "owner": "falconlabs17s-team",
+    "owner": "cjfalcone94",
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "6a6351a3-bd36-4417-84a2-3a5edf52dbfc"
+        "projectId": "d37c116d-0363-488f-a6f6-09c77cad5e2e"
       }
     }
   }
