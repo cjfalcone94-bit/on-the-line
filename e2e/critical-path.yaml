@@ -16,6 +16,9 @@ name: Founder device truth — complete critical path
 - tapOn: "Set stake"
 - assertVisible:
     id: commit-screen
+# Regression guard (build 21): the stake prompt must be on-screen — it went
+# missing under the notch when the top safe-area inset stopped applying.
+- assertVisible: "How much are you staking?"
 - tapOn:
     id: stake-4000
 - tapOn: "Choose charity"

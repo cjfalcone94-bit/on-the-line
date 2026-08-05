@@ -42,6 +42,7 @@ export default function TemplateDetailScreen() {
             </View>
           ))}
         </View>
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.nextStep} testID="set-stake-hint">Next: set your stake — choose how much money to put on the line, from $5 to $1,000.</Text>
       </ScreenEntrance>
     </ScreenScaffold>
   );
@@ -59,6 +60,7 @@ const styles = StyleSheet.create({
   criterionRow: { alignItems: 'flex-start', borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', gap: space.md, paddingTop: space.sm },
   explainer: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   label: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
+  nextStep: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   number: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: type.size.caption, paddingTop: space.xs },
   entrance: { gap: space.md },
 });

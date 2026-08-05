@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ScrollView, StyleSheet, View, type ScrollViewProps, type StyleProp, type ViewStyle } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { color, space } from '@/design/tokens';
 
 type ScreenScaffoldProps = {
@@ -29,8 +29,12 @@ export function ScreenScaffold({
   scrollViewProps,
   testID,
 }: ScreenScaffoldProps) {
+  // Top/bottom safe-area padding comes from useSafeAreaInsets — the native
+  // SafeAreaView is deprecated in safe-area-context 5.x and failed to apply
+  // the top inset on device (content rendered under the status bar/notch).
+  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaView edges={['top', 'bottom']} style={styles.safe} testID={testID}>
+    <View style={[styles.safe, { paddingBottom: insets.bottom, paddingTop: insets.top }]} testID={testID}>
       {header ? <View style={styles.header}>{header}</View> : null}
       <ScrollView
         bounces={false}
@@ -43,7 +47,7 @@ export function ScreenScaffold({
         {children}
       </ScrollView>
       {footer ? <View style={[styles.footer, footerStyle]} testID="screen-scaffold-footer">{footer}</View> : null}
-    </SafeAreaView>
+    </View>
   );
 }
 

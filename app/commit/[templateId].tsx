@@ -138,11 +138,16 @@ export default function CommitScreen() {
         {step === 'stake' ? (
           <>
             <ScreenHeader compact={compact} eyebrow="01 · stake" title="Put a clear amount on it." body={`${template.title} · ${template.cadence}`} />
+            <View style={styles.promptBlock}>
+              <Text maxFontSizeMultiplier={type.maxScale} accessibilityRole="header" style={styles.prompt}>How much are you staking?</Text>
+              <Text maxFontSizeMultiplier={type.maxScale} style={styles.promptBody}>Pick an amount below. Succeed and it is released. Fail and 100% goes to the charity you choose next.</Text>
+            </View>
             <View accessibilityRole="radiogroup" style={styles.grid}>
               {stakePresets.map((cents) => <StakeChoice cents={cents} key={cents} onPress={() => selectStake(cents)} selected={stakeCents === cents} />)}
             </View>
             <CustomStakeInput onChange={(value) => { setCustom(value); setStakeCents(dollarsToCents(value)); }} value={custom} />
             <Text maxFontSizeMultiplier={type.maxScale} style={styles.note}>Custom stake: $5–$1,000. Your card will be authorized, not charged.</Text>
+            {env.sandbox ? <Text maxFontSizeMultiplier={type.maxScale} style={styles.note} testID="sandbox-stake-note">Sandbox build: there is no card to enter. The authorization at the final step is mocked — no real money moves.</Text> : null}
           </>
         ) : null}
         {step === 'charity' ? (
@@ -178,7 +183,7 @@ export default function CommitScreen() {
         ) : null}
         {step === 'card' ? (
           <>
-            <ScreenHeader compact={compact} eyebrow="04 · authorize" title={env.sandbox ? 'Authorize a mock stake.' : 'Authorize the stake.'} body={env.sandbox ? 'This founder sandbox simulates authorization locally. It does not contact Stripe, charge a fee, place a hold, or move money.' : 'Stripe securely collects your card details. On the Line never sees or stores raw card data.'} />
+            <ScreenHeader compact={compact} eyebrow="04 · authorize" title={env.sandbox ? 'Authorize a mock stake.' : 'Authorize the stake.'} body={env.sandbox ? 'This founder sandbox simulates authorization locally — there is no card form to fill in. It does not contact Stripe, charge a fee, place a hold, or move money.' : 'Stripe securely collects your card details. On the Line never sees or stores raw card data.'} />
             <View style={styles.ledger}>
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerLabel}>TEMPORARY AUTHORIZATION</Text>
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.amount}>{formatMoney(stakeCents ?? 0)}</Text>
@@ -219,8 +224,8 @@ const styles = StyleSheet.create({
   charities: { gap: space.xs },
   container: { flex: 1, paddingHorizontal: space.lg },
   containerCompact: { paddingHorizontal: space.md },
-  content: { gap: space.md, paddingBottom: space.md },
-  contentCompact: { gap: space.sm },
+  content: { gap: space.md, paddingBottom: space.md, paddingHorizontal: space.lg },
+  contentCompact: { gap: space.sm, paddingHorizontal: space.md },
   entrance: { gap: space.md },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
   ledger: { borderLeftColor: color.gold, borderLeftWidth: 2, gap: space.sm, paddingHorizontal: space.md, paddingVertical: space.sm },
@@ -228,6 +233,9 @@ const styles = StyleSheet.create({
   ledgerLabel: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
   note: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },
   pageActions: { alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', minHeight: 44 },
+  prompt: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.lg },
+  promptBlock: { borderLeftColor: color.gold, borderLeftWidth: 2, gap: space.xs, paddingLeft: space.md, paddingVertical: space.xs },
+  promptBody: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   rule: { backgroundColor: color.textSecondary, height: StyleSheet.hairlineWidth },
   sandboxChoice: { borderColor: color.gold, borderRadius: space.sm, borderWidth: StyleSheet.hairlineWidth, gap: space.xs, paddingHorizontal: space.md, paddingVertical: space.sm },
   header: { paddingHorizontal: space.lg },

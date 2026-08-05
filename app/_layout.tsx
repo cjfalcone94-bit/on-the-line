@@ -4,6 +4,7 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
+import { initialWindowMetrics, SafeAreaProvider } from 'react-native-safe-area-context';
 import { BrandSplash } from '@/components';
 import { StripeProvider } from '@/lib/payments/stripe';
 import { color } from '@/design/tokens';
@@ -51,16 +52,18 @@ export default function RootLayout() {
   if (showBrandSplash) return <BrandSplash />;
 
   return (
-    <StripeProvider publishableKey={env.stripe?.publishableKey ?? ''}>
-      <QueryClientProvider client={queryClient}>
-        <Stack
-          screenOptions={{
-            animation: reduceMotion ? 'none' : 'slide_from_right',
-            contentStyle: { backgroundColor: color.surface },
-            headerShown: false,
-          }}
-        />
-      </QueryClientProvider>
-    </StripeProvider>
+    <SafeAreaProvider initialMetrics={initialWindowMetrics}>
+      <StripeProvider publishableKey={env.stripe?.publishableKey ?? ''}>
+        <QueryClientProvider client={queryClient}>
+          <Stack
+            screenOptions={{
+              animation: reduceMotion ? 'none' : 'slide_from_right',
+              contentStyle: { backgroundColor: color.surface },
+              headerShown: false,
+            }}
+          />
+        </QueryClientProvider>
+      </StripeProvider>
+    </SafeAreaProvider>
   );
 }
