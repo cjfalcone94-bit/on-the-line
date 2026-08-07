@@ -12,10 +12,12 @@ name: Founder device truth — complete critical path
     id: browse-templates-button
 - assertVisible:
     id: catalog-screen
+- takeScreenshot: 03-catalog-screen
 - tapOn:
     id: template-daily-walk
 - assertVisible:
     id: template-detail-screen
+- takeScreenshot: 04-detail-screen-and-set-stake-button
 - tapOn: "Set stake"
 - assertVisible:
     id: commit-screen
@@ -28,12 +30,15 @@ name: Founder device truth — complete critical path
 - tapOn:
     id: stake-4000
 - tapOn: "Choose charity"
+- takeScreenshot: 05-charity-screen
 - tapOn:
     id: charity-direct-relief
 - tapOn: "Review the mechanic"
 - assertVisible: "No surprises."
+- takeScreenshot: 06-disclosure-screen
 - tapOn: "Continue to card authorization"
 - assertVisible: "Authorize a mock stake."
+- takeScreenshot: 07-card-authorize-screen
 - tapOn: "Run mock authorization"
 - extendedWaitUntil:
     visible: "Mock stake authorized."
@@ -41,6 +46,7 @@ name: Founder device truth — complete critical path
 - tapOn: "Submit today’s proof"
 - assertVisible:
     id: proof-screen
+- takeScreenshot: 08-proof-screen
 - tapOn:
     id: "use-mock-proof"
 - tapOn:
@@ -55,6 +61,7 @@ name: Founder device truth — complete critical path
 - tapOn: "View status"
 - assertVisible:
     id: verify-status-screen
+- takeScreenshot: 09-verify-status-screen
 - extendedWaitUntil:
     visible:
       id: verification-passed
@@ -62,6 +69,7 @@ name: Founder device truth — complete critical path
 - tapOn: "Settle mock outcome"
 - assertVisible:
     id: settle-screen
+- takeScreenshot: 10-settle-screen
 - extendedWaitUntil:
     visible:
       id: receipt-confirmation
@@ -70,6 +78,7 @@ name: Founder device truth — complete critical path
 - tapOn: "View Commitment Record"
 - assertVisible:
     id: commitment-record-screen
+- takeScreenshot: 11-commitment-record-screen
 - scrollUntilVisible:
     element:
       text: "Daily outdoor walk, SETTLED · SUCCESS"
