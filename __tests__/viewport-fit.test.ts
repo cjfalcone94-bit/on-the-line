@@ -38,7 +38,9 @@ describe('iPhone SE fixed-flow viewport contract', () => {
     expect(source).toMatch(/Math\.max\(insets\.top/);
     expect(source).toContain('paddingTop: topInset');
     expect(source).toContain('paddingBottom: insets.bottom');
-    expect(source).toContain('contentContainer: { flexGrow: 1 }');
+    expect(source).toMatch(/contentContainer: \{ flexGrow: 1/);
+    // Hero breathing room (apple-hig-premium §1): content is padded off the top.
+    expect(source).toContain("paddingTop: space['2xl']");
     expect(source).toContain('testID="screen-scaffold-footer"');
     expect(source.indexOf('<ScrollView')).toBeLessThan(source.indexOf('{footer ?'));
   });

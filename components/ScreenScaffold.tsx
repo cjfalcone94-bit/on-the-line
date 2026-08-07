@@ -57,8 +57,12 @@ export function ScreenScaffold({
 
 const styles = StyleSheet.create({
   content: { flex: 1, minHeight: 0 },
-  contentContainer: { flexGrow: 1 },
+  // Hero breathing room per apple-hig-premium §1 (48–64pt above primary content):
+  // the eyebrow/title used to sit flush against the status bar. 2xl (48) is the
+  // ramp's hero step, giving every screen an intentional, un-cramped top.
+  contentContainer: { flexGrow: 1, paddingTop: space['2xl'] },
   footer: { backgroundColor: color.surface, borderTopColor: color.surfaceRaised, borderTopWidth: StyleSheet.hairlineWidth, paddingBottom: space.sm, paddingHorizontal: space.lg, paddingTop: space.sm },
-  header: { backgroundColor: color.surface },
+  // A little air below the status bar for the nav row (Back / Settings).
+  header: { backgroundColor: color.surface, paddingTop: space.sm },
   safe: { backgroundColor: color.surface, flex: 1, minHeight: 0 },
 });
