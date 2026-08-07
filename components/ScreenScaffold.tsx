@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Constants from 'expo-constants';
 import { ScrollView, StyleSheet, View, type ScrollViewProps, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { color, space } from '@/design/tokens';
@@ -29,12 +30,15 @@ export function ScreenScaffold({
   scrollViewProps,
   testID,
 }: ScreenScaffoldProps) {
-  // Top/bottom safe-area padding comes from useSafeAreaInsets — the native
-  // SafeAreaView is deprecated in safe-area-context 5.x and failed to apply
-  // the top inset on device (content rendered under the status bar/notch).
+  // Top/bottom safe-area padding. useSafeAreaInsets can return top=0 on device
+  // when the SafeAreaProvider hasn't measured / initialWindowMetrics is null,
+  // which left content jammed under the notch on builds 21–22. Constants
+  // .statusBarHeight is a synchronous, always-present iOS floor, so Math.max
+  // guarantees a non-zero top inset regardless of safe-area-context timing.
   const insets = useSafeAreaInsets();
+  const topInset = Math.max(insets.top, Constants.statusBarHeight ?? 0);
   return (
-    <View style={[styles.safe, { paddingBottom: insets.bottom, paddingTop: insets.top }]} testID={testID}>
+    <View style={[styles.safe, { paddingBottom: insets.bottom, paddingTop: topInset }]} testID={testID}>
       {header ? <View style={styles.header}>{header}</View> : null}
       <ScrollView
         bounces={false}

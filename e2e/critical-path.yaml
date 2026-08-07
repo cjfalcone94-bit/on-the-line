@@ -5,6 +5,9 @@ name: Founder device truth — complete critical path
     clearState: true
 - assertVisible:
     id: trust-screen
+# Visual evidence (builds 21-22 regression): capture the FIRST screen so a human
+# can confirm text sits below the notch, not jammed against the status bar.
+- takeScreenshot: 01-first-screen-top-spacing
 - tapOn:
     id: browse-templates-button
 - assertVisible:
@@ -19,6 +22,9 @@ name: Founder device truth — complete critical path
 # Regression guard (build 21): the stake prompt must be on-screen — it went
 # missing under the notch when the top safe-area inset stopped applying.
 - assertVisible: "How much are you staking?"
+# Visual evidence: the stake screen the founder couldn't proceed past — confirm
+# the "How much are you staking?" prompt + dollar amounts are fully on-screen.
+- takeScreenshot: 02-stake-screen-money-step
 - tapOn:
     id: stake-4000
 - tapOn: "Choose charity"

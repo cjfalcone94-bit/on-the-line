@@ -32,7 +32,11 @@ describe('iPhone SE fixed-flow viewport contract', () => {
     // The scaffold must derive real insets from useSafeAreaInsets instead.
     expect(source).toContain('useSafeAreaInsets');
     expect(source).not.toContain('<SafeAreaView');
-    expect(source).toContain('paddingTop: insets.top');
+    // Robust top inset: never trust safe-area-context alone (returned 0 on
+    // device in builds 21-22). Constants.statusBarHeight is the always-present floor.
+    expect(source).toContain('Constants.statusBarHeight');
+    expect(source).toMatch(/Math\.max\(insets\.top/);
+    expect(source).toContain('paddingTop: topInset');
     expect(source).toContain('paddingBottom: insets.bottom');
     expect(source).toContain('contentContainer: { flexGrow: 1 }');
     expect(source).toContain('testID="screen-scaffold-footer"');
