@@ -92,17 +92,19 @@ export function SandboxBadge() {
 }
 
 export function PrimaryButton({ children, style, ...props }: PropsWithChildren<InteractivePressableProps>) {
+  // The visual fill (background, radius, min-height) MUST live on an inner plain
+  // View, not on the Reanimated-animated Pressable. The animated Pressable dropped
+  // the button's backgroundColor from its callback-style array, so enabled primary
+  // buttons — white fill + dark label — rendered fully invisible (dark-on-black).
+  // That vanished the app's main CTAs ("Set stake", "Browse goal templates") in
+  // footers. A plain View paints the fill reliably regardless of the animation layer.
   return (
     <InteractivePressable
       {...props}
       accessibilityRole="button"
-      style={() => [
-        styles.button,
-        props.disabled && styles.buttonDisabled,
-        typeof style === 'function' ? style({ pressed: false, focused: false, hovered: false }) : style,
-      ]}
+      style={typeof style === 'function' ? (state) => style(state) : style}
     >
-      <View>
+      <View style={[styles.button, props.disabled && styles.buttonDisabled]}>
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.buttonLabel, props.disabled && styles.buttonLabelDisabled]}>{children}</Text>
       </View>
     </InteractivePressable>
