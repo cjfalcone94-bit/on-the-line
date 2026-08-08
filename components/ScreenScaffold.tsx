@@ -57,10 +57,11 @@ export function ScreenScaffold({
 
 const styles = StyleSheet.create({
   content: { flex: 1, minHeight: 0 },
-  // Hero breathing room per apple-hig-premium §1 (48–64pt above primary content):
-  // the eyebrow/title used to sit flush against the status bar. 2xl (48) is the
-  // ramp's hero step, giving every screen an intentional, un-cramped top.
-  contentContainer: { flexGrow: 1, paddingTop: space['2xl'] },
+  // Small nav gap only: the hero breathing room now lives on ScreenHeader itself
+  // (see components/ui.tsx) so it's consistent regardless of whether a screen puts
+  // its hero in the fixed header slot or the scroll content. A nav row (Back link)
+  // at the top of scroll content sits just below the safe area, like an iOS nav bar.
+  contentContainer: { flexGrow: 1, paddingTop: space.sm },
   footer: { backgroundColor: color.surface, borderTopColor: color.surfaceRaised, borderTopWidth: StyleSheet.hairlineWidth, paddingBottom: space.sm, paddingHorizontal: space.lg, paddingTop: space.sm },
   // A little air below the status bar for the nav row (Back / Settings).
   header: { backgroundColor: color.surface, paddingTop: space.sm },

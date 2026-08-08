@@ -210,8 +210,11 @@ const styles = StyleSheet.create({
   buttonLabel: { color: color.surface, fontFamily: type.family.bodyMedium, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.tight },
   buttonLabelDisabled: { color: color.textSecondary },
   eyebrow: { ...tabularNums, color: color.gold, fontFamily: type.family.figureBold, fontSize: type.size.caption, letterSpacing: 1.4 },
-  header: { gap: space.sm },
-  headerCompact: { gap: space.xs },
+  // Hero breathing room per apple-hig-premium §1 (48-64pt above primary content),
+  // attached to the hero itself so it's identical whether a screen renders
+  // ScreenHeader in the scaffold's fixed header slot or in its scroll content.
+  header: { gap: space.sm, marginTop: space['2xl'] },
+  headerCompact: { gap: space.xs, marginTop: space.lg },
   interactiveFocused: Platform.select({
     web: { boxShadow: `0 0 0 3px ${color.gold}` },
     default: { borderColor: color.gold, borderWidth: 2 },

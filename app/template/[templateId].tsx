@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   checklist: { borderLeftColor: color.gold, borderLeftWidth: 2, gap: space.md, paddingLeft: space.md, paddingVertical: space.sm },
   checklistCompact: { gap: space.sm, padding: space.sm },
   checklistTitle: { color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.lg },
-  container: { flex: 1, gap: space.md, justifyContent: 'space-between', paddingHorizontal: space.lg, paddingBottom: space.md },
+  container: { gap: space.md, paddingHorizontal: space.lg, paddingBottom: space.md },
   containerCompact: { gap: space.sm, paddingHorizontal: space.md, paddingBottom: space.md },
   criterion: { color: color.textPrimary, flex: 1, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   criterionRow: { alignItems: 'flex-start', borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', gap: space.md, paddingTop: space.sm },

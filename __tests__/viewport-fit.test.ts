@@ -39,10 +39,18 @@ describe('iPhone SE fixed-flow viewport contract', () => {
     expect(source).toContain('paddingTop: topInset');
     expect(source).toContain('paddingBottom: insets.bottom');
     expect(source).toMatch(/contentContainer: \{ flexGrow: 1/);
-    // Hero breathing room (apple-hig-premium §1): content is padded off the top.
-    expect(source).toContain("paddingTop: space['2xl']");
     expect(source).toContain('testID="screen-scaffold-footer"');
     expect(source.indexOf('<ScrollView')).toBeLessThan(source.indexOf('{footer ?'));
+  });
+
+  it('puts hero breathing room on ScreenHeader so it is consistent in every scaffold slot', () => {
+    // Builds 22-24 defect: 48pt hero spacing lived on the scaffold content, so
+    // screens that render their hero in the FIXED header slot (e.g. catalog) got
+    // only the small nav pad and looked cramped, while scroll-content heroes got
+    // the full breathing room. Attaching it to ScreenHeader makes it uniform.
+    const source = readFileSync(join(process.cwd(), 'components/ui.tsx'), 'utf8');
+    const headerBlock = source.slice(source.indexOf('header: {'), source.indexOf('header: {') + 120);
+    expect(headerBlock).toContain("marginTop: space['2xl']");
   });
 
   it.each([
