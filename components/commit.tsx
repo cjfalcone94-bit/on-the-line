@@ -41,10 +41,12 @@ export function StakeChoice({ cents, selected, onPress }: { cents: number; selec
       aria-checked={selected}
       haptic="selection"
       onPress={onPress}
-      style={({ pressed, focused, hovered }) => [styles.chip, selected && styles.chipSelected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
+      style={styles.chipHit}
       testID={`stake-${cents}`}
     >
-      <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.chipLabel, selected && styles.chipLabelSelected]}>{formatMoney(cents)}</Text>
+      <View style={[styles.chip, selected && styles.chipSelected]}>
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.chipLabel, selected && styles.chipLabelSelected]}>{formatMoney(cents)}</Text>
+      </View>
     </InteractivePressable>
   );
 }
@@ -99,7 +101,11 @@ const styles = StyleSheet.create({
   charitySelected: { borderLeftColor: color.gold },
   chevron: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.lg, lineHeight: type.size.lg },
   chevronSelected: { color: color.gold },
-  chip: { alignItems: 'center', borderColor: color.stroke, borderRadius: space.smd, borderWidth: 1, flexGrow: 1, justifyContent: 'center', minHeight: 48, paddingHorizontal: space.md },
+  // Chip visual (fill + outline) lives on this inner View, NOT the animated
+  // InteractivePressable, which drops backgroundColor — the selected gold fill
+  // was rendering invisible (black-label-on-nothing) when placed on the Pressable.
+  chip: { alignItems: 'center', backgroundColor: color.surfaceRaised, borderColor: color.stroke, borderRadius: space.smd, borderWidth: 1, justifyContent: 'center', minHeight: 48, paddingHorizontal: space.md },
+  chipHit: { borderRadius: space.smd, flexGrow: 1 },
   chipLabel: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body },
   chipLabelSelected: { color: color.surface, fontFamily: type.family.figureBold },
   chipSelected: { backgroundColor: color.gold, borderColor: color.gold },

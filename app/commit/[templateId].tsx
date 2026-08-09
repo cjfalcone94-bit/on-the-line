@@ -164,7 +164,7 @@ export default function CommitScreen() {
         ) : null}
         {step === 'disclosure' && stakeCents && charity ? (
           <>
-            <ScreenHeader compact={compact} eyebrow="03 · plain terms" title="No surprises." body="Read this before any card authorization." />
+            <ScreenHeader compact eyebrow="03 · plain terms" title="No surprises." body="Read this before any card authorization." />
             <View style={styles.ledger}>
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.ledgerLabel}>IF YOU FAIL</Text>
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.amount}>{formatMoney(stakeCents)} → {charity.name}</Text>
