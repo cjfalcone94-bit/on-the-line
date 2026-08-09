@@ -86,10 +86,15 @@ export const GlassReceiptCard = forwardRef<View, {
   return (
     <View collapsable={false} ref={ref} style={[styles.card, compact && !exportMode && styles.cardCompact, exportMode && styles.exportCard]} testID={exportMode ? 'glass-receipt-export' : 'glass-receipt'}>
       <View style={styles.brandRow}>
+        {/* BrandWordmark already carries the gold ledger mark; the standalone
+            gold dash only accompanies the plain-text export brand. Rendering
+            both stacked a stray second dash beside the wordmark. */}
         {exportMode ? (
-          <Text maxFontSizeMultiplier={type.maxScale} style={[styles.brand, { color: ink }]}>ON THE <Text maxFontSizeMultiplier={type.maxScale} style={styles.gold}>LINE</Text></Text>
+          <>
+            <Text maxFontSizeMultiplier={type.maxScale} style={[styles.brand, { color: ink }]}>ON THE <Text maxFontSizeMultiplier={type.maxScale} style={styles.gold}>LINE</Text></Text>
+            <View style={styles.ledgerMark} />
+          </>
         ) : <BrandWordmark />}
-        <View style={styles.ledgerMark} />
       </View>
       <Text maxFontSizeMultiplier={type.maxScale} style={[styles.kicker, { color: receipt.outcome === 'forfeit' ? color.clayRed : ink }]}>{receipt.outcome === 'success' ? 'SETTLED · SUCCESS' : 'SETTLED · FORFEIT'}</Text>
       <Text maxFontSizeMultiplier={type.maxScale} accessibilityRole="header" style={[styles.title, { color: ink }]}>Glass Receipt</Text>

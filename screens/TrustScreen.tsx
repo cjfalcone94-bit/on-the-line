@@ -15,12 +15,14 @@ export default function TrustScreen() {
   return (
     <ScreenScaffold
       contentContainerStyle={[styles.container, compact && styles.containerCompact]}
-      footer={<><PrimaryButton accessibilityLabel="Browse goal templates" onPress={() => router.push('/catalog')} testID="browse-templates-button">Browse goal templates</PrimaryButton><TextAction accessibilityRole="link" align="center" onPress={() => router.push('/record')}>View Commitment Record</TextAction></>}
+      footer={<View style={styles.footerStack}><PrimaryButton accessibilityLabel="Browse goal templates" onPress={() => router.push('/catalog')} testID="browse-templates-button">Browse goal templates</PrimaryButton><TextAction accessibilityRole="link" align="center" onPress={() => router.push('/record')}>View Commitment Record</TextAction></View>}
       testID="trust-screen"
     >
       <ScreenEntrance direction="right" style={styles.entrance}>
         <ScreenHeader compact={compact} eyebrow="How this works" title="Nothing hidden." />
-        <OnboardingArtwork compact={compact} />
+        {/* Left-aligned: a centered wordmark floated as an orphan on this
+            otherwise left-aligned screen. */}
+        <OnboardingArtwork align="start" compact={compact} />
         <View style={styles.facts}>
           {facts.map(({ number, title, body }) => (
             <View accessible accessibilityLabel={`${title}. ${body}`} key={number} style={[styles.fact, compact && styles.factCompact]}>
@@ -49,6 +51,9 @@ const styles = StyleSheet.create({
   factCopy: { flex: 1, gap: space.xs },
   factTitle: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.body },
   facts: { gap: space.sm },
+  // ≥24pt between the primary CTA and the record link; footer padding + safe
+  // area keep ≥16pt below the link.
+  footerStack: { gap: space.lg, paddingBottom: space.sm },
   footnote: { ...tabularNums, borderLeftColor: color.gold, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.figure, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, paddingLeft: space.sm },
   number: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.caption, paddingTop: space.xs },
   entrance: { gap: space.md },

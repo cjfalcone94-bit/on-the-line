@@ -2,11 +2,11 @@ import { setAudioModeAsync, useAudioPlayer } from 'expo-audio';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as Sharing from 'expo-sharing';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { AccessibilityInfo, StyleSheet, Switch, Text, useWindowDimensions, View } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import { GlassReceiptCard } from '@/components/glass-receipt';
 import { InteractivePressable, LedgerSkeletonLine, PrimaryButton, SandboxBadge, ScreenEntrance, ScreenScaffold, StatePanel, TextAction } from '@/components';
-import { color, motion, space, tabularNums, type } from '@/design/tokens';
+import { color, motion, space, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { getSoundEnabled, setSoundEnabled as persistSoundEnabled } from '@/lib/preferences/sound';
 import { getGlassReceipt } from '@/lib/settlement/service';
@@ -99,7 +99,7 @@ export default function SettleScreen() {
   return (
     <ScreenScaffold
       contentContainerStyle={[styles.container, compact && styles.containerCompact]}
-      footer={receipt ? <><PrimaryButton accessibilityLabel="Share Glass Receipt" disabled={visibleLines < 5 || sharingAvailable !== true} onPress={share}>{sharingAvailable === null ? 'Checking sharing…' : 'Share receipt'}</PrimaryButton><TextAction align="center" onPress={() => router.replace('/record')}>View Commitment Record</TextAction></> : null}
+      footer={receipt ? <View style={styles.footerStack}><PrimaryButton accessibilityLabel="Share Glass Receipt" disabled={visibleLines < 5 || sharingAvailable !== true} onPress={share}>{sharingAvailable === null ? 'Checking sharing…' : 'Share receipt'}</PrimaryButton><TextAction align="center" onPress={() => router.replace('/record')}>View Commitment Record</TextAction></View> : null}
       header={<View style={styles.header}><TextAction align="end" onPress={() => router.replace('/catalog')}>Close</TextAction></View>}
       testID="settle-screen"
     >
@@ -118,8 +118,16 @@ export default function SettleScreen() {
               onPress={toggleSound}
               style={({ pressed }) => [styles.soundControl, pressed && styles.soundPressed]}
             >
-              <Text maxFontSizeMultiplier={type.maxScale} style={styles.soundLabel}>RECEIPT SOUND</Text>
-              <Text maxFontSizeMultiplier={type.maxScale} style={styles.soundValue}>{soundEnabled ? 'ON' : 'OFF'}</Text>
+              <Text maxFontSizeMultiplier={type.maxScale} style={styles.soundLabel}>Receipt sound</Text>
+              <Switch
+                accessible={false}
+                importantForAccessibility="no"
+                ios_backgroundColor={color.surfaceRaised}
+                onValueChange={toggleSound}
+                thumbColor={color.textPrimary}
+                trackColor={{ false: color.surfaceRaised, true: color.gold }}
+                value={soundEnabled}
+              />
             </InteractivePressable>
             {sharingAvailable === false || shareError ? (
               <Text maxFontSizeMultiplier={type.maxScale} style={styles.shareUnavailable}>Sharing unavailable here · your receipt is still saved.</Text>
@@ -143,15 +151,19 @@ function ReceiptSkeleton() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, gap: space.sm, justifyContent: 'center', paddingBottom: space.sm, paddingHorizontal: space.md },
-  containerCompact: { gap: space.xs, paddingBottom: space.xs, paddingHorizontal: space.sm },
+  // Same 24pt screen margin as the rest of the flow — this screen previously
+  // sat tighter (16pt) and read as a different app.
+  container: { flex: 1, gap: space.sm, justifyContent: 'center', paddingBottom: space.sm, paddingHorizontal: space.lg },
+  containerCompact: { gap: space.xs, paddingBottom: space.xs, paddingHorizontal: space.md },
   exportStage: { left: -1000, position: 'absolute', top: 0 },
   entrance: { gap: space.sm },
-  header: { paddingHorizontal: space.md },
+  // ≥24pt between the primary button and the record link, and ≥16pt kept
+  // between the link and the home indicator (footer padding + safe area).
+  footerStack: { gap: space.lg, paddingBottom: space.sm },
+  header: { paddingHorizontal: space.lg },
   shareUnavailable: { borderLeftColor: color.textSecondary, borderLeftWidth: 2, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, paddingLeft: space.sm },
   skeleton: { backgroundColor: color.surfaceRaised, borderRadius: space.md, gap: space.lg, padding: space.lg },
-  soundControl: { alignItems: 'center', borderBottomColor: color.surfaceRaised, borderBottomWidth: 1, borderTopColor: color.surfaceRaised, borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: space.xs },
-  soundLabel: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
+  soundControl: { alignItems: 'center', borderBottomColor: color.surfaceRaised, borderBottomWidth: 1, borderTopColor: color.surfaceRaised, borderTopWidth: 1, flexDirection: 'row', justifyContent: 'space-between', minHeight: 44, paddingHorizontal: space.xs, paddingVertical: space.xs },
+  soundLabel: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.caption },
   soundPressed: { opacity: 0.65 },
-  soundValue: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figureBold, fontSize: type.size.caption },
 });

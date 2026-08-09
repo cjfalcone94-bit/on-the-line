@@ -79,6 +79,7 @@ export const space = {
   lg: 24,
   xl: 32,
   '2xl': 48,
+  smd: 12, // related-element gap + control radius — the HIG ramp step between sm and md
   ledgerLine: 12, // receipt-row vertical rhythm — distinct from the general 8px grid, §3
 } as const;
 
@@ -91,6 +92,7 @@ export const color = {
   // Dark surface (primary, app-wide)
   surface: '#0A0A0A', // near-black base — a true dark surface, not warm paper
   surfaceRaised: '#161616', // one step up for cards/sheets, still near-black
+  stroke: '#3A3A3C', // hairline/outline for chips and controls — visible on near-black without reading as content
   textPrimary: '#FFFFFF',
   textSecondary: '#B8B8B8',
 

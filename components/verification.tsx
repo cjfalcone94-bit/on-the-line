@@ -5,6 +5,17 @@ import { InteractivePressable } from '@/components/ui';
 import { statusCopy, type VerificationSubmission } from '@/lib/verification/types';
 import { fireHaptic } from '@/lib/feedback';
 
+// "Aug 9, 2:09 AM" — a deadline a person can read at a glance, not a raw
+// machine timestamp like "8/9/2026, 2:09:24 AM".
+function formatDeadline(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, {
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    month: 'short',
+  });
+}
+
 export function VerificationCard({ submission, compact = false }: { submission: VerificationSubmission; compact?: boolean }) {
   const copy = statusCopy[submission.status];
   const isPass = submission.status === 'passed';
@@ -18,11 +29,17 @@ export function VerificationCard({ submission, compact = false }: { submission: 
       <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.label}>{copy.label}</Text>
       <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling accessibilityRole="header" style={styles.title}>{copy.title}</Text>
       <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.body}>{copy.body}</Text>
-      <View style={styles.rule} />
-      <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.sla}>PUBLISHED SLA · WITHIN 24 HOURS</Text>
-      <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.slaBody}>
-        If review is not resolved by {new Date(submission.slaDeadline).toLocaleString()}, this proof automatically passes in your favour. A timeout can never count against you.
-      </Text>
+      {/* The unresolved-review SLA promise only applies while the outcome is
+          still open — on a passed proof it would contradict the state above. */}
+      {!isPass ? (
+        <>
+          <View style={styles.rule} />
+          <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.sla}>PUBLISHED SLA · WITHIN 24 HOURS</Text>
+          <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.slaBody}>
+            If review is not resolved by {formatDeadline(submission.slaDeadline)}, this proof automatically passes in your favour. A timeout can never count against you.
+          </Text>
+        </>
+      ) : null}
     </View>
   );
 }

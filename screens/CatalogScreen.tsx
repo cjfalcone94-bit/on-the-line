@@ -25,11 +25,12 @@ export function TemplateCard({ template, onPress }: { template: ChecklistTemplat
       </View>
       <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.cadence}>{template.cadence}</Text>
       <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling numberOfLines={2} style={styles.summary}>{template.summary}</Text>
+      {/* The full checklist lives one tap away on the detail screen (and in this
+          card's accessibility label). Repeating every criterion here made
+          adjacent goals blur together — a count keeps rows scannable. */}
       <View style={styles.criteria}>
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.criteriaLabel}>WHAT COUNTS</Text>
-        {template.criteria.map((criterion) => (
-          <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling key={criterion} numberOfLines={2} style={styles.criterion}>— {criterion}</Text>
-        ))}
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.criteriaCount}>{template.criteria.length} criteria ›</Text>
       </View>
     </InteractivePressable>
   );
@@ -99,9 +100,9 @@ const styles = StyleSheet.create({
   cardHeading: { alignItems: 'center', flexDirection: 'row', gap: space.sm, justifyContent: 'space-between' },
   cardPressed: { opacity: 0.88, transform: [{ scale: 0.99 }] },
   cardTitle: { color: color.textPrimary, flex: 1, fontFamily: type.family.display, fontSize: type.size.lg },
-  criteria: { borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, gap: space.xs, paddingTop: space.sm },
+  criteria: { alignItems: 'center', borderTopColor: color.textSecondary, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: 'row', justifyContent: 'space-between', paddingTop: space.sm },
+  criteriaCount: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: type.size.caption },
   criteriaLabel: { ...tabularNums, color: color.gold, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },
-  criterion: { color: color.textPrimary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   headerWrap: { gap: space.xs, paddingHorizontal: space.lg, paddingBottom: space.md },
   list: { paddingBottom: space.xl, paddingHorizontal: space.lg },
   sectionTitle: { backgroundColor: color.surface, borderLeftColor: color.gold, borderLeftWidth: 2, color: color.textPrimary, fontFamily: type.family.display, fontSize: type.size.xl, marginTop: space.sm, paddingBottom: space.sm, paddingLeft: space.sm, paddingTop: space.md },

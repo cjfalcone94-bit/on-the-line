@@ -30,8 +30,23 @@ export function Choice({ label, detail, selected, onPress, testID }: { label: st
   );
 }
 
+// Preset stake amounts render as chips, not ledger rows: a stake is a discrete
+// pick-one control, and the gold fill on selection is the allowlisted
+// "active/selected interaction" use of the accent (tokens §3).
 export function StakeChoice({ cents, selected, onPress }: { cents: number; selected: boolean; onPress: () => void }) {
-  return <Choice label={formatMoney(cents)} selected={selected} onPress={onPress} testID={`stake-${cents}`} />;
+  return (
+    <InteractivePressable
+      accessibilityRole="radio"
+      accessibilityState={{ checked: selected, selected }}
+      aria-checked={selected}
+      haptic="selection"
+      onPress={onPress}
+      style={({ pressed, focused, hovered }) => [styles.chip, selected && styles.chipSelected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
+      testID={`stake-${cents}`}
+    >
+      <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.chipLabel, selected && styles.chipLabelSelected]}>{formatMoney(cents)}</Text>
+    </InteractivePressable>
+  );
 }
 
 export function CustomStakeInput({ value, onChange }: { value: string; onChange: (value: string) => void }) {
@@ -60,7 +75,7 @@ export function CharityChoice({ charity, selected, onPress, compact = false }: {
       accessibilityState={{ checked: selected, selected }}
       aria-checked={selected}
       onPress={onPress}
-      style={({ pressed, focused, hovered }) => [styles.charity, compact && styles.charityCompact, selected && styles.selected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
+      style={({ pressed, focused, hovered }) => [styles.charity, compact && styles.charityCompact, selected && styles.charitySelected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
       testID={`charity-${charity.id}`}
     >
       <Image accessible={false} source={charityIcons[charity.id]} style={[styles.charityIcon, compact && styles.charityIconCompact]} />
@@ -68,16 +83,26 @@ export function CharityChoice({ charity, selected, onPress, compact = false }: {
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.choiceLabel, selected && styles.selectedLabel]}>{charity.name}</Text>
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.detail}>{charity.category}</Text>
       </View>
+      <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.chevron, selected && styles.chevronSelected]}>›</Text>
     </InteractivePressable>
   );
 }
 
 const styles = StyleSheet.create({
-  charity: { alignItems: 'center', borderBottomColor: color.surfaceRaised, borderBottomWidth: StyleSheet.hairlineWidth, flexDirection: 'row', gap: space.sm, minHeight: 58, paddingHorizontal: space.xs, paddingVertical: space.sm },
+  // Transparent left border reserves the selected gold rule's width so rows
+  // don't shift horizontally on selection.
+  charity: { alignItems: 'center', borderBottomColor: color.surfaceRaised, borderBottomWidth: StyleSheet.hairlineWidth, borderLeftColor: 'transparent', borderLeftWidth: 2, flexDirection: 'row', gap: space.smd, minHeight: 58, paddingHorizontal: space.sm, paddingVertical: space.sm },
   charityCompact: { minHeight: 48, paddingVertical: space.xs },
-  charityCopy: { flex: 1 },
-  charityIcon: { height: 42, resizeMode: 'contain', width: 42 },
+  charityCopy: { flex: 1, gap: 1 },
+  charityIcon: { height: 44, resizeMode: 'contain', width: 44 },
   charityIconCompact: { height: 32, width: 32 },
+  charitySelected: { borderLeftColor: color.gold },
+  chevron: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.lg, lineHeight: type.size.lg },
+  chevronSelected: { color: color.gold },
+  chip: { alignItems: 'center', borderColor: color.stroke, borderRadius: space.smd, borderWidth: 1, flexGrow: 1, justifyContent: 'center', minHeight: 48, paddingHorizontal: space.md },
+  chipLabel: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body },
+  chipLabelSelected: { color: color.surface, fontFamily: type.family.figureBold },
+  chipSelected: { backgroundColor: color.gold, borderColor: color.gold },
   choice: { borderBottomColor: color.surfaceRaised, borderBottomWidth: StyleSheet.hairlineWidth, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.sm, paddingVertical: space.sm },
   choiceLabel: { ...tabularNums, color: color.textPrimary, fontFamily: type.family.figure, fontSize: type.size.body },
   detail: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption },

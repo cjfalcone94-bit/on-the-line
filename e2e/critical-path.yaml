@@ -29,10 +29,15 @@ name: Founder device truth — complete critical path
 - takeScreenshot: 02-stake-screen-money-step
 - tapOn:
     id: stake-4000
+# Post-selection: the chosen chip's gold FILL and the now-enabled "Choose charity"
+# CTA both go through InteractivePressable — verify the fill actually paints.
+- takeScreenshot: 02b-stake-selected
 - tapOn: "Choose charity"
 - takeScreenshot: 05-charity-screen
 - tapOn:
     id: charity-direct-relief
+# Post-selection: charity gold left-rule + enabled "Review the mechanic" CTA.
+- takeScreenshot: 05b-charity-selected
 - tapOn: "Review the mechanic"
 - assertVisible: "No surprises."
 - takeScreenshot: 06-disclosure-screen

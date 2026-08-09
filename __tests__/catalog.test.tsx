@@ -27,11 +27,15 @@ describe('curated template catalog', () => {
     expect(findTemplate(catalogItem.id)?.criteria).toEqual(catalogItem.criteria);
   });
 
-  it('renders the pass criteria on the browsable card and opens detail', () => {
+  it('summarizes pass criteria on the browsable card, keeps them accessible, and opens detail', () => {
     const onPress = jest.fn();
-    const { getByText, getByTestId } = render(<TemplateCard template={templates[0]} onPress={onPress} />);
+    const { getByText, getByTestId, queryByText } = render(<TemplateCard template={templates[0]} onPress={onPress} />);
     expect(getByText('WHAT COUNTS')).toBeTruthy();
-    expect(getByText('— One outdoor walk of at least 20 minutes')).toBeTruthy();
+    // Collapsed to a count on the card — the full list belongs to the detail screen…
+    expect(getByText('3 criteria ›')).toBeTruthy();
+    expect(queryByText('— One outdoor walk of at least 20 minutes')).toBeNull();
+    // …but screen-reader users still hear every criterion from the card itself.
+    expect(getByTestId('template-daily-walk').props.accessibilityLabel).toContain('One outdoor walk of at least 20 minutes');
     fireEvent.press(getByTestId('template-daily-walk'));
     expect(onPress).toHaveBeenCalledTimes(1);
   });

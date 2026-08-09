@@ -4,7 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { FixedChecklist, PhotoPreview } from '@/components/proof';
-import { PrimaryButton, ScreenEntrance, ScreenHeader, ScreenScaffold, StatePanel, TextAction } from '@/components';
+import { PrimaryButton, ScreenEntrance, ScreenHeader, ScreenScaffold, SecondaryButton, StatePanel, TextAction } from '@/components';
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { findTemplate } from '@/lib/catalog/templates';
 import { enqueueProof, syncProofQueue } from '@/lib/proof/queue';
@@ -98,8 +98,10 @@ export default function ProofScreen() {
       contentContainerStyle={[styles.container, compact && styles.containerCompact]}
       footer={state === 'capture' ? (
         <View style={styles.footerStack}>
+          {/* One filled primary per footer: the real capture path stays white,
+              the sandbox shortcut demotes to an outlined secondary. */}
           {env.sandbox && !photoUri ? (
-            <PrimaryButton onPress={() => setPhotoUri('sandbox://mock-proof.jpg')} testID="use-mock-proof">Use mock sandbox proof</PrimaryButton>
+            <SecondaryButton onPress={() => setPhotoUri('sandbox://mock-proof.jpg')} testID="use-mock-proof">Use mock sandbox proof</SecondaryButton>
           ) : null}
           <PrimaryButton onPress={photoUri ? submit : () => choosePhoto(true)} testID={photoUri ? 'submit-proof' : 'take-proof-photo'}>{photoUri ? 'Submit proof' : 'Take photo'}</PrimaryButton>
         </View>
@@ -110,6 +112,9 @@ export default function ProofScreen() {
       <ScreenEntrance direction="right" style={styles.entrance}>
         <ScreenHeader compact={compact} eyebrow={`${template.cadence} · proof`} title={template.title} body="Use one photo to show the fixed checklist below. The checklist cannot be edited." />
         <FixedChecklist compact={compact} criteria={template.criteria} />
+        {/* Reassurance copy sits ABOVE the capture zone (16pt clear of it), never
+            layered over the drop-zone art. */}
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.missed}>A missed window is never an automatic charge. The template’s checklist rules apply, with review in a later step.</Text>
 
         {state === 'capture' && !photoUri ? (
           <View style={styles.capture}>
@@ -139,7 +144,6 @@ export default function ProofScreen() {
         ) : null}
 
         {online === false && state === 'capture' ? <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.offline}>OFFLINE · Capture still works. Submission will stay safely on this device until you reconnect.</Text> : null}
-        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.missed}>A missed window is never an automatic charge. The template’s checklist rules apply, with review in a later step.</Text>
       </ScreenEntrance>
     </ScreenScaffold>
   );
@@ -147,9 +151,12 @@ export default function ProofScreen() {
 
 const styles = StyleSheet.create({
   cameraCopy: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal, maxWidth: 240, textAlign: 'center' },
-  cameraFrame: { alignItems: 'center', borderColor: color.textSecondary, borderRadius: space.md, borderStyle: 'dashed', borderWidth: 1, flex: 1, gap: space.sm, justifyContent: 'center', minHeight: 120 },
+  // ≥24pt internal padding so the "+" mark and its caption breathe inside the
+  // dashed frame instead of crowding each other or the frame edges.
+  cameraFrame: { alignItems: 'center', borderColor: color.textSecondary, borderRadius: space.md, borderStyle: 'dashed', borderWidth: 1, flex: 1, gap: space.smd, justifyContent: 'center', minHeight: 140, paddingHorizontal: space.md, paddingVertical: space.lg },
   cameraMark: { color: color.gold, fontFamily: type.family.body, fontSize: type.size.xl },
-  capture: { flex: 1, gap: space.sm },
+  // Entrance gap (8) + this margin (8) = the required 16pt gap below the note.
+  capture: { flex: 1, gap: space.sm, marginTop: space.sm },
   container: { flex: 1, gap: space.sm, justifyContent: 'space-between', paddingBottom: space.md, paddingHorizontal: space.lg },
   footerStack: { gap: space.sm },
   containerCompact: { gap: space.xs, paddingBottom: space.sm, paddingHorizontal: space.md },

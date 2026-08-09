@@ -111,6 +111,25 @@ export function PrimaryButton({ children, style, ...props }: PropsWithChildren<I
   );
 }
 
+/**
+ * Outlined companion to PrimaryButton for stacked footers: same height and
+ * radius so the pair reads as one system, but transparent fill + stroke so a
+ * single white primary keeps visual priority.
+ */
+export function SecondaryButton({ children, style, ...props }: PropsWithChildren<InteractivePressableProps>) {
+  return (
+    <InteractivePressable
+      {...props}
+      accessibilityRole="button"
+      style={typeof style === 'function' ? (state) => style(state) : style}
+    >
+      <View style={styles.secondaryButton}>
+        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.secondaryButtonLabel}>{children}</Text>
+      </View>
+    </InteractivePressable>
+  );
+}
+
 export function LedgerSkeletonLine({ width = '100%', height = 14 }: { width?: number | `${number}%`; height?: number }) {
   const [pulse] = useState(() => new Animated.Value(0));
   const [reduceMotion, setReduceMotion] = useState(false);
@@ -186,9 +205,9 @@ export function BrandSplash() {
   );
 }
 
-export function OnboardingArtwork({ compact = false }: { compact?: boolean }) {
+export function OnboardingArtwork({ align = 'center', compact = false }: { align?: 'start' | 'center'; compact?: boolean }) {
   return (
-    <View style={[styles.onboarding, compact && styles.onboardingCompact]} testID="onboarding-artwork">
+    <View style={[styles.onboarding, align === 'start' && styles.onboardingStart, compact && styles.onboardingCompact]} testID="onboarding-artwork">
       <BrandWordmark />
     </View>
   );
@@ -208,7 +227,9 @@ const styles = StyleSheet.create({
   body: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   bodyCompact: { fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
   button: { alignItems: 'center', backgroundColor: color.textPrimary, borderRadius: space.sm, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.lg, paddingVertical: space.md, transform: [{ scale: 1 }] },
-  buttonDisabled: { backgroundColor: color.surfaceRaised, borderColor: color.textSecondary, borderWidth: 1, opacity: 0.55 },
+  // Disabled = an intentional resting state, not a broken control: a quiet
+  // raised fill with readable secondary text — no ghost outline, no dimming.
+  buttonDisabled: { backgroundColor: color.surfaceRaised },
   buttonLabel: { color: color.surface, fontFamily: type.family.bodyMedium, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.tight },
   buttonLabelDisabled: { color: color.textSecondary },
   eyebrow: { ...tabularNums, color: color.gold, fontFamily: type.family.figureBold, fontSize: type.size.caption, letterSpacing: 1.4 },
@@ -224,7 +245,10 @@ const styles = StyleSheet.create({
   interactiveHovered: { opacity: 0.9 },
   onboarding: { alignItems: 'center', gap: space.sm },
   onboardingCompact: { transform: [{ scale: 0.88 }] },
+  onboardingStart: { alignItems: 'flex-start', alignSelf: 'flex-start' },
   sandboxBadge: { alignSelf: 'flex-start', borderColor: color.gold, borderRadius: space.xs, borderWidth: 1, paddingHorizontal: space.sm, paddingVertical: 5 },
+  secondaryButton: { alignItems: 'center', backgroundColor: 'transparent', borderColor: color.stroke, borderRadius: space.sm, borderWidth: 1, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.lg, paddingVertical: space.md },
+  secondaryButtonLabel: { color: color.textPrimary, fontFamily: type.family.bodyMedium, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.tight },
   sandboxLabel: { ...tabularNums, color: color.gold, fontFamily: type.family.figureBold, fontSize: 9, letterSpacing: 0.8 },
   splash: { alignItems: 'center', backgroundColor: color.surface, flex: 1, justifyContent: 'center', padding: space.xl },
   skeletonLine: { backgroundColor: color.textSecondary, borderRadius: space.xs },

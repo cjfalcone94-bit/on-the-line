@@ -128,7 +128,7 @@ export default function CommitScreen() {
 
   return (
     <ScreenScaffold
-      contentContainerStyle={[styles.content, compact && styles.contentCompact]}
+      contentContainerStyle={[styles.content, compact && styles.contentCompact, (step === 'disclosure' || step === 'confirmed') && styles.contentTrailingCopy]}
       footer={primaryAction ? <PrimaryButton disabled={primaryAction.disabled} haptic={step === 'card' ? 'none' : 'light'} onPress={primaryAction.onPress}>{primaryAction.label}</PrimaryButton> : null}
       header={<View style={[styles.header, compact && styles.headerCompact]}><TextAction onPress={() => step === 'stake' ? router.back() : setStep(step === 'charity' ? 'stake' : step === 'disclosure' ? 'charity' : 'disclosure')}>‹ Back</TextAction></View>}
       testID="commit-screen"
@@ -226,8 +226,12 @@ const styles = StyleSheet.create({
   containerCompact: { paddingHorizontal: space.md },
   content: { gap: space.md, paddingBottom: space.md, paddingHorizontal: space.lg },
   contentCompact: { gap: space.sm, paddingHorizontal: space.md },
+  // Steps ending in a closing paragraph (disclosure, confirmed) pad past the
+  // footer's height (~72pt) + 24pt so the last line can never sit clipped at
+  // the fold above the footer button.
+  contentTrailingCopy: { paddingBottom: space['2xl'] + space['2xl'] },
   entrance: { gap: space.md },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.sm },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.smd },
   ledger: { borderLeftColor: color.gold, borderLeftWidth: 2, gap: space.sm, paddingHorizontal: space.md, paddingVertical: space.sm },
   ledgerBody: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   ledgerLabel: { ...tabularNums, color: color.textSecondary, fontFamily: type.family.figure, fontSize: 11, letterSpacing: 1 },

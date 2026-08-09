@@ -17,7 +17,9 @@ export const statusCopy: Readonly<Record<VerificationStatus, Readonly<{
 }>>> = Object.freeze({
   pending: { label: 'PENDING REVIEW', title: 'Pending review', body: 'Your proof is queued for the first-pass checklist review.' },
   in_review: { label: 'IN REVIEW', title: 'In review', body: 'A reviewer is checking your proof against the fixed checklist.' },
-  passed: { label: 'PASSED', title: 'Passed', body: 'This proof met the checklist. No further action is needed.' },
+  // Kicker deliberately differs from the title so the card never reads
+  // "PASSED / Passed" twice in a row.
+  passed: { label: 'VERIFICATION RESULT', title: 'Passed', body: 'This proof met the checklist. No further action is needed.' },
   needs_review: { label: 'NEEDS REVIEW', title: 'Needs review', body: 'A human reviewer did not approve this proof. You can appeal below.' },
   appealed: { label: 'APPEALED', title: 'Appeal under review', body: 'A different human reviewer will check the decision.' },
 });
