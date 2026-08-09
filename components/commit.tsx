@@ -63,7 +63,7 @@ export function CharityChoice({ charity, selected, onPress, compact = false }: {
       style={({ pressed, focused, hovered }) => [styles.charity, compact && styles.charityCompact, selected && styles.selected, pressed && styles.pressed, hovered && styles.hovered, focused && styles.focused]}
       testID={`charity-${charity.id}`}
     >
-      <Image accessible={false} source={charityIcons[charity.id]} style={[styles.charityIcon, compact && styles.charityIconCompact]} tintColor={color.textPrimary} />
+      <Image accessible={false} source={charityIcons[charity.id]} style={[styles.charityIcon, compact && styles.charityIconCompact]} />
       <View style={styles.charityCopy}>
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.choiceLabel, selected && styles.selectedLabel]}>{charity.name}</Text>
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.detail}>{charity.category}</Text>
