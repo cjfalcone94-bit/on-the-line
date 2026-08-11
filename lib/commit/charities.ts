@@ -12,11 +12,11 @@ export type Charity = Readonly<{
 // community) map straight through. Verify each on ABN Lookup / the ACNC register
 // before real-money launch.
 export const charities: readonly Charity[] = [
-  { id: 'direct-relief', name: 'The Fred Hollows Foundation', category: 'Health' },
-  { id: 'donorschoose', name: 'The Smith Family', category: 'Education' },
-  { id: 'best-friends', name: 'RSPCA Australia', category: 'Animal welfare' },
-  { id: 'team-rubicon', name: 'Australian Red Cross', category: 'Disaster relief' },
-  { id: 'feeding-america', name: 'Foodbank Australia', category: 'Community' },
+  { id: 'fred-hollows', name: 'The Fred Hollows Foundation', category: 'Health' },
+  { id: 'smith-family', name: 'The Smith Family', category: 'Education' },
+  { id: 'rspca-au', name: 'RSPCA Australia', category: 'Animal welfare' },
+  { id: 'red-cross-au', name: 'Australian Red Cross', category: 'Disaster relief' },
+  { id: 'foodbank-au', name: 'Foodbank Australia', category: 'Community' },
 ] as const;
 
 export function findCharity(id: string | undefined): Charity | undefined {

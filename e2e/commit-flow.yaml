@@ -11,7 +11,7 @@ appId: dev.falconlabs.ontheline
 - tapOn: "Choose charity"
 - assertVisible: "Direct Relief"
 - tapOn:
-    id: "charity-direct-relief"
+    id: "charity-fred-hollows"
 - tapOn: "Review the terms"
 - assertVisible: "If you succeed, you pay nothing."
 - tapOn: "Continue to card authorization"

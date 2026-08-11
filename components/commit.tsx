@@ -6,11 +6,11 @@ import type { Charity } from '@/lib/commit/charities';
 import { formatMoney } from '@/lib/commit/money';
 
 const charityIcons: Record<string, ImageSourcePropType> = {
-  'direct-relief': require('@/assets/charity-icons/health.png'),
-  donorschoose: require('@/assets/charity-icons/education.png'),
-  'best-friends': require('@/assets/charity-icons/animal-welfare.png'),
-  'team-rubicon': require('@/assets/charity-icons/disaster-relief.png'),
-  'feeding-america': require('@/assets/charity-icons/community.png'),
+  'fred-hollows': require('@/assets/charity-icons/health.png'),
+  'smith-family': require('@/assets/charity-icons/education.png'),
+  'rspca-au': require('@/assets/charity-icons/animal-welfare.png'),
+  'red-cross-au': require('@/assets/charity-icons/disaster-relief.png'),
+  'foodbank-au': require('@/assets/charity-icons/community.png'),
 };
 
 export function Choice({ label, detail, selected, onPress, testID }: { label: string; detail?: string; selected: boolean; onPress: () => void; testID?: string }) {

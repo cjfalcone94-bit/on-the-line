@@ -5,8 +5,8 @@ import { env } from '@/lib/env';
 import { getSandboxRecord } from '@/lib/sandbox/service';
 
 const demoRecord: readonly CommitmentRecordItem[] = [
-  { commitmentId: 'demo-success', templateId: 'daily-walk', outcome: 'success', stakeCents: 4000, charityId: 'direct-relief', settledAt: '2026-07-30T12:00:00.000Z' },
-  { commitmentId: 'demo-fail', templateId: 'read-20', outcome: 'forfeit', stakeCents: 2000, charityId: 'feeding-america', settledAt: '2026-07-29T12:00:00.000Z' },
+  { commitmentId: 'demo-success', templateId: 'daily-walk', outcome: 'success', stakeCents: 4000, charityId: 'fred-hollows', settledAt: '2026-07-30T12:00:00.000Z' },
+  { commitmentId: 'demo-fail', templateId: 'read-20', outcome: 'forfeit', stakeCents: 2000, charityId: 'foodbank-au', settledAt: '2026-07-29T12:00:00.000Z' },
 ];
 
 export async function getCommitmentRecord(client?: SupabaseClient): Promise<readonly CommitmentRecordItem[]> {

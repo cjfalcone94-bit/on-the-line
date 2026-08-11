@@ -9,7 +9,7 @@ const draft = {
   ownerId: 'owner-a',
   templateId: 'daily-walk',
   stakeCents: 4000,
-  charityId: 'direct-relief',
+  charityId: 'fred-hollows',
   cadence: 'Daily · 30 days',
 };
 
@@ -25,7 +25,7 @@ function authorizedIntent(overrides: Partial<AuthorizationIntent> = {}): Authori
     metadata: {
       owner_id: 'owner-a',
       template_id: 'daily-walk',
-      charity_destination_id: 'direct-relief',
+      charity_destination_id: 'fred-hollows',
       cadence: 'Daily · 30 days',
       commitment_id: 'commitment-1',
     },
@@ -69,7 +69,7 @@ describe('commit authorization contracts', () => {
       },
     }, authorizedIntent(), 'owner-a', new Date('2026-07-30T00:00:00Z'));
 
-    expect(written?.charity_destination_id).toBe('direct-relief');
+    expect(written?.charity_destination_id).toBe('fred-hollows');
     expect(Object.isFrozen(written)).toBe(true);
   });
 

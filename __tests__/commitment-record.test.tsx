@@ -27,8 +27,8 @@ describe('Commitment Record', () => {
 
   it('restores the full authenticated account record in settled order using the UI query', async () => {
     const rows = [
-      { charity_destination_id: 'direct-relief', commitment_id: 'one', outcome: 'success', settled_at: '2026-07-30T00:00:00Z', stake_cents: 4000, template_id: 'daily-walk' },
-      { charity_destination_id: 'feeding-america', commitment_id: 'two', outcome: 'forfeit', settled_at: '2026-07-29T00:00:00Z', stake_cents: 2000, template_id: 'read-20' },
+      { charity_destination_id: 'fred-hollows', commitment_id: 'one', outcome: 'success', settled_at: '2026-07-30T00:00:00Z', stake_cents: 4000, template_id: 'daily-walk' },
+      { charity_destination_id: 'foodbank-au', commitment_id: 'two', outcome: 'forfeit', settled_at: '2026-07-29T00:00:00Z', stake_cents: 2000, template_id: 'read-20' },
     ];
     const order = jest.fn().mockResolvedValue({ data: rows, error: null });
     const select = jest.fn().mockReturnValue({ order });

@@ -12,7 +12,7 @@ describe('sandbox commitment journey', () => {
 
   it('completes commit → proof → verify → settle without Stripe or Supabase', async () => {
     const commitment = await authorizeSandboxCommitment({
-      charityId: 'direct-relief',
+      charityId: 'fred-hollows',
       outcome: 'success',
       stakeCents: 4000,
       templateId: 'daily-walk',
@@ -37,7 +37,7 @@ describe('sandbox commitment journey', () => {
 
   it('can resolve the visibly selected sandbox forfeit variant', async () => {
     const commitment = await authorizeSandboxCommitment({
-      charityId: 'direct-relief', outcome: 'forfeit', stakeCents: 2000, templateId: 'read-20',
+      charityId: 'fred-hollows', outcome: 'forfeit', stakeCents: 2000, templateId: 'read-20',
     });
     const proof = await submitSandboxProof(commitment.commitmentId);
     expect(await resolveSandboxVerification(proof.id)).toMatchObject({ resolutionType: 'human_fail' });

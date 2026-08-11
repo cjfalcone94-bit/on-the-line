@@ -15,7 +15,7 @@ async function beginCommit(page: Page, prefix: string) {
   await expect(page.getByText('Put a clear amount on it.')).toBeVisible();
   await page.getByTestId('stake-4000').click();
   await page.getByRole('button', { name: 'Choose charity' }).click();
-  await page.getByTestId('charity-direct-relief').click();
+  await page.getByTestId('charity-fred-hollows').click();
   await shot(page, `${prefix}-03-commit-stake-charity`);
   await page.getByRole('button', { name: 'Review the terms' }).click();
   await page.getByRole('button', { name: 'Continue to card authorization' }).click();

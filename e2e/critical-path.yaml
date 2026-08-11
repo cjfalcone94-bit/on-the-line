@@ -35,7 +35,7 @@ name: Founder device truth — complete critical path
 - tapOn: "Choose charity"
 - takeScreenshot: 05-charity-screen
 - tapOn:
-    id: charity-direct-relief
+    id: charity-fred-hollows
 # Post-selection: charity gold left-rule + enabled "Review the terms" CTA.
 - takeScreenshot: 05b-charity-selected
 - tapOn: "Review the terms"

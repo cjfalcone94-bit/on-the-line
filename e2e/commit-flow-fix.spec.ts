@@ -44,7 +44,7 @@ test('clicks the complete founder commit journey into the record', async ({ page
   await expect(page.getByText('Choose where failure goes.')).toBeVisible();
   await screenshot(page, 6, 'choose-charity');
 
-  const charity = page.getByTestId('charity-direct-relief');
+  const charity = page.getByTestId('charity-fred-hollows');
   const review = page.getByRole('button', { name: 'Review the terms' });
   await expect(review).toBeDisabled();
   await charity.click();

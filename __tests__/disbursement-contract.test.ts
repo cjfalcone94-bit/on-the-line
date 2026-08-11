@@ -10,7 +10,7 @@ const baseInput = {
   commitmentId: 'commitment-1',
   ownerId: 'owner-a',
   nonprofitId: 'np_direct_relief',
-  charityDestinationId: 'direct-relief',
+  charityDestinationId: 'fred-hollows',
   amountCents: 4000,
   currency: 'usd' as const,
   externalId: 'commitment-1',

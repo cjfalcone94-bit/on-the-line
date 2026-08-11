@@ -16,7 +16,7 @@ describe('commit flow logic and persistence guardrails', () => {
   it('uses a short pre-declared charity list with stable destinations', () => {
     expect(charities).toHaveLength(5);
     expect(new Set(charities.map(({ id }) => id)).size).toBe(charities.length);
-    expect(findCharity('direct-relief')?.category).toBe('Health');
+    expect(findCharity('fred-hollows')?.category).toBe('Health');
   });
 
   it('migration is forced default-deny with owner-only select/insert and no update policy', () => {

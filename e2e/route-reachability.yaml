@@ -54,7 +54,7 @@ name: Route reachability tap crawl
     id: stake-4000
 - tapOn: "Choose charity"
 - tapOn:
-    id: charity-direct-relief
+    id: charity-fred-hollows
 - tapOn: "Review the terms"
 - tapOn: "Continue to card authorization"
 - tapOn: "Run mock authorization"

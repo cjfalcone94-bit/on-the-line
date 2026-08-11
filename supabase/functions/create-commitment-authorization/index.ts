@@ -9,11 +9,11 @@ const corsHeaders = {
 };
 
 const charityIds = new Set([
-  'direct-relief',
-  'donorschoose',
-  'best-friends',
-  'team-rubicon',
-  'feeding-america',
+  'fred-hollows',
+  'smith-family',
+  'rspca-au',
+  'red-cross-au',
+  'foodbank-au',
 ]);
 
 const templateIds = new Set([
