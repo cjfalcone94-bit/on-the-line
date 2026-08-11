@@ -14,8 +14,8 @@ describe('commit controls', () => {
 
   it('renders the delivered charity badge with the destination label intact', () => {
     const { getByRole, getByText, UNSAFE_getByType } = render(<CharityChoice charity={charities[0]} onPress={jest.fn()} selected={false} />);
-    expect(getByText('Direct Relief')).toBeTruthy();
-    expect(getByRole('radio').props.accessibilityLabel).toBe('Direct Relief, Health');
+    expect(getByText('The Fred Hollows Foundation')).toBeTruthy();
+    expect(getByRole('radio').props.accessibilityLabel).toBe('The Fred Hollows Foundation, Health');
     expect(UNSAFE_getByType(require('react-native').Image).props.source).toBeTruthy();
   });
 

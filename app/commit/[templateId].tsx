@@ -117,7 +117,7 @@ export default function CommitScreen() {
   const primaryAction = step === 'stake'
     ? { disabled: !stakeCents, label: 'Choose charity', onPress: () => setStep('charity') }
     : step === 'charity'
-      ? { disabled: !charity, label: 'Review the mechanic', onPress: () => { setStep('disclosure'); track('fee_disclosure_viewed'); } }
+      ? { disabled: !charity, label: 'Review the terms', onPress: () => { setStep('disclosure'); track('fee_disclosure_viewed'); } }
       : step === 'disclosure'
         ? { disabled: false, label: 'Continue to card authorization', onPress: () => setStep('card') }
         : step === 'card'

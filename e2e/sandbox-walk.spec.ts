@@ -17,7 +17,7 @@ async function beginCommit(page: Page, prefix: string) {
   await page.getByRole('button', { name: 'Choose charity' }).click();
   await page.getByTestId('charity-direct-relief').click();
   await shot(page, `${prefix}-03-commit-stake-charity`);
-  await page.getByRole('button', { name: 'Review the mechanic' }).click();
+  await page.getByRole('button', { name: 'Review the terms' }).click();
   await page.getByRole('button', { name: 'Continue to card authorization' }).click();
   await expect(page.getByTestId('sandbox-badge')).toContainText('SANDBOX');
 }

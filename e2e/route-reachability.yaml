@@ -55,7 +55,7 @@ name: Route reachability tap crawl
 - tapOn: "Choose charity"
 - tapOn:
     id: charity-direct-relief
-- tapOn: "Review the mechanic"
+- tapOn: "Review the terms"
 - tapOn: "Continue to card authorization"
 - tapOn: "Run mock authorization"
 - extendedWaitUntil:

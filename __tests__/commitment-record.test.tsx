@@ -18,7 +18,7 @@ describe('Commitment Record', () => {
     const view = render(<CommitmentRecordCard item={item} onReceipt={onReceipt} onRecommit={onRecommit} />);
     expect(view.getByText('Daily outdoor walk')).toBeTruthy();
     expect(view.getByText('SETTLED · SUCCESS')).toBeTruthy();
-    expect(view.getByText('$40 stake · Direct Relief')).toBeTruthy();
+    expect(view.getByText('$40 stake · The Fred Hollows Foundation')).toBeTruthy();
     fireEvent.press(view.getByTestId(`receipt-${item.commitmentId}`));
     fireEvent.press(view.getByTestId(`recommit-${item.commitmentId}`));
     expect(onReceipt).toHaveBeenCalledTimes(1);

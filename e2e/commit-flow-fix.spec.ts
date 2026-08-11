@@ -45,7 +45,7 @@ test('clicks the complete founder commit journey into the record', async ({ page
   await screenshot(page, 6, 'choose-charity');
 
   const charity = page.getByTestId('charity-direct-relief');
-  const review = page.getByRole('button', { name: 'Review the mechanic' });
+  const review = page.getByRole('button', { name: 'Review the terms' });
   await expect(review).toBeDisabled();
   await charity.click();
   await expect(charity).toHaveAttribute('aria-checked', 'true');

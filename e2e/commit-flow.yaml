@@ -12,7 +12,7 @@ appId: dev.falconlabs.ontheline
 - assertVisible: "Direct Relief"
 - tapOn:
     id: "charity-direct-relief"
-- tapOn: "Review the mechanic"
+- tapOn: "Review the terms"
 - assertVisible: "If you succeed, you pay nothing."
 - tapOn: "Continue to card authorization"
 - assertVisible: "Authorize, don’t charge."

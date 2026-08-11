@@ -36,9 +36,9 @@ name: Founder device truth — complete critical path
 - takeScreenshot: 05-charity-screen
 - tapOn:
     id: charity-direct-relief
-# Post-selection: charity gold left-rule + enabled "Review the mechanic" CTA.
+# Post-selection: charity gold left-rule + enabled "Review the terms" CTA.
 - takeScreenshot: 05b-charity-selected
-- tapOn: "Review the mechanic"
+- tapOn: "Review the terms"
 - assertVisible: "No surprises."
 - takeScreenshot: 06-disclosure-screen
 - tapOn: "Continue to card authorization"

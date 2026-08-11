@@ -226,7 +226,7 @@ export function StatePanel({ title, body, actionLabel, onAction }: { title: stri
 const styles = StyleSheet.create({
   body: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   bodyCompact: { fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
-  button: { alignItems: 'center', backgroundColor: color.textPrimary, borderRadius: space.sm, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.lg, paddingVertical: space.md, transform: [{ scale: 1 }] },
+  button: { alignItems: 'center', backgroundColor: color.gold, borderRadius: space.sm, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.lg, paddingVertical: space.md, transform: [{ scale: 1 }] },
   // Disabled = an intentional resting state, not a broken control: a quiet
   // raised fill with readable secondary text — no ghost outline, no dimming.
   buttonDisabled: { backgroundColor: color.surfaceRaised },
