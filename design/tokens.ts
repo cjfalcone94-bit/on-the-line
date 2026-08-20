@@ -9,10 +9,27 @@ import type { TextStyle } from 'react-native';
  * app hardcodes a color, size, spacing, duration, or haptic; everything reads
  * from here, which is what makes `design-conformance` auditable (Phase 7).
  *
- * Anti-casino guardrail (§3, mandatory): gold is a disciplined brand accent on
- * the mark, ledger lines, headers/eyebrows, affordance chevrons, and active or
- * focused interactions, plus success/settled amounts — never a fill/glow/
- * gradient/shimmer/confetti. Enforce the allowlist at the component layer.
+ * Anti-casino guardrail (§3, mandatory — fill clause NARROWED by founder ruling
+ * 2026-08-20): gold is a disciplined brand accent on the mark, ledger lines,
+ * headers/eyebrows, affordance chevrons, and active or focused interactions,
+ * plus success/settled amounts.
+ *
+ * Gold fills: EXACTLY ONE filled gold surface per screen — the primary action
+ * (`PrimaryButton`): gold surface, near-black label. Every other gold fill stays
+ * banned — no filled chips, pills, badges, cards, rows, or progress bars, and no
+ * filled success/celebration state. A settled goal is a ledger LINE, never a gold
+ * surface; that is the moment the casino read would bite.
+ *
+ * Still absolutely banned everywhere, unchanged: glow, gradient, shimmer,
+ * confetti, decorative flourish, "jackpot" motion, and any fill that arrives or
+ * animates in as a reward. Gold never signals forfeit; clayRed stays exclusive to
+ * forfeit/failure.
+ *
+ * Both ends of this pendulum are on the record — `CALIBRATION-LOG.md` defect
+ * `gold-over-correction` and the `DESIGN-DIRECTION.md` §3 changelog (2026-08-01
+ * restored gold after an over-correction to monochrome; 2026-08-20 added the
+ * primary-action fill). Cite both before moving gold in either direction.
+ * Enforce the allowlist at the component layer.
  */
 // ---- Type scale (§3: Bricolage Grotesque headlines/receipt titles and
 // Hanken Grotesk body/UI/ledger figures). Figures stay proportional and use
