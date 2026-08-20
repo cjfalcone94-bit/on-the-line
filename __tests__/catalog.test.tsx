@@ -2,7 +2,7 @@ jest.mock('@/lib/analytics', () => ({ track: jest.fn(() => false) }));
 
 import { findTemplate, groupTemplates, templates } from '@/lib/catalog/templates';
 import { fireEvent, render } from '@testing-library/react-native';
-import { TemplateCard } from '@/screens/CatalogScreen';
+import { TemplateRow } from '@/screens/CatalogScreen';
 
 describe('curated template catalog', () => {
   it('ships 20 templates grouped into the four intended categories', () => {
@@ -27,16 +27,33 @@ describe('curated template catalog', () => {
     expect(findTemplate(catalogItem.id)?.criteria).toEqual(catalogItem.criteria);
   });
 
-  it('summarizes pass criteria on the browsable card, keeps them accessible, and opens detail', () => {
+  it('shows terms and a proof line, keeps criteria accessible, and opens detail', () => {
     const onPress = jest.fn();
-    const { getByText, getByTestId, queryByText } = render(<TemplateCard template={templates[0]} onPress={onPress} />);
-    expect(getByText('WHAT COUNTS')).toBeTruthy();
-    // Collapsed to a count on the card — the full list belongs to the detail screen…
-    expect(getByText('3 criteria ›')).toBeTruthy();
-    expect(queryByText('— One outdoor walk of at least 20 minutes')).toBeNull();
-    // …but screen-reader users still hear every criterion from the card itself.
+    const { getByText, getByTestId, queryByText } = render(<TemplateRow first template={templates[0]} onPress={onPress} />);
+    // The row carries the two things needed to COMPARE goals: the terms…
+    expect(getByText(templates[0].cadence)).toBeTruthy();
+    // …and one proof line, which is also the stake signal ("you will be checked").
+    // Nested <Text> composes into one string node, so match the composed line.
+    expect(getByText(`Proof: ${templates[0].proof}`)).toBeTruthy();
+    // The catalogue must NOT carry the full criteria or the restating summary —
+    // those answer "what am I signing?", which belongs at the point of signature.
+    expect(queryByText('WHAT COUNTS')).toBeNull();
+    expect(queryByText(templates[0].summary)).toBeNull();
+    expect(queryByText('One outdoor walk of at least 20 minutes')).toBeNull();
+    // Screen-reader users still hear every criterion from the row itself, so the
+    // density win costs them nothing.
     expect(getByTestId('template-daily-walk').props.accessibilityLabel).toContain('One outdoor walk of at least 20 minutes');
     fireEvent.press(getByTestId('template-daily-walk'));
     expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives every template a proof line that is not just the summary', () => {
+    // The proof line is a truthful compression of the template's own criteria.
+    // If it ever drifts into marketing copy, this catches it.
+    for (const template of templates) {
+      expect(template.proof.length).toBeGreaterThan(8);
+      expect(template.proof).not.toBe(template.summary);
+      expect(template.proof).toContain('·');
+    }
   });
 });
