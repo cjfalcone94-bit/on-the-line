@@ -61,11 +61,21 @@ export const type = {
     figureBold: families.bodyBold,
   },
   size: {
-    caption: 13,
+    micro: 12, // uppercase micro labels — GOAL CATALOG, CADENCE, MOVE
+    caption: 13, // metadata, proof lines
+    meta: 14,
     body: 17,
-    lg: 22,
+    cardTitle: 18, // goal/card titles
+    lg: 22, // section titles
     xl: 28,
     display: 34,
+    hero: 44, // page titles — "Nothing hidden.", "Pick a clear target."
+  },
+  // Uppercase micro labels need tracking or they read as shouting rather than
+  // as a label. Applied wherever textTransform is uppercase.
+  tracking: {
+    micro: 1.2,
+    hero: -0.5, // slightly tight — large type looks loose at default tracking
   },
   weight: {
     regular: '400',
@@ -98,6 +108,29 @@ export const space = {
   '2xl': 48,
   smd: 12, // related-element gap + control radius — the HIG ramp step between sm and md
   ledgerLine: 12, // receipt-row vertical rhythm — distinct from the general 8px grid, §3
+  // 4px base unit; the full ramp is 4/8/12/16/20/24/32/40/48. The two steps the
+  // original grid lacked, named for what they are used for:
+  cardPad: 20, // card internal padding
+  section: 40, // large section separation — the biggest gap on a screen
+  screenX: 24, // screen horizontal padding
+  betweenCards: 8, // gap between sibling cards in a list
+} as const;
+
+// ---- Radii. Cards read as financial instruments, not chat bubbles: generous
+// but never pill-shaped. A fully rounded control reads playful, which is the
+// wrong register for money. ----
+export const radius = {
+  icon: 12, // the 48x48 icon well
+  control: 12,
+  card: 14,
+  button: 14,
+} as const;
+
+// ---- Border widths. Depth is built from surface + a single hairline, never
+// from shadow — a drop shadow on near-black reads as smudge. ----
+export const border = {
+  hairline: 1,
+  emphasis: 1, // same width; emphasis comes from color.goldEdge, not thickness
 } as const;
 
 // ---- Semantic colors (§3, LOCKED 2026-07-30 — near-black + white + disciplined
@@ -106,17 +139,35 @@ export const space = {
 // "the same disciplined system inverted, not a different palette"; `surfaceLight`/
 // `textOnLight` below are that inversion, not a second brand. ----
 export const color = {
-  // Dark surface (primary, app-wide)
-  surface: '#0A0A0A', // near-black base — a true dark surface, not warm paper
-  surfaceRaised: '#161616', // one step up for cards/sheets, still near-black
-  stroke: '#3A3A3C', // hairline/outline for chips and controls — visible on near-black without reading as content
-  textPrimary: '#FFFFFF',
-  textSecondary: '#B8B8B8',
+  // ---- Ground. Layered near-blacks, not one flat black. Depth comes from
+  // surface steps, never from shadow. ----
+  surfaceDeep: '#050505', // deepest well — behind sheets, under scrims
+  surface: '#080808', // app-wide base
+  surfaceRaised: '#111111', // the standard card
+  surfaceElevated: '#141414', // a card that needs to sit above another card
+  surfaceInteractive: '#171717', // pressed/hover surface for a tappable row
 
-  // The ONE brand/value accent — gold. Allowlist: mark/ledger accent, headers
-  // and eyebrows, chevrons, active/selected/focused interaction, success amount.
-  // Never a fill, glow, gradient, shimmer, or celebratory flourish.
-  gold: '#F5C518',
+  // ---- Lines. A border states an edge; a divider separates siblings. ----
+  stroke: '#242424', // default card/control border
+  divider: '#1C1C1C', // very subtle separation inside a surface
+
+  // ---- Type. Off-white, never stark #FFF — pure white on near-black glares
+  // and reads cheap at display sizes. ----
+  textPrimary: '#F5F5F3',
+  textSecondary: '#A4A4A0',
+  textTertiary: '#70706C', // proof lines, meta, supporting detail
+
+  // ---- The ONE brand/value accent. A richer financial gold than the previous
+  // #F5C518, which read as bright warning-yellow at fill size. Target mix is
+  // roughly 80-85% graphite/off-white, 15-20% gold: gold is valuable because it
+  // is scarce. Allowlist: CTA fill (exactly one per screen), step numbers, small
+  // icons, micro labels, selected state, monetary amounts, ledger accents.
+  // Never a glow, gradient, shimmer, or celebratory flourish; never large runs
+  // of body text. ----
+  gold: '#E8B91C',
+  goldBright: '#F2C318', // pressed/active CTA only
+  goldMuted: '#B89218', // gold that must recede — disabled, secondary marks
+  goldEdge: 'rgba(232, 185, 28, 0.38)', // ~38% — the "important border" weight
 
   // Forfeit/failure — the only other semantic color (§1: "no more than the two
   // semantic colors as emotional signaling").
@@ -156,5 +207,5 @@ export const haptics = {
   none: null,
 } as const;
 
-export const tokens = { type, space, color, motion, haptics } as const;
+export const tokens = { type, space, radius, border, color, motion, haptics } as const;
 export type Tokens = typeof tokens;

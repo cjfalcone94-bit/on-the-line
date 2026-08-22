@@ -34,7 +34,7 @@ function block(name: string): string {
 
 describe('PrimaryButton fill', () => {
   it('is gold, per the 2026-08-20 founder ruling', () => {
-    expect(color.gold).toBe('#F5C518');
+    expect(color.gold).toBe('#E8B91C'); // richer financial gold, founder ruling 2026-08-22
     expect(SOURCE).toMatch(/button:\s*\{[^}]*backgroundColor:\s*color\.gold/);
   });
 

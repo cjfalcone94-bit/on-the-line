@@ -29,12 +29,14 @@ describe('curated template catalog', () => {
 
   it('shows terms and a proof line, keeps criteria accessible, and opens detail', () => {
     const onPress = jest.fn();
-    const { getByText, getByTestId, queryByText } = render(<TemplateRow first template={templates[0]} onPress={onPress} />);
+    const { getByText, getByTestId, queryByText } = render(<TemplateRow template={templates[0]} onPress={onPress} />);
     // The row carries the two things needed to COMPARE goals: the terms…
     expect(getByText(templates[0].cadence)).toBeTruthy();
     // …and one proof line, which is also the stake signal ("you will be checked").
-    // Nested <Text> composes into one string node, so match the composed line.
-    expect(getByText(`Proof: ${templates[0].proof}`)).toBeTruthy();
+    // The proof line stands on its own — "Proof:" is deliberately NOT printed as
+    // a bold label on every row; twenty repetitions of it is visual noise.
+    expect(getByText(templates[0].proof)).toBeTruthy();
+    expect(queryByText('Proof:')).toBeNull();
     // The catalogue must NOT carry the full criteria or the restating summary —
     // those answer "what am I signing?", which belongs at the point of signature.
     expect(queryByText('WHAT COUNTS')).toBeNull();
@@ -54,6 +56,8 @@ describe('curated template catalog', () => {
       expect(template.proof.length).toBeGreaterThan(8);
       expect(template.proof).not.toBe(template.summary);
       expect(template.proof).toContain('·');
+      // An icon-less template renders an empty well, which looks like a bug.
+      expect(template.icon).toBeTruthy();
     }
   });
 });

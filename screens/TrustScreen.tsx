@@ -5,6 +5,7 @@ import { OnboardingArtwork, PrimaryButton, ScreenEntrance, ScreenHeader, ScreenS
 import { color, space, tabularNums, type } from '@/design/tokens';
 import { track } from '@/lib/analytics';
 import { facts } from './trustContent';
+import { DisclosureCard, StepRow } from '@/components/premium';
 
 export default function TrustScreen() {
   const compact = useWindowDimensions().height <= 700;
@@ -23,20 +24,21 @@ export default function TrustScreen() {
         {/* Left-aligned: a centered wordmark floated as an orphan on this
             otherwise left-aligned screen. */}
         <OnboardingArtwork align="start" compact={compact} />
+        {/* The step numbers are the strongest visual anchor on this screen —
+            they carry the sequence, so the eye can follow the money without
+            reading every word. */}
         <View style={styles.facts}>
-          {facts.map(({ number, title, body }) => (
-            <View accessible accessibilityLabel={`${title}. ${body}`} key={number} style={[styles.fact, compact && styles.factCompact]}>
-              <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.number}>{number}</Text>
-              <View style={styles.factCopy}>
-                <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.factTitle}>{title}</Text>
-                <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.factBody}>{body}</Text>
-              </View>
+          {facts.map(({ number, icon, title, body }, index) => (
+            <View accessible accessibilityLabel={`${title}. ${body}`} key={number}>
+              <StepRow body={body} icon={icon} index={index + 1} last={index === facts.length - 1} title={title} />
             </View>
           ))}
         </View>
-        <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={styles.footnote}>
+        {/* Transparent financial disclosure, not marketing copy — so it gets the
+            register of a fee table rather than a highlighted callout. */}
+        <DisclosureCard>
           About $1 at commit, plus a small success fee only when you succeed. On failure, we keep none of your stake.
-        </Text>
+        </DisclosureCard>
       </ScreenEntrance>
     </ScreenScaffold>
   );

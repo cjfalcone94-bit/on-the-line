@@ -3,13 +3,13 @@ import { AccessibilityInfo, Platform, Pressable, StyleSheet, Text, View, type Pr
 import { Animated } from 'react-native';
 import Reanimated, { Easing, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import Svg, { Circle, Path } from 'react-native-svg';
-import { color, motion, space, tabularNums, type } from '@/design/tokens';
+import { border, color, motion, radius, space, tabularNums, type } from '@/design/tokens';
 import { fireHaptic, type HapticCue } from '@/lib/feedback';
 
 export const MAX_FONT_SCALE = 1.35;
 
 type InteractionState = PressableStateCallbackType & { focused: boolean; hovered: boolean };
-type InteractivePressableProps = Omit<PressableProps, 'style'> & {
+export type InteractivePressableProps = Omit<PressableProps, 'style'> & {
   style?: StyleProp<ViewStyle> | ((state: InteractionState) => StyleProp<ViewStyle>);
   haptic?: HapticCue;
 };
@@ -106,6 +106,11 @@ export function PrimaryButton({ children, style, ...props }: PropsWithChildren<I
     >
       <View style={[styles.button, props.disabled && styles.buttonDisabled]}>
         <Text maxFontSizeMultiplier={type.maxScale} allowFontScaling style={[styles.buttonLabel, props.disabled && styles.buttonLabelDisabled]}>{children}</Text>
+        {/* Right-aligned arrow: the label says what happens, the arrow says it
+            moves you forward. Hidden from screen readers — the button's own
+            label already conveys the action. */}
+        <Text accessibilityElementsHidden importantForAccessibility="no" maxFontSizeMultiplier={type.maxScale} allowFontScaling
+          style={[styles.buttonArrow, props.disabled && styles.buttonLabelDisabled]}>→</Text>
       </View>
     </InteractivePressable>
   );
@@ -226,7 +231,10 @@ export function StatePanel({ title, body, actionLabel, onAction }: { title: stri
 const styles = StyleSheet.create({
   body: { color: color.textSecondary, fontFamily: type.family.body, fontSize: type.size.body, lineHeight: type.size.body * type.lineHeight.normal },
   bodyCompact: { fontSize: type.size.caption, lineHeight: type.size.caption * type.lineHeight.normal },
-  button: { alignItems: 'center', backgroundColor: color.gold, borderRadius: space.sm, justifyContent: 'center', minHeight: 52, paddingHorizontal: space.lg, paddingVertical: space.md, transform: [{ scale: 1 }] },
+  // 56-60pt tall, radius 14 — generous but never pill-shaped: a fully rounded
+  // control reads playful, which is the wrong register for money.
+  button: { alignItems: 'center', backgroundColor: color.gold, borderRadius: radius.button, flexDirection: 'row', justifyContent: 'space-between', minHeight: 58, paddingHorizontal: space.lg, paddingVertical: space.md },
+  buttonArrow: { color: color.surface, fontFamily: type.family.bodyBold, fontSize: type.size.body },
   // Disabled = an intentional resting state, not a broken control: a quiet
   // raised fill with readable secondary text — no ghost outline, no dimming.
   buttonDisabled: { backgroundColor: color.surfaceRaised },
