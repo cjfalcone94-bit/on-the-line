@@ -1,4 +1,4 @@
-import type { PropsWithChildren, ReactNode } from 'react';
+import { useState, type PropsWithChildren, type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 import { InteractivePressable, type InteractivePressableProps } from './ui';
@@ -213,24 +213,40 @@ export function NextStepRow({ icon = 'chart', children }: PropsWithChildren<{ ic
 export function GoalCard({ icon, title, cadence, proof, style, ...props }: InteractivePressableProps & {
   icon: GoalIconName; title: string; cadence: string; proof: string;
 }) {
+  // Press/focus state is tracked here rather than read from the Pressable's
+  // style callback, for the same reason the surface is: that callback never runs
+  // on the animated component, so a state style placed there is dead code that
+  // looks correct in review.
+  const [pressed, setPressed] = useState(false);
+  const [focused, setFocused] = useState(false);
   return (
     <InteractivePressable
       {...props}
       accessibilityRole="button"
-      style={({ pressed, focused, hovered }) => [
-        styles.goalCard,
-        (pressed || hovered) && styles.goalCardPressed,
-        focused && styles.goalCardFocused,
-        typeof style === 'function' ? style({ pressed, focused, hovered }) : style,
-      ]}
+      onBlur={(event) => { setFocused(false); props.onBlur?.(event); }}
+      onFocus={(event) => { setFocused(true); props.onFocus?.(event); }}
+      onPressIn={(event) => { setPressed(true); props.onPressIn?.(event); }}
+      onPressOut={(event) => { setPressed(false); props.onPressOut?.(event); }}
+      style={typeof style === 'function' ? (state) => style(state) : style}
     >
-      <GoalIcon name={icon} />
-      <View style={styles.goalBody}>
-        <Text allowFontScaling maxFontSizeMultiplier={type.maxScale} style={styles.goalTitle}>{title}</Text>
-        <Text allowFontScaling maxFontSizeMultiplier={type.maxScale} style={styles.goalCadence}>{cadence}</Text>
-        <Text allowFontScaling maxFontSizeMultiplier={type.maxScale} numberOfLines={2} style={styles.goalProof}>{proof}</Text>
+      {/* The card surface — background, border, radius AND flexDirection — lives
+          on this inner plain View, never on the animated Pressable's callback
+          style. The Reanimated-animated Pressable does not apply a function
+          style, so a surface placed there silently vanishes: the card loses its
+          fill, its border, and its row layout, and the content collapses into a
+          bare vertical stack. That is the same failure as the invisible enabled
+          CTA in builds 21-25 (CALIBRATION-LOG `invisible-fill-animated-pressable`)
+          — it recurred here because the rule had only ever been enforced for
+          PrimaryButton. */}
+      <View style={[styles.goalCard, pressed && styles.goalCardPressed, focused && styles.goalCardFocused]}>
+        <GoalIcon name={icon} />
+        <View style={styles.goalBody}>
+          <Text allowFontScaling maxFontSizeMultiplier={type.maxScale} style={styles.goalTitle}>{title}</Text>
+          <Text allowFontScaling maxFontSizeMultiplier={type.maxScale} style={styles.goalCadence}>{cadence}</Text>
+          <Text allowFontScaling maxFontSizeMultiplier={type.maxScale} numberOfLines={2} style={styles.goalProof}>{proof}</Text>
+        </View>
+        <Text allowFontScaling maxFontSizeMultiplier={type.maxScale} style={styles.goalChevron}>›</Text>
       </View>
-      <Text allowFontScaling maxFontSizeMultiplier={type.maxScale} style={styles.goalChevron}>›</Text>
     </InteractivePressable>
   );
 }

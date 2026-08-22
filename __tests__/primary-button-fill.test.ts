@@ -24,6 +24,8 @@ import { color } from '../design/tokens';
  */
 
 const SOURCE = readFileSync(join(__dirname, '..', 'components', 'ui.tsx'), 'utf8');
+const PREMIUM = readFileSync(join(__dirname, '..', 'components', 'premium.tsx'), 'utf8');
+const NEWLINE = String.fromCharCode(10); // avoids an escape the tooling keeps mangling
 
 function block(name: string): string {
   const start = SOURCE.indexOf(`export function ${name}(`);
@@ -65,5 +67,58 @@ describe('gold fill stays limited to the primary action', () => {
     // badges, rows, cards and celebration states keep line/type gold only.
     const fills = SOURCE.match(/backgroundColor:\s*color\.gold/g) ?? [];
     expect(fills).toHaveLength(1);
+  });
+});
+
+/**
+ * The rule generalised. It was written for PrimaryButton, so when GoalCard was
+ * added it put its whole surface — background, border, radius AND flexDirection —
+ * on the animated Pressable's callback style. That callback never runs on the
+ * animated component, so every card rendered as a bare vertical stack with no
+ * surface at all. Device truth caught it; this test exists so the next component
+ * does not have to be caught the same way.
+ */
+describe('no interactive surface rides the animated Pressable', () => {
+  const componentBlocks = (source: string) => {
+    const out: { name: string; body: string }[] = [];
+    const re = /export function (\w+)\(/g;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(source))) {
+      const start = m.index;
+      const next = source.indexOf(NEWLINE + 'export function ', start + 1);
+      out.push({ name: m[1], body: source.slice(start, next === -1 ? source.length : next) });
+    }
+    return out;
+  };
+
+  it.each([
+    ['premium.tsx', () => PREMIUM],
+    ['ui.tsx', () => SOURCE],
+  ])('%s: no component passes a surface style into InteractivePressable', (_file, get) => {
+    const offenders: string[] = [];
+    for (const { name, body } of componentBlocks(get())) {
+      if (!body.includes('<InteractivePressable')) continue;
+      const open = body.indexOf('<InteractivePressable');
+      const close = body.indexOf('>', open);
+      const propsBlob = body.slice(open, close);
+      // A surface handed to the Pressable as a callback style is dead code.
+      if (/style=\{\(/.test(propsBlob) && /(backgroundColor|borderWidth|flexDirection)/.test(propsBlob)) {
+        offenders.push(name);
+      }
+    }
+    expect(offenders).toEqual([]);
+  });
+
+  it('GoalCard paints its surface on an inner View', () => {
+    const card = componentBlocks(PREMIUM).find((c) => c.name === 'GoalCard');
+    expect(card).toBeDefined();
+    expect(card!.body).toMatch(/<View style=\{\[styles\.goalCard/);
+  });
+
+  it('the goal card surface actually defines a row layout', () => {
+    // The collapse was only visible because flexDirection went missing with the
+    // rest of the surface. Assert the layout the card depends on.
+    expect(PREMIUM).toMatch(/goalCard:\s*\{[^}]*flexDirection:\s*'row'/);
+    expect(PREMIUM).toMatch(/goalCard:\s*\{[^}]*backgroundColor:\s*color\.surfaceRaised/);
   });
 });
