@@ -30,7 +30,7 @@ export default function TrustScreen() {
         <View style={styles.facts}>
           {facts.map(({ number, icon, title, body }, index) => (
             <View accessible accessibilityLabel={`${title}. ${body}`} key={number}>
-              <StepRow body={body} icon={icon} index={index + 1} last={index === facts.length - 1} title={title} />
+              <StepRow body={body} compact={compact} icon={icon} index={index + 1} last={index === facts.length - 1} title={title} />
             </View>
           ))}
         </View>

@@ -122,3 +122,18 @@ describe('no interactive surface rides the animated Pressable', () => {
     expect(PREMIUM).toMatch(/goalCard:\s*\{[^}]*backgroundColor:\s*color\.surfaceRaised/);
   });
 });
+
+/**
+ * Token hygiene. The design system is only auditable if the screens actually
+ * read from it — a hardcoded hex is invisible to `design-conformance` and is how
+ * a palette silently forks. tokens.ts is the ONE file allowed to name colours.
+ */
+describe('no colour is hardcoded outside the token file', () => {
+  const HEX = /#[0-9A-Fa-f]{6}/g;
+  it.each([
+    ['components/premium.tsx', () => PREMIUM],
+    ['components/ui.tsx', () => SOURCE],
+  ])('%s names no raw hex', (_file, get) => {
+    expect(get().match(HEX) ?? []).toEqual([]);
+  });
+});

@@ -139,12 +139,12 @@ export function CriteriaRow({ index, children, last = false }: PropsWithChildren
  * A numbered editorial step — the how-it-works rules. The number is the anchor,
  * deliberately the largest gold element on the screen.
  */
-export function StepRow({ index, icon, title, body, last = false }: {
-  index: number; icon: GoalIconName; title: string; body: string; last?: boolean;
+export function StepRow({ index, icon, title, body, last = false, compact = false }: {
+  index: number; icon: GoalIconName; title: string; body: string; last?: boolean; compact?: boolean;
 }) {
   return (
     <View>
-      <View style={styles.step}>
+      <View style={[styles.step, compact && styles.stepCompact]}>
         <View style={styles.stepMark}>
           <Text allowFontScaling maxFontSizeMultiplier={type.maxScale} style={styles.stepIndex}>
             {String(index).padStart(2, '0')}
@@ -298,8 +298,8 @@ const styles = StyleSheet.create({
 
   iconWell: {
     alignItems: 'center',
-    backgroundColor: '#151515',
-    borderColor: '#292929',
+    backgroundColor: color.wellSurface,
+    borderColor: color.wellStroke,
     borderRadius: radius.icon,
     borderWidth: border.hairline,
     justifyContent: 'center',
@@ -319,7 +319,12 @@ const styles = StyleSheet.create({
   sectionLabel: { color: color.gold, fontFamily: type.family.bodyBold, fontSize: type.size.micro, letterSpacing: type.tracking.micro, marginBottom: space.smd, textTransform: 'uppercase' },
   sectionLabelMuted: { color: color.textTertiary },
 
-  step: { alignItems: 'flex-start', flexDirection: 'row', gap: space.md, paddingVertical: space.lg },
+  // §9 Layout & Scroll Policy: the trust screen is NOT on the scrollable
+  // allowlist — it must compose to fit. Generous step padding pushed the fee
+  // disclosure under the pinned footer, clipping it mid-sentence, so the step
+  // rhythm is the thing that gives way rather than the disclosure.
+  step: { alignItems: 'flex-start', flexDirection: 'row', gap: space.md, paddingVertical: space.md },
+  stepCompact: { paddingVertical: space.smd },
   stepBody: { flex: 1, gap: space.sm },
   stepIcon: { alignItems: 'center', borderColor: color.stroke, borderRadius: 999, borderWidth: border.hairline, height: 34, justifyContent: 'center', width: 34 },
   stepIndex: { ...tabularNums, color: color.gold, fontFamily: type.family.figureBold, fontSize: type.size.lg, letterSpacing: type.tracking.micro },

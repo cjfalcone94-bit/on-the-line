@@ -169,6 +169,13 @@ export const color = {
   goldMuted: '#B89218', // gold that must recede — disabled, secondary marks
   goldEdge: 'rgba(232, 185, 28, 0.38)', // ~38% — the "important border" weight
 
+  // An icon well is a CUT-OUT in a card, not a chip on top of it: it shows the
+  // ground through the surface. #151515 on a #111111 card was only four levels
+  // of separation and disappeared on device; recessing it to the base ground
+  // plus a stroke border gives a readable edge without adding brightness.
+  wellSurface: '#080808',
+  wellStroke: '#2A2A2A',
+
   // Forfeit/failure — the only other semantic color (§1: "no more than the two
   // semantic colors as emotional signaling").
   clayRed: '#B5502D',

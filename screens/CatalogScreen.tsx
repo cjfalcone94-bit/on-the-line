@@ -104,14 +104,14 @@ const styles = StyleSheet.create({
   backHovered: { opacity: 0.82 },
   backLabel: { color: color.gold, fontFamily: type.family.body, fontSize: type.size.body },
   backPressed: { opacity: 0.65, transform: [{ scale: 0.98 }] },
-  cards: { gap: space.betweenCards },
+  cards: { gap: space.sm },
   headerWrap: { gap: space.xs, paddingBottom: space.md, paddingHorizontal: space.screenX },
   list: { paddingBottom: space.xl, paddingHorizontal: space.screenX },
   // 24 above the category label; the label itself owns the 12 below it.
   section: { marginTop: space.lg },
   skeletonBody: { flex: 1, gap: space.sm },
   skeletonCard: { alignItems: 'center', backgroundColor: color.surfaceRaised, borderColor: color.stroke, borderRadius: radius.card, borderWidth: border.hairline, flexDirection: 'row', gap: space.md, minHeight: 84, paddingHorizontal: space.md, paddingVertical: space.smd },
-  skeletonIcon: { backgroundColor: '#151515', borderColor: '#292929', borderRadius: radius.icon, borderWidth: border.hairline, height: 48, width: 48 },
-  skeletonWrap: { gap: space.betweenCards, paddingHorizontal: space.screenX, paddingTop: space.lg },
+  skeletonIcon: { backgroundColor: color.wellSurface, borderColor: color.wellStroke, borderRadius: radius.icon, borderWidth: border.hairline, height: 48, width: 48 },
+  skeletonWrap: { gap: space.sm, paddingHorizontal: space.screenX, paddingTop: space.lg },
   stateWrap: { paddingHorizontal: space.screenX, paddingTop: space.lg },
 });
